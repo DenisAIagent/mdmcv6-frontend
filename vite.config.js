@@ -25,10 +25,16 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ["react", "react-dom"],
-          mui: ["@mui/material", "@mui/icons-material", "@mui/x-data-grid"]
+          mui: ["@mui/material", "@mui/icons-material", "@mui/x-data-grid"],
+          form: ["@hookform/resolvers", "zod", "react-hook-form"]
         }
       },
-      external: ["@mui/x-data-grid"],
+      external: [
+        "@mui/x-data-grid",
+        "@hookform/resolvers/zod",
+        "zod",
+        "react-hook-form"
+      ],
       onwarn(warning, warn) {
         if (warning.code === "MODULE_LEVEL_DIRECTIVE") return
         if (warning.code === "DYNAMIC_IMPORT") return
