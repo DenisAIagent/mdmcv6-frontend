@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 // Import corrigé avec alias
-import apiService from '@/services/api.service';
+import apiService from '../../../services/api.service';
 
 // Import MUI Components
 import {
