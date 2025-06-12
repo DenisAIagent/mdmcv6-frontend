@@ -27,17 +27,17 @@ class ApiService {
     }
   }
 
-  async getSmartlinks() { return this.request('/smartlinks'); }
-  async getSmartlink(id) { return this.request(`/smartlinks/${id}`); }
-  async createSmartlink(data) { return this.request('/smartlinks', { method: 'POST', body: JSON.stringify(data) }); }
-  async updateSmartlink(id, data) { return this.request(`/smartlinks/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
-  async deleteSmartlink(id) { return this.request(`/smartlinks/${id}`, { method: 'DELETE' }); }
-  
   async getArtists() { return this.request('/artists'); }
   async getArtist(id) { return this.request(`/artists/${id}`); }
   async createArtist(data) { return this.request('/artists', { method: 'POST', body: JSON.stringify(data) }); }
   async updateArtist(id, data) { return this.request(`/artists/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
   async deleteArtist(id) { return this.request(`/artists/${id}`, { method: 'DELETE' }); }
+  
+  async getSmartlinks() { return this.request('/smartlinks'); }
+  async getSmartlink(id) { return this.request(`/smartlinks/${id}`); }
+  async createSmartlink(data) { return this.request('/smartlinks', { method: 'POST', body: JSON.stringify(data) }); }
+  async updateSmartlink(id, data) { return this.request(`/smartlinks/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+  async deleteSmartlink(id) { return this.request(`/smartlinks/${id}`, { method: 'DELETE' }); }
 }
 
 export default new ApiService();
