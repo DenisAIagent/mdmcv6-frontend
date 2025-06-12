@@ -1,5 +1,5 @@
 import React from 'react';
-import SmartLinkForm from '../../components/smartlinks/SmartLinkForm';
+import SmartLinkForm from '@/components/smartlinks/SmartLinkForm';
 
 const SmartlinkEditPage = () => {
   return (
