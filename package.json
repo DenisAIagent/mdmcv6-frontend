@@ -1,0 +1,89 @@
+{
+  "name": "mdmc-frontend",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "analyze": "ANALYZE=true vite build",
+    "lighthouse": "lhci autorun",
+    "a11y": "axe-core src/",
+    "test:performance": "npm run build && npm run lighthouse",
+    "test:a11y": "npm run a11y",
+    "optimize:images": "imagemin src/assets/images/* --out-dir=src/assets/images/optimized --plugin=imagemin-webp --plugin=imagemin-mozjpeg --plugin=imagemin-pngquant",
+    "seo:validate": "node scripts/validate-seo.js",
+    "prebuild": "npm run optimize:images",
+    "postbuild": "npm run seo:validate"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.8.1",
+    "react-helmet-async": "^1.3.0",
+    "react-i18next": "^12.1.5",
+    "i18next": "^22.4.10",
+    "i18next-browser-languagedetector": "^7.0.1",
+    "@mui/material": "^5.11.7",
+    "@mui/icons-material": "^5.11.0",
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "framer-motion": "^8.5.2",
+    "react-toastify": "^9.1.1",
+    "date-fns": "^2.29.3",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
+    "@vitejs/plugin-react": "^3.1.0",
+    "vite": "^4.1.0",
+    "vite-plugin-compression": "^0.5.1",
+    "vite-plugin-imagemin": "^0.6.1",
+    "rollup-plugin-visualizer": "^5.9.0",
+    "@lhci/cli": "^0.12.0",
+    "axe-core": "^4.6.3",
+    "@axe-core/cli": "^4.6.0",
+    "imagemin": "^8.0.1",
+    "imagemin-webp": "^7.0.0",
+    "imagemin-mozjpeg": "^10.0.0",
+    "imagemin-pngquant": "^9.0.2",
+    "imagemin-svgo": "^10.0.1",
+    "autoprefixer": "^10.4.13",
+    "postcss": "^8.4.21",
+    "eslint": "^8.34.0",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "prettier": "^2.8.4"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "lighthouse": {
+    "ci": {
+      "assert": {
+        "assertions": {
+          "categories:performance": ["error", {"minScore": 0.9}],
+          "categories:accessibility": ["error", {"minScore": 0.9}],
+          "categories:best-practices": ["error", {"minScore": 0.9}],
+          "categories:seo": ["error", {"minScore": 0.9}]
+        }
+      }
+    }
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}

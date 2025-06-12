@@ -1,0 +1,217 @@
+/* ===== assets/styles/contact.css (Mis à jour pour centrage) ===== */
+
+/* Règle ajoutée pour les titres H2 dans un .section-header */
+.section-header {
+  text-align: center; /* Centre le titre comme "Contactez-nous" */
+  margin-bottom: 2rem; /* Espace en dessous (ajustez si besoin) */
+}
+
+.contact-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 3rem;
+  /* Si contact-content doit lui-même être centré, ajoutez max-width et margin auto ici aussi */
+}
+
+/* Règle ajoutée/modifiée pour centrer le bloc d'infos partenaires */
+.contact-info {
+  max-width: 700px; /* Limite la largeur max du bloc (ajustez selon le design) */
+  margin-left: auto;  /* Centre horizontalement */
+  margin-right: auto; /* Centre horizontalement */
+  text-align: left; /* Empêche l'héritage d'un text-align: right potentiel */
+}
+
+/* Règle modifiée pour centrer le titre H3 des partenaires */
+.contact-info h3 {
+  color: var(--color-primary);
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  text-align: center; /* <<< Ajouté pour centrer "Ils nous font confiance" */
+}
+
+.partners-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  /* Les items sont déjà centrés par les styles .partner-card */
+}
+
+.partner-card {
+  background-color: #141414;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center; /* Centre le texte H4/P à l'intérieur */
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  border: 1px solid var(--color-border);
+  transform: translateY(0);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; /* Centre le contenu (image) verticalement/horizontalement */
+  min-height: 150px;
+}
+
+.partner-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+  border-color: var(--color-primary);
+}
+
+.partner-card img { /* Déjà centré par margin: auto dans .partner-logo */
+  max-height: 50px;
+  /* margin: 0 auto 1rem auto; */ /* Redondant avec .partner-logo */
+  object-fit: contain;
+}
+
+.partner-logo {
+  max-height: 60px !important;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  margin: 0 auto 1rem auto; /* Centre le logo horizontalement */
+  object-fit: contain;
+  background-color: transparent;
+}
+
+.partner-card h4 {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+  color: var(--color-text);
+}
+
+.partner-card p {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0;
+}
+
+.social-links {
+  display: flex;
+  gap: 1rem;
+  justify-content: center; /* Changé de flex-start à center pour centrer les icônes sociales */
+  margin-top: 1.5rem;
+}
+
+.social-links a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #222;
+  transition: var(--transition);
+  color: var(--color-text);
+}
+
+.social-links a:hover {
+  background-color: var(--color-primary);
+  transform: translateY(-3px);
+}
+
+.contact-form {
+  background-color: #141414;
+  border-radius: 10px;
+  padding: 2rem;
+  border: 1px solid var(--color-border);
+  /* Si le formulaire doit être centré, ajouter max-width et margin auto ici */
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select { /* Ajout de select pour styliser le dropdown */
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background-color: #1A1A1A;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  transition: var(--transition);
+  appearance: none; /* Pour styliser la flèche du select si nécessaire */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* Style spécifique pour le select (flèche) si besoin */
+.form-group select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23aaa' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+  padding-right: 2.5rem; /* Espace pour la flèche */
+}
+
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus { /* Ajout de select */
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.2);
+}
+
+.form-message {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 5px;
+  font-size: 0.9rem;
+}
+
+.form-message.success {
+  background-color: rgba(39, 174, 96, 0.1);
+  border: 1px solid #27AE60;
+  color: #2ECC71;
+}
+
+.form-message.error {
+  background-color: rgba(231, 76, 60, 0.1);
+  border: 1px solid #E74C3C;
+  color: #E74C3C;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+  /* Si les boutons doivent être centrés, ajouter justify-content: center; */
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .partners-grid {
+    grid-template-columns: 1fr; /* Passe à une seule colonne sur mobile */
+  }
+
+  .partner-card {
+    min-height: auto; /* Ajuste la hauteur minimale si nécessaire */
+    padding: 1rem; /* Réduit un peu le padding */
+  }
+
+  .contact-content {
+    grid-template-columns: 1fr; /* S'assure que contact-info et contact-form sont l'un sous l'autre */
+    gap: 2rem; /* Réduit l'écart */
+  }
+
+  .contact-form {
+    padding: 1.5rem; /* Réduit le padding du formulaire */
+  }
+
+  /* Si le bloc contact-info prend trop de largeur sur mobile */
+  .contact-info {
+     max-width: 95%; /* Permet au bloc d'être un peu plus large sur mobile */
+  }
+}

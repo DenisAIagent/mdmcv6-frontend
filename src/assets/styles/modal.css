@@ -1,0 +1,154 @@
+/* ===== modal.css (Ajout d'animations) ===== */
+
+/* ... (Tous les styles précédents pour .modal-overlay, .modal-content, etc. restent ici) ... */
+
+
+/* --- Styles pour les animations react-modal --- */
+
+/* Overlay (Fond) */
+.ReactModal__Overlay {
+  opacity: 0; /* Commence invisible */
+  transition: opacity 300ms ease-in-out; /* Transition douce pour l'opacité */
+  /* Garde les autres styles de .modal-overlay (position, background, display flex, etc.) */
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.ReactModal__Overlay--after-open {
+  opacity: 1; /* Devient visible */
+}
+
+.ReactModal__Overlay--before-close {
+  opacity: 0; /* Re-devient invisible avant de disparaître */
+}
+
+/* Contenu de la Modale */
+.ReactModal__Content {
+  opacity: 0; /* Commence invisible */
+  transform: translate(-50%, -45%) scale(0.95); /* Commence légèrement plus petit et plus haut */
+  transition: opacity 300ms ease-in-out, transform 300ms ease-in-out; /* Transitions douces */
+  /* Garde les styles de base de .modal-content que tu veux (background, padding, border-radius, etc.) */
+  /* MAIS le positionnement est géré différemment par react-modal, */
+  /* on utilise top/left/transform pour le centrage */
+  position: absolute; /* Important pour le positionnement top/left/transform */
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  margin-right: -50%; /* Nécessaire avec le transform */
+  /* --- Récupère tes styles de .modal-content ici --- */
+  background-color: #fff;
+  padding: 30px 40px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  max-width: 550px;
+  width: 90%;
+  max-height: 90vh;
+  overflow: auto;
+  border: none; /* Assure qu'il n'y a pas de bordure par défaut */
+  outline: none; /* Enlève le focus par défaut */
+}
+
+.ReactModal__Content--after-open {
+  opacity: 1; /* Devient visible */
+  transform: translate(-50%, -50%) scale(1); /* Revient à sa position et taille normales */
+}
+
+.ReactModal__Content--before-close {
+  opacity: 0; /* Re-devient invisible */
+  transform: translate(-50%, -45%) scale(0.95); /* Remonte légèrement avant de disparaître */
+}
+
+/* --- Styles pour le contenu INTERIEUR de la modale --- */
+/* (Ces styles sont les mêmes que ceux qu'on avait dans .modal-content avant) */
+
+/* Bouton de fermeture (peut rester dans .modal-close-button) */
+.modal-close-button {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 2.2rem;
+  font-weight: 300;
+  color: #aaa;
+  cursor: pointer;
+  line-height: 1;
+  padding: 5px;
+}
+.modal-close-button:hover {
+  color: #000;
+}
+
+/* Styles formulaire */
+.ReactModal__Content h3 { /* Cible h3 DANS la modale */
+  margin-top: 0;
+  margin-bottom: 25px;
+  text-align: center;
+  color: #333;
+  font-weight: 600;
+}
+.ReactModal__Content .form-group { /* Cible .form-group DANS la modale */
+  margin-bottom: 18px;
+}
+.ReactModal__Content label { /* Cible label DANS la modale */
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #555;
+  font-size: 0.9rem;
+}
+.ReactModal__Content input[type="text"],
+.ReactModal__Content input[type="email"],
+.ReactModal__Content textarea { /* Cible inputs/textarea DANS la modale */
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+.ReactModal__Content input:focus,
+.ReactModal__Content textarea:focus {
+    border-color: #FF0000;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.15);
+}
+.ReactModal__Content textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+.ReactModal__Content .rating-selector {
+  margin-top: 5px;
+}
+.ReactModal__Content button[type="submit"] { /* Cible submit DANS la modale */
+  display: block;
+  width: 100%;
+  margin-top: 15px;
+   padding: 12px 20px;
+   border: none;
+   border-radius: 6px;
+   cursor: pointer;
+   font-size: 1rem;
+   font-weight: 600;
+   transition: background-color 0.2s ease;
+   background-color: #FF0000;
+   color: white;
+}
+.ReactModal__Content button[type="submit"]:disabled {
+    background-color: #f87171;
+    cursor: not-allowed;
+}
+.ReactModal__Content button[type="submit"]:hover:not(:disabled) {
+    background-color: #cc0000;
+}
+
+/* --- Fin des styles pour le contenu intérieur --- */
+
