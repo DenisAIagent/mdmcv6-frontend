@@ -12,9 +12,7 @@
     "a11y": "axe-core src/",
     "test:performance": "npm run build && npm run lighthouse",
     "test:a11y": "npm run a11y",
-    "optimize:images": "imagemin src/assets/images/* --out-dir=src/assets/images/optimized --plugin=imagemin-webp --plugin=imagemin-mozjpeg --plugin=imagemin-pngquant",
     "seo:validate": "node scripts/validate-seo.js",
-    "prebuild": "npm run optimize:images",
     "postbuild": "npm run seo:validate"
   },
   "dependencies": {
