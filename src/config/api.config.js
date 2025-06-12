@@ -2,7 +2,7 @@
 
 const API_CONFIG = {
   // URL du backend - Production
-  BASE_URL: process.env.REACT_APP_API_URL || 'https://mdmcv4-backend.onrender.com/api',
+  BASE_URL: process.env.VITE_API_URL || 'https://mdmcv4-backend-production-b615.up.railway.app/api',
   
   // Timeout pour les requêtes (10 secondes)
   TIMEOUT: 10000,
@@ -22,18 +22,18 @@ const ENV_CONFIG = {
     BASE_URL: 'http://localhost:5001/api',
   },
   production: {
-    BASE_URL: 'https://mdmcv4-backend.onrender.com/api',
+    BASE_URL: 'https://mdmcv4-backend-production-b615.up.railway.app/api',
   }
 };
 
 // Détecter l'environnement et ajuster la config
-const currentEnv = process.env.NODE_ENV || 'production';
+const currentEnv = process.env.VITE_ENVIRONMENT || 'production';
 if (ENV_CONFIG[currentEnv]) {
   Object.assign(API_CONFIG, ENV_CONFIG[currentEnv]);
 }
 
 // Debug en développement
-if (process.env.NODE_ENV === 'development') {
+if (currentEnv === 'development') {
   console.log('🔍 API Config:', {
     Environment: currentEnv,
     Base_URL: API_CONFIG.BASE_URL,
