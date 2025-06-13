@@ -1,83 +1,54 @@
-import { defineConfig } from "vite"
-import react from "@vitejs/plugin-react"
-import path from "path"
+# Fichiers de développement
+.git
+.gitignore
+README.md
+CHECKLIST_FINALE*
+*.md
 
-export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-      "@/services": path.resolve(__dirname, "./src/services"),
-      "@/components": path.resolve(__dirname, "./src/components"),
-      "@/pages": path.resolve(__dirname, "./src/pages"),
-      "@/hooks": path.resolve(__dirname, "./src/hooks"),
-      "@/utils": path.resolve(__dirname, "./src/utils"),
-      "@/assets": path.resolve(__dirname, "./src/assets"),
-    },
-    extensions: [".js", ".jsx", ".ts", ".tsx", ".json"]
-  },
-  // ✅ FIX REACT-DROPZONE : Optimisation des dépendances
-  optimizeDeps: {
-    include: [
-      'react-dropzone',
-      'react',
-      'react-dom',
-      '@mui/material',
-      '@mui/icons-material'
-    ]
-  },
-  build: {
-    outDir: "dist",
-    sourcemap: false,
-    minify: "esbuild",
-    target: "es2015",
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ["react", "react-dom"],
-          mui: ["@mui/material", "@mui/icons-material", "@mui/x-data-grid"],
-          form: ["@hookform/resolvers", "zod", "react-hook-form"],
-          // ✅ Chunk séparé pour react-dropzone
-          dropzone: ["react-dropzone"]
-        }
-      },
-      onwarn(warning, warn) {
-        if (warning.code === "MODULE_LEVEL_DIRECTIVE") return
-        if (warning.code === "DYNAMIC_IMPORT") return
-        if (warning.code === "UNRESOLVED_IMPORT") return
-        if (warning.message.includes("dynamic import")) return
-        // ✅ Ignorer les warnings react-dropzone
-        if (warning.message.includes("react-dropzone")) return
-        warn(warning)
-      }
-    }
-  },
-  preview: {
-    port: process.env.PORT || 3000,
-    host: "0.0.0.0",
-    // ✅ CONFIGURATION RAILWAY : Autoriser tous les hôtes nécessaires
-    allowedHosts: [
-      "healthcheck.railway.app",
-      ".railway.app", 
-      "localhost",
-      "www.mdmcmusicads.com",
-      "mdmcmusicads.com",
-      ".mdmcmusicads.com",
-      "blog.mdmcmusicads.com"
-    ]
-  },
-  server: {
-    port: 3000,
-    host: "0.0.0.0",
-    // ✅ Aussi pour le dev local si nécessaire
-    allowedHosts: [
-      "healthcheck.railway.app",
-      ".railway.app",
-      "localhost",
-      "www.mdmcmusicads.com",
-      "mdmcmusicads.com",
-      ".mdmcmusicads.com",
-      "blog.mdmcmusicads.com"
-    ]
-  }
-})
+# Cache et builds locaux
+node_modules
+dist
+.vite
+.cache
+
+# Fichiers de configuration locaux
+.env.local
+.env.development
+.env.test
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Tests
+coverage
+.nyc_output
+test-results
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Scripts de développement
+scripts/dev*
+scripts/test*
+
+# Images non optimisées (garder seulement les optimisées)
+src/assets/**/*.png
+src/assets/**/*.jpg
+src/assets/**/*.jpeg
+!src/assets/**/*-optimized.*
+!src/assets/**/*-compressed.*
+
+# Documentation
+docs/
+*.md
