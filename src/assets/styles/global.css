@@ -341,6 +341,16 @@ section h2:not(.hero h2),
   color: var(--color-text) !important;
 }
 
+/* CORRECTION : Titre "Derniers Articles" forcé en blanc */
+.articles-section h2,
+.articles-section .section-title,
+h2:contains("Derniers Articles"),
+[class*="articles"] h2,
+.blog-section h2,
+.posts-section h2 {
+  color: white !important;
+}
+
 /* Sous-titres spécifiques EN ROUGE */
 .hero-subtitle,
 .hero-description,
