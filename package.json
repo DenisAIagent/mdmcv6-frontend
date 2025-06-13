@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "start": "vite preview --port $PORT --host 0.0.0.0",
     "preview": "vite preview",
     "analyze": "ANALYZE=true vite build",
     "lighthouse": "lhci autorun",
