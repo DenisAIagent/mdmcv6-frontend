@@ -341,27 +341,15 @@ section h2:not(.hero h2),
   color: var(--color-text) !important;
 }
 
-/* CORRECTION RENFORCÉE : Titre "Derniers Articles" forcé en blanc */
-.articles-section h2,
-.articles-section .section-title,
-.blog-section h2,
-.posts-section h2,
-section h2.section-title,
-h2.section-title,
-h2[class*="title"],
-[class*="articles"] h2,
-[class*="blog"] h2,
-div h2,
-section div h2,
-* h2:not(.hero h2):not(.footer h2) {
+/* CORRECTION EXACTE : Titre "Derniers Articles" forcé en blanc */
+.articles-header h2,
+.articles-header .section-title,
+div.articles-header h2,
+section .articles-header h2 {
   color: #ffffff !important;
-}
-
-/* Spécificité maximale pour forcer le blanc */
-body section h2,
-body div h2.section-title,
-body .section-title {
-  color: #ffffff !important;
+  font-size: 2.5rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 15px !important;
 }
 
 /* Sous-titres spécifiques EN ROUGE */
