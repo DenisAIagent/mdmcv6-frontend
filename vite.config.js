@@ -41,11 +41,15 @@ export default defineConfig({
   preview: {
     port: process.env.PORT || 3000,
     host: "0.0.0.0",
-    // ✅ CONFIGURATION RAILWAY : Autoriser le healthcheck
+    // ✅ CONFIGURATION RAILWAY : Autoriser tous les hôtes nécessaires
     allowedHosts: [
       "healthcheck.railway.app",
       ".railway.app", 
-      "localhost"
+      "localhost",
+      "www.mdmcmusicads.com",
+      "mdmcmusicads.com",
+      ".mdmcmusicads.com",
+      "blog.mdmcmusicads.com"
     ]
   },
   server: {
@@ -55,7 +59,11 @@ export default defineConfig({
     allowedHosts: [
       "healthcheck.railway.app",
       ".railway.app",
-      "localhost"
+      "localhost",
+      "www.mdmcmusicads.com",
+      "mdmcmusicads.com",
+      ".mdmcmusicads.com",
+      "blog.mdmcmusicads.com"
     ]
   }
 })
