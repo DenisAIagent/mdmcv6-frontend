@@ -13,426 +13,436 @@ import {
   IconButton,
   CircularProgress,
   Alert,
-  Paper,
+  Card,
+  CardContent,
+  Avatar,
   Grid,
-  Container,
-  useTheme,
-  useMediaQuery
+  Fade,
+  Chip
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import apiService from '../../services/api.service';
+import { Close, Star, Quote, Business, Email, Language } from '@mui/icons-material';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination, Autoplay, EffectFade } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/effect-fade';
+
+// Import du service Airtable
+import airtableReviewsService from '../../services/airtableReviews.service.js';
 
 const Reviews = () => {
   const { t } = useTranslation();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [approvedReviews, setApprovedReviews] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    rating: 0,
+    company: '',
+    website: '',
+    rating: 5,
     message: ''
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formError, setFormError] = useState(null);
-  const [formSuccess, setFormSuccess] = useState(false);
 
+  // Chargement des avis via Airtable
   useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        setIsLoading(true);
-        const response = await apiService.reviews.getReviews({ status: 'approved' });
-        if (response.success && response.data) {
-          setApprovedReviews(response.data);
-        } else {
-          // Fallback reviews si l'API n'est pas disponible
-          setApprovedReviews([
-            {
-              _id: 'sidilarsen1',
-              name: 'David',
-              title: 'Chanteur de Sidilarsen',
-              rating: 5,
-              message: "Avant MDMC, notre chaîne YouTube stagnait. Depuis, on a franchi un vrai cap : millions de vues, abonnés x4, impact direct sur notre carrière. Collaboration ultra efficace.",
-              createdAt: new Date().toISOString(),
-              avatar: null
-            },
-            {
-              _id: 'mox1',
-              name: 'Isabelle Fontan',
-              title: 'MOX Musique',
-              rating: 5,
-              message: "Denis est un professionnel fiable, sérieux, réactif et surtout efficace. Il m'a conseillé au mieux sur de nombreuses campagnes, avec des résultats très satisfaisants. L'expert Google Ads qu'il vous faut !",
-              createdAt: '2023-02-03T00:00:00.000Z',
-              avatar: null
-            },
-            {
-              _id: 'trydye1',
-              name: 'Fred Tavernier',
-              title: 'Try & Dye Records',
-              rating: 5,
-              message: "Cela fait plusieurs années que nous collaborons avec Denis sur les campagnes clips de nos artistes (dont OUTED). Communication fluide, résultats au rendez-vous, Denis s'adapte à nos besoins et nos budgets avec réactivité.",
-              createdAt: '2023-02-03T00:00:00.000Z',
-              avatar: null
-            },
-            {
-              _id: 'mlh1',
-              name: "Manon L'Huillier",
-              title: 'MLH Promotion',
-              rating: 5,
-              message: "Un travail efficace à chaque collaboration. Denis a su être à l'écoute de nos attentes et proposer des stratégies adaptées aux deadlines et aux budgets imposés.",
-              createdAt: '2019-07-09T00:00:00.000Z',
-              avatar: null
-            }
-          ]);
-        }
-      } catch (err) {
-        setError(t('reviews.error'));
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    loadReviews();
+  }, []);
 
-    fetchReviews();
-  }, [t]);
-
-  const handleNext = () => {
-    setActiveIndex((prev) => (prev + 1) % approvedReviews.length);
+  const loadReviews = async () => {
+    try {
+      setLoading(true);
+      console.log('🔍 Reviews: Chargement via Airtable...');
+      
+      const data = await airtableReviewsService.getApprovedReviews();
+      setReviews(data);
+      setError(null);
+      
+      console.log('✅ Reviews: Chargées avec succès', { count: data.length });
+    } catch (err) {
+      console.error('❌ Reviews: Erreur de chargement', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handlePrev = () => {
-    setActiveIndex((prev) => (prev - 1 + approvedReviews.length) % approvedReviews.length);
-  };
-
-  const handleOpenModal = () => {
-    setModalOpen(true);
-    setFormError(null);
-    setFormSuccess(false);
-  };
-
-  const handleCloseModal = () => {
-    setModalOpen(false);
-    setFormData({ name: '', email: '', rating: 0, message: '' });
-    setFormError(null);
-    setFormSuccess(false);
-  };
-
-  const handleInputChange = (field) => (event) => {
+  const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
-      [field]: event.target.value
+      [field]: value
     }));
   };
 
-  const handleRatingChange = (event, newValue) => {
-    setFormData(prev => ({
-      ...prev,
-      rating: newValue
-    }));
-  };
-
-  const validateForm = () => {
-    if (!formData.name.trim()) {
-      setFormError(t('reviews.form.name_required'));
-      return false;
+  const handleSubmit = async () => {
+    if (!formData.name || !formData.email || !formData.message) {
+      alert('Veuillez remplir tous les champs obligatoires');
+      return;
     }
-    if (!formData.email.trim()) {
-      setFormError(t('reviews.form.email_required'));
-      return false;
-    }
-    if (!formData.rating) {
-      setFormError(t('reviews.form.rating_required'));
-      return false;
-    }
-    if (!formData.message.trim()) {
-      setFormError(t('reviews.form.message_required'));
-      return false;
-    }
-    return true;
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    if (!validateForm()) return;
-
-    setIsSubmitting(true);
-    setFormError(null);
 
     try {
-      const response = await apiService.reviews.createReview(formData);
-      if (response.success) {
-        setFormSuccess(true);
-        setFormData({ name: '', email: '', rating: 0, message: '' });
-      } else {
-        setFormError(response.message || t('reviews.form.error'));
+      setSubmitting(true);
+      console.log('📝 Reviews: Soumission via Airtable...', { name: formData.name });
+      
+      const result = await airtableReviewsService.submitReview(formData);
+      
+      if (result.success) {
+        setSubmitSuccess(true);
+        setFormData({
+          name: '',
+          email: '',
+          company: '',
+          website: '',
+          rating: 5,
+          message: ''
+        });
+        
+        setTimeout(() => {
+          setOpenDialog(false);
+          setSubmitSuccess(false);
+        }, 2000);
       }
     } catch (err) {
-      setFormError(t('reviews.form.error'));
+      console.error('❌ Reviews: Erreur de soumission', err);
+      alert('Erreur lors de la soumission. Veuillez réessayer.');
     } finally {
-      setIsSubmitting(false);
+      setSubmitting(false);
     }
   };
 
-  if (isLoading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box sx={{ p: 4 }}>
-        <Alert severity="error">{error}</Alert>
-      </Box>
-    );
-  }
-
-  return (
-    <Box
-      sx={{
-        py: 8,
-        backgroundColor: 'background.paper',
+  const renderReviewCard = (review) => (
+    <Card 
+      sx={{ 
+        height: '100%',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(255,255,255,0.1)',
+          backdropFilter: 'blur(10px)',
+          zIndex: 1
+        }
       }}
     >
-      <Container maxWidth="lg">
-        <Typography
-          variant="h2"
-          component="h2"
-          align="center"
-          gutterBottom
-          sx={{
-            fontSize: { xs: '2rem', md: '3rem' },
-            fontWeight: 700,
-            mb: 2,
-            color: 'text.primary'
-          }}
-        >
-          {t('reviews.title')}
-        </Typography>
-        <Typography
-          variant="h5"
-          align="center"
-          color="text.secondary"
-          sx={{ mb: 6, maxWidth: '800px', mx: 'auto' }}
-        >
-          {t('reviews.subtitle')}
-        </Typography>
-
-        <Box sx={{ position: 'relative', maxWidth: '1000px', mx: 'auto' }}>
-          <Paper
-            elevation={3}
-            sx={{
-              p: { xs: 3, md: 6 },
-              borderRadius: 2,
-              backgroundColor: 'background.paper',
-              position: 'relative',
-              minHeight: '300px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center'
-            }}
-          >
-            {approvedReviews.length > 0 && (
-              <Box sx={{ textAlign: 'center' }}>
-                <Rating
-                  value={approvedReviews[activeIndex].rating}
-                  readOnly
-                  size="large"
-                  sx={{ mb: 2 }}
-                />
-                <Typography
-                  variant="h6"
-                  sx={{
-                    mb: 2,
-                    fontSize: { xs: '1.1rem', md: '1.3rem' },
-                    fontWeight: 500,
-                    color: 'text.primary'
-                  }}
-                >
-                  "{approvedReviews[activeIndex].message}"
-                </Typography>
-                <Typography
-                  variant="subtitle1"
-                  sx={{
-                    fontWeight: 600,
-                    color: 'primary.main',
-                    mb: 0.5
-                  }}
-                >
-                  {approvedReviews[activeIndex].name}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mb: 3 }}
-                >
-                  {approvedReviews[activeIndex].title}
-                </Typography>
-              </Box>
+      <CardContent sx={{ position: 'relative', zIndex: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Box display="flex" alignItems="center" gap={2} mb={2}>
+          <Avatar 
+            src={review.avatar} 
+            sx={{ width: 60, height: 60, border: '3px solid rgba(255,255,255,0.3)' }}
+          />
+          <Box flex={1}>
+            <Typography variant="h6" fontWeight="bold">
+              {review.name}
+            </Typography>
+            {review.company && (
+              <Typography variant="body2" sx={{ opacity: 0.9, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Business sx={{ fontSize: 16 }} />
+                {review.company}
+              </Typography>
             )}
-
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                gap: 2,
-                mt: 4
+          </Box>
+          <Box textAlign="center">
+            <Rating 
+              value={review.rating} 
+              readOnly 
+              size="small"
+              sx={{ 
+                '& .MuiRating-iconFilled': { color: '#ffd700' },
+                '& .MuiRating-iconEmpty': { color: 'rgba(255,255,255,0.3)' }
               }}
-            >
-              <IconButton
-                onClick={handlePrev}
-                sx={{
-                  backgroundColor: 'primary.main',
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: 'primary.dark'
-                  }
-                }}
-              >
-                <ArrowBackIosNewIcon />
-              </IconButton>
-              <IconButton
-                onClick={handleNext}
-                sx={{
-                  backgroundColor: 'primary.main',
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: 'primary.dark'
-                  }
-                }}
-              >
-                <ArrowForwardIosIcon />
-              </IconButton>
-            </Box>
-          </Paper>
-
-          <Box sx={{ textAlign: 'center', mt: 4 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              onClick={handleOpenModal}
-              sx={{
-                px: 4,
-                py: 1.5,
-                borderRadius: 2,
-                textTransform: 'none',
-                fontSize: '1.1rem'
-              }}
-            >
-              {t('reviews.leave_review')}
-            </Button>
+            />
+            <Typography variant="caption" display="block">
+              {review.rating}/5
+            </Typography>
           </Box>
         </Box>
-      </Container>
+        
+        <Box position="relative" flex={1}>
+          <Quote sx={{ 
+            position: 'absolute', 
+            top: -8, 
+            left: -8, 
+            fontSize: 40, 
+            opacity: 0.3 
+          }} />
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              fontStyle: 'italic',
+              lineHeight: 1.6,
+              pl: 2
+            }}
+          >
+            {review.comment}
+          </Typography>
+        </Box>
+      </CardContent>
+    </Card>
+  );
 
-      <Dialog
-        open={modalOpen}
-        onClose={handleCloseModal}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 2,
-            p: 2
-          }
-        }}
-      >
-        <DialogTitle sx={{ pb: 1 }}>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6">{t('reviews.leave_review')}</Typography>
-            <IconButton onClick={handleCloseModal} size="small">
-              <CloseIcon />
-            </IconButton>
+  return (
+    <Box sx={{ py: 8, px: 2 }}>
+      <Box maxWidth="1200px" mx="auto">
+        {/* Header */}
+        <Box textAlign="center" mb={6}>
+          <Typography 
+            variant="h3" 
+            component="h2" 
+            gutterBottom
+            sx={{ 
+              fontWeight: 'bold',
+              background: 'linear-gradient(45deg, #667eea, #764ba2)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}
+          >
+            {t('reviews.title', 'Témoignages Clients')}
+          </Typography>
+          <Typography variant="h6" color="text.secondary" mb={4}>
+            {t('reviews.subtitle', 'Découvrez ce que nos clients disent de notre travail')}
+          </Typography>
+          
+          <Button
+            variant="contained"
+            onClick={() => setOpenDialog(true)}
+            sx={{
+              background: 'linear-gradient(45deg, #667eea, #764ba2)',
+              borderRadius: '25px',
+              px: 4,
+              py: 1.5,
+              fontSize: '1.1rem',
+              textTransform: 'none',
+              boxShadow: '0 4px 20px rgba(102, 126, 234, 0.4)',
+              '&:hover': {
+                background: 'linear-gradient(45deg, #5a6fd8, #6a42a0)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 6px 25px rgba(102, 126, 234, 0.6)'
+              }
+            }}
+          >
+            ⭐ Laisser un avis
+          </Button>
+        </Box>
+
+        {/* Reviews Carousel */}
+        {loading ? (
+          <Box display="flex" justifyContent="center" py={4}>
+            <CircularProgress />
           </Box>
-        </DialogTitle>
-        <DialogContent>
-          <form onSubmit={handleSubmit}>
-            <Grid container spacing={3} sx={{ mt: 0 }}>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label={t('reviews.form.name')}
-                  value={formData.name}
-                  onChange={handleInputChange('name')}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label={t('reviews.form.email')}
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange('email')}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Typography component="legend" gutterBottom>
-                  {t('reviews.form.rating')}
-                </Typography>
-                <Rating
-                  value={formData.rating}
-                  onChange={handleRatingChange}
-                  size="large"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label={t('reviews.form.message')}
-                  multiline
-                  rows={4}
-                  value={formData.message}
-                  onChange={handleInputChange('message')}
-                  required
-                />
-              </Grid>
-            </Grid>
-            {formError && (
-              <Alert severity="error" sx={{ mt: 2 }}>
-                {formError}
+        ) : error ? (
+          <Alert severity="warning" sx={{ mb: 4 }}>
+            Impossible de charger les avis. Les données de démonstration sont affichées.
+          </Alert>
+        ) : null}
+
+        {reviews.length > 0 && (
+          <Swiper
+            modules={[Pagination, Autoplay, EffectFade]}
+            spaceBetween={30}
+            slidesPerView={1}
+            pagination={{ 
+              clickable: true,
+              bulletClass: 'swiper-pagination-bullet custom-bullet',
+              bulletActiveClass: 'swiper-pagination-bullet-active custom-bullet-active'
+            }}
+            autoplay={{
+              delay: 5000,
+              disableOnInteraction: false,
+            }}
+            breakpoints={{
+              768: {
+                slidesPerView: 2,
+              },
+              1024: {
+                slidesPerView: 3,
+              },
+            }}
+            className="reviews-swiper"
+          >
+            {reviews.map((review) => (
+              <SwiperSlide key={review.id}>
+                <Fade in timeout={600}>
+                  <Box>
+                    {renderReviewCard(review)}
+                  </Box>
+                </Fade>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        )}
+
+        {/* Review Form Dialog */}
+        <Dialog 
+          open={openDialog} 
+          onClose={() => setOpenDialog(false)}
+          maxWidth="md"
+          fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: 3,
+              background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+            }
+          }}
+        >
+          <DialogTitle sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            background: 'linear-gradient(45deg, #667eea, #764ba2)',
+            color: 'white',
+            m: 0
+          }}>
+            <Typography variant="h5" component="div">
+              ⭐ Partager votre expérience
+            </Typography>
+            <IconButton 
+              onClick={() => setOpenDialog(false)}
+              sx={{ color: 'white' }}
+            >
+              <Close />
+            </IconButton>
+          </DialogTitle>
+
+          <DialogContent sx={{ p: 4 }}>
+            {submitSuccess ? (
+              <Alert severity="success" sx={{ mb: 3 }}>
+                Merci pour votre avis ! Il sera publié après modération.
               </Alert>
+            ) : (
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Nom complet *"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    variant="outlined"
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Email *"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    variant="outlined"
+                    sx={{ mb: 2 }}
+                    InputProps={{
+                      startAdornment: <Email sx={{ mr: 1, color: 'text.secondary' }} />
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Entreprise"
+                    value={formData.company}
+                    onChange={(e) => handleInputChange('company', e.target.value)}
+                    variant="outlined"
+                    sx={{ mb: 2 }}
+                    InputProps={{
+                      startAdornment: <Business sx={{ mr: 1, color: 'text.secondary' }} />
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Site web"
+                    value={formData.website}
+                    onChange={(e) => handleInputChange('website', e.target.value)}
+                    variant="outlined"
+                    sx={{ mb: 2 }}
+                    InputProps={{
+                      startAdornment: <Language sx={{ mr: 1, color: 'text.secondary' }} />
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Box display="flex" alignItems="center" gap={2} mb={2}>
+                    <Typography variant="body1">Note :</Typography>
+                    <Rating
+                      value={formData.rating}
+                      onChange={(e, newValue) => handleInputChange('rating', newValue)}
+                      size="large"
+                      sx={{ 
+                        '& .MuiRating-iconFilled': { color: '#ffd700' }
+                      }}
+                    />
+                    <Chip 
+                      label={`${formData.rating}/5`} 
+                      color="primary" 
+                      size="small"
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Votre témoignage *"
+                    multiline
+                    rows={4}
+                    value={formData.message}
+                    onChange={(e) => handleInputChange('message', e.target.value)}
+                    variant="outlined"
+                    placeholder="Décrivez votre expérience avec MDMC..."
+                  />
+                </Grid>
+              </Grid>
             )}
-            {formSuccess && (
-              <Alert severity="success" sx={{ mt: 2 }}>
-                {t('reviews.form.success')}
-              </Alert>
-            )}
-            <DialogActions sx={{ mt: 2, px: 0 }}>
-              <Button
-                onClick={handleCloseModal}
-                sx={{ mr: 1 }}
+          </DialogContent>
+
+          {!submitSuccess && (
+            <DialogActions sx={{ p: 3, gap: 2 }}>
+              <Button 
+                onClick={() => setOpenDialog(false)}
+                variant="outlined"
+                disabled={submitting}
               >
-                {t('common.cancel')}
+                Annuler
               </Button>
-              <Button
-                type="submit"
+              <Button 
+                onClick={handleSubmit}
                 variant="contained"
-                disabled={isSubmitting}
+                disabled={submitting || !formData.name || !formData.email || !formData.message}
                 sx={{
+                  background: 'linear-gradient(45deg, #667eea, #764ba2)',
                   px: 4,
-                  py: 1,
-                  borderRadius: 2,
-                  textTransform: 'none'
+                  '&:hover': {
+                    background: 'linear-gradient(45deg, #5a6fd8, #6a42a0)',
+                  }
                 }}
               >
-                {isSubmitting ? t('common.submitting') : t('common.submit')}
+                {submitting ? <CircularProgress size={24} color="inherit" /> : 'Publier l\'avis'}
               </Button>
             </DialogActions>
-          </form>
-        </DialogContent>
-      </Dialog>
+          )}
+        </Dialog>
+      </Box>
+
+      {/* Styles pour Swiper */}
+      <style jsx global>{`
+        .reviews-swiper .custom-bullet {
+          background: rgba(102, 126, 234, 0.3) !important;
+          opacity: 1 !important;
+        }
+        .reviews-swiper .custom-bullet-active {
+          background: #667eea !important;
+        }
+      `}</style>
     </Box>
   );
 };
