@@ -40,10 +40,22 @@ export default defineConfig({
   },
   preview: {
     port: process.env.PORT || 3000,
-    host: "0.0.0.0"
+    host: "0.0.0.0",
+    // ✅ CONFIGURATION RAILWAY : Autoriser le healthcheck
+    allowedHosts: [
+      "healthcheck.railway.app",
+      ".railway.app", 
+      "localhost"
+    ]
   },
   server: {
     port: 3000,
-    host: "0.0.0.0"
+    host: "0.0.0.0",
+    // ✅ Aussi pour le dev local si nécessaire
+    allowedHosts: [
+      "healthcheck.railway.app",
+      ".railway.app",
+      "localhost"
+    ]
   }
 })
