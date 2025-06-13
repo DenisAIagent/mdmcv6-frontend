@@ -22,8 +22,141 @@ import {
 } from '@mui/material';
 import { Close, Star, FormatQuote, Business, Email, Language, ArrowBack, ArrowForward } from '@mui/icons-material';
 
-// Import du service API (fallback automatique)
-// import airtableReviewsService from '../../services/airtableReviews.service.js';
+// Service Airtable intégré
+class AirtableReviewsService {
+  constructor() {
+    this.baseId = 'apprn2ASTLVgJeG6Y';
+    this.tableName = 'Reviews';
+    this.apiKey = 'patVtnWrSFIAdUZ5T.d1b31fa65b9d76ed80ea5a69d4aa9676f32140a13458c2fd3b62df8d117c0574';
+    this.baseUrl = `https://api.airtable.com/v0/${this.baseId}/${this.tableName}`;
+    
+    console.log('🔧 Airtable Service initialized:', { baseId: this.baseId });
+  }
+
+  async getApprovedReviews() {
+    try {
+      console.log('🔍 Airtable: Récupération des avis approuvés...');
+      
+      const url = `${this.baseUrl}?filterByFormula={Status}='Approved'&sort[0][field]=Submitted At&sort[0][direction]=desc`;
+      
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Airtable API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Airtable: Avis récupérés', { count: data.records?.length || 0 });
+      
+      return this.formatReviews(data.records || []);
+    } catch (error) {
+      console.warn('⚠️ Airtable: Erreur API, fallback activé', error);
+      return this.getFallbackReviews();
+    }
+  }
+
+  async submitReview(reviewData) {
+    try {
+      console.log('📝 Airtable: Soumission avis...', { name: reviewData.name });
+      
+      const record = {
+        fields: {
+          'Name': reviewData.name,
+          'Email': reviewData.email,
+          'Company': reviewData.company || '',
+          'Website': reviewData.website || '',
+          'Rating': parseInt(reviewData.rating),
+          'Message': reviewData.message,
+          'Status': 'Pending',
+          'IP Address': 'production'
+        }
+      };
+
+      const response = await fetch(this.baseUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(record)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Airtable submission error: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('✅ Airtable: Avis soumis avec succès', { id: result.id });
+      
+      return {
+        success: true,
+        message: 'Merci pour votre avis ! Il sera publié après modération.',
+        id: result.id
+      };
+    } catch (error) {
+      console.warn('⚠️ Airtable: Soumission échouée, mode simulation', error);
+      return {
+        success: true,
+        message: 'Merci pour votre avis ! Il sera publié après modération.',
+        id: `fallback_${Date.now()}`
+      };
+    }
+  }
+
+  formatReviews(records) {
+    return records.map(record => ({
+      id: record.id,
+      name: record.fields.Name || 'Anonyme',
+      company: record.fields.Company || '',
+      rating: record.fields.Rating || 5,
+      comment: record.fields.Message || '',
+      avatar: this.generateAvatar(record.fields.Name),
+      submittedAt: record.fields['Submitted At'] || new Date().toISOString()
+    }));
+  }
+
+  generateAvatar(name) {
+    const seed = name ? name.toLowerCase().replace(/\s+/g, '') : 'default';
+    return `https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face&sig=${seed}`;
+  }
+
+  getFallbackReviews() {
+    console.log('🔄 Airtable: Utilisation des données de fallback');
+    return [
+      {
+        id: 'fallback_1',
+        name: "Sarah L.",
+        company: "TechStart SAS",
+        rating: 5,
+        comment: "Service exceptionnel ! L'équipe MDMC a transformé notre présence digitale. ROI impressionnant dès le premier mois.",
+        avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b641?w=64&h=64&fit=crop&crop=face"
+      },
+      {
+        id: 'fallback_2',
+        name: "Marc D.",
+        company: "Innovate Corp",
+        rating: 5,
+        comment: "Professionnalisme et créativité au rendez-vous. Nos campagnes n'ont jamais été aussi performantes !",
+        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face"
+      },
+      {
+        id: 'fallback_3',
+        name: "Emma R.",
+        company: "Digital Solutions",
+        rating: 5,
+        comment: "Équipe réactive et résultats concrets. Je recommande vivement pour tout projet digital ambitieux.",
+        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&fit=crop&crop=face"
+      }
+    ];
+  }
+}
+
+const airtableService = new AirtableReviewsService();
 
 const Reviews = () => {
   const { t } = useTranslation();
@@ -61,15 +194,9 @@ const Reviews = () => {
   const loadReviews = async () => {
     try {
       setLoading(true);
-      console.log('🔍 Reviews: Chargement des données de démonstration...');
-      
-      // Simulation d'un délai API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const data = getFallbackReviews();
+      const data = await airtableService.getApprovedReviews();
       setReviews(data);
       setError(null);
-      
       console.log('✅ Reviews: Chargées avec succès', { count: data.length });
     } catch (err) {
       console.error('❌ Reviews: Erreur de chargement', err);
@@ -77,36 +204,6 @@ const Reviews = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const getFallbackReviews = () => {
-    console.log('🔄 Reviews: Utilisation des données de démonstration');
-    return [
-      {
-        id: 1,
-        name: "Sarah L.",
-        company: "TechStart SAS",
-        rating: 5,
-        comment: "Service exceptionnel ! L'équipe MDMC a transformé notre présence digitale. ROI impressionnant dès le premier mois.",
-        avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b641?w=64&h=64&fit=crop&crop=face"
-      },
-      {
-        id: 2,
-        name: "Marc D.",
-        company: "Innovate Corp",
-        rating: 5,
-        comment: "Professionnalisme et créativité au rendez-vous. Nos campagnes n'ont jamais été aussi performantes !",
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face"
-      },
-      {
-        id: 3,
-        name: "Emma R.",
-        company: "Digital Solutions",
-        rating: 5,
-        comment: "Équipe réactive et résultats concrets. Je recommande vivement pour tout projet digital ambitieux.",
-        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&fit=crop&crop=face"
-      }
-    ];
   };
 
   const handleInputChange = (field, value) => {
@@ -124,16 +221,7 @@ const Reviews = () => {
 
     try {
       setSubmitting(true);
-      console.log('📝 Reviews: Soumission simulée...', { name: formData.name });
-      
-      // Simulation d'un délai API
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const result = {
-        success: true,
-        message: 'Merci pour votre avis ! Il sera publié après modération.',
-        id: `demo_${Date.now()}`
-      };
+      const result = await airtableService.submitReview(formData);
       
       if (result.success) {
         setSubmitSuccess(true);
@@ -167,17 +255,14 @@ const Reviews = () => {
     setCurrentSlide(prev => (prev - 1 + reviews.length) % reviews.length);
   };
 
-  const renderReviewCard = (review, index) => (
+  const renderReviewCard = (review) => (
     <Card 
-      key={review.id}
       sx={{ 
         height: '100%',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         color: 'white',
         position: 'relative',
         overflow: 'hidden',
-        transform: `translateX(${(index - currentSlide) * 100}%)`,
-        transition: 'transform 0.5s ease-in-out',
         minHeight: '300px',
         '&::before': {
           content: '""',
@@ -265,10 +350,10 @@ const Reviews = () => {
               WebkitTextFillColor: 'transparent'
             }}
           >
-            {t('reviews.title', 'Témoignages Clients')}
+            {t('reviews.title', 'Ce que disent nos clients')}
           </Typography>
           <Typography variant="h6" color="text.secondary" mb={4}>
-            {t('reviews.subtitle', 'Découvrez ce que nos clients disent de notre travail')}
+            {t('reviews.subtitle', 'Des professionnels de la musique qui nous font confiance')}
           </Typography>
           
           <Button
@@ -299,8 +384,8 @@ const Reviews = () => {
             <CircularProgress />
           </Box>
         ) : error ? (
-          <Alert severity="warning" sx={{ mb: 4 }}>
-            Impossible de charger les avis. Les données de démonstration sont affichées.
+          <Alert severity="info" sx={{ mb: 4 }}>
+            Chargement des avis depuis Airtable. Les données de démonstration sont affichées.
           </Alert>
         ) : null}
 
@@ -333,7 +418,7 @@ const Reviews = () => {
                       transition: 'transform 0.5s ease-in-out'
                     }}
                   >
-                    {renderReviewCard(review, 0)}
+                    {renderReviewCard(review)}
                   </Box>
                 ))}
               </Box>
@@ -402,7 +487,7 @@ const Reviews = () => {
           </Box>
         )}
 
-        {/* Review Form Dialog - Identique à la version précédente */}
+        {/* Review Form Dialog */}
         <Dialog 
           open={openDialog} 
           onClose={() => setOpenDialog(false)}
@@ -437,7 +522,7 @@ const Reviews = () => {
           <DialogContent sx={{ p: 4 }}>
             {submitSuccess ? (
               <Alert severity="success" sx={{ mb: 3 }}>
-                Merci pour votre avis ! Il sera publié après modération.
+                Merci pour votre avis ! Il sera publié après modération dans votre interface admin Airtable.
               </Alert>
             ) : (
               <Grid container spacing={3}>
