@@ -11,9 +11,7 @@
     "lighthouse": "lhci autorun",
     "a11y": "axe-core src/",
     "test:performance": "npm run build && npm run lighthouse",
-    "test:a11y": "npm run a11y",
-    "seo:validate": "node scripts/validate-seo.js",
-    "postbuild": "npm run seo:validate"
+    "test:a11y": "npm run a11y"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
