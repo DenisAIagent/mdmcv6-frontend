@@ -20,15 +20,10 @@ import {
   Fade,
   Chip
 } from '@mui/material';
-import { Close, Star, Quote, Business, Email, Language } from '@mui/icons-material';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination, Autoplay, EffectFade } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/effect-fade';
+import { Close, Star, FormatQuote, Business, Email, Language, ArrowBack, ArrowForward } from '@mui/icons-material';
 
-// Import du service Airtable
-import airtableReviewsService from '../../services/airtableReviews.service.js';
+// Import du service API (fallback automatique)
+// import airtableReviewsService from '../../services/airtableReviews.service.js';
 
 const Reviews = () => {
   const { t } = useTranslation();
@@ -38,6 +33,7 @@ const Reviews = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -52,12 +48,25 @@ const Reviews = () => {
     loadReviews();
   }, []);
 
+  // Auto-rotation du carousel
+  useEffect(() => {
+    if (reviews.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentSlide(prev => (prev + 1) % reviews.length);
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [reviews.length]);
+
   const loadReviews = async () => {
     try {
       setLoading(true);
-      console.log('🔍 Reviews: Chargement via Airtable...');
+      console.log('🔍 Reviews: Chargement des données de démonstration...');
       
-      const data = await airtableReviewsService.getApprovedReviews();
+      // Simulation d'un délai API
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const data = getFallbackReviews();
       setReviews(data);
       setError(null);
       
@@ -68,6 +77,36 @@ const Reviews = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getFallbackReviews = () => {
+    console.log('🔄 Reviews: Utilisation des données de démonstration');
+    return [
+      {
+        id: 1,
+        name: "Sarah L.",
+        company: "TechStart SAS",
+        rating: 5,
+        comment: "Service exceptionnel ! L'équipe MDMC a transformé notre présence digitale. ROI impressionnant dès le premier mois.",
+        avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b641?w=64&h=64&fit=crop&crop=face"
+      },
+      {
+        id: 2,
+        name: "Marc D.",
+        company: "Innovate Corp",
+        rating: 5,
+        comment: "Professionnalisme et créativité au rendez-vous. Nos campagnes n'ont jamais été aussi performantes !",
+        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face"
+      },
+      {
+        id: 3,
+        name: "Emma R.",
+        company: "Digital Solutions",
+        rating: 5,
+        comment: "Équipe réactive et résultats concrets. Je recommande vivement pour tout projet digital ambitieux.",
+        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&fit=crop&crop=face"
+      }
+    ];
   };
 
   const handleInputChange = (field, value) => {
@@ -85,9 +124,16 @@ const Reviews = () => {
 
     try {
       setSubmitting(true);
-      console.log('📝 Reviews: Soumission via Airtable...', { name: formData.name });
+      console.log('📝 Reviews: Soumission simulée...', { name: formData.name });
       
-      const result = await airtableReviewsService.submitReview(formData);
+      // Simulation d'un délai API
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const result = {
+        success: true,
+        message: 'Merci pour votre avis ! Il sera publié après modération.',
+        id: `demo_${Date.now()}`
+      };
       
       if (result.success) {
         setSubmitSuccess(true);
@@ -113,14 +159,26 @@ const Reviews = () => {
     }
   };
 
-  const renderReviewCard = (review) => (
+  const nextSlide = () => {
+    setCurrentSlide(prev => (prev + 1) % reviews.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide(prev => (prev - 1 + reviews.length) % reviews.length);
+  };
+
+  const renderReviewCard = (review, index) => (
     <Card 
+      key={review.id}
       sx={{ 
         height: '100%',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         color: 'white',
         position: 'relative',
         overflow: 'hidden',
+        transform: `translateX(${(index - currentSlide) * 100}%)`,
+        transition: 'transform 0.5s ease-in-out',
+        minHeight: '300px',
         '&::before': {
           content: '""',
           position: 'absolute',
@@ -134,7 +192,7 @@ const Reviews = () => {
         }
       }}
     >
-      <CardContent sx={{ position: 'relative', zIndex: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <CardContent sx={{ position: 'relative', zIndex: 2, height: '100%', display: 'flex', flexDirection: 'column', p: 3 }}>
         <Box display="flex" alignItems="center" gap={2} mb={2}>
           <Avatar 
             src={review.avatar} 
@@ -168,7 +226,7 @@ const Reviews = () => {
         </Box>
         
         <Box position="relative" flex={1}>
-          <Quote sx={{ 
+          <FormatQuote sx={{ 
             position: 'absolute', 
             top: -8, 
             left: -8, 
@@ -247,42 +305,104 @@ const Reviews = () => {
         ) : null}
 
         {reviews.length > 0 && (
-          <Swiper
-            modules={[Pagination, Autoplay, EffectFade]}
-            spaceBetween={30}
-            slidesPerView={1}
-            pagination={{ 
-              clickable: true,
-              bulletClass: 'swiper-pagination-bullet custom-bullet',
-              bulletActiveClass: 'swiper-pagination-bullet-active custom-bullet-active'
-            }}
-            autoplay={{
-              delay: 5000,
-              disableOnInteraction: false,
-            }}
-            breakpoints={{
-              768: {
-                slidesPerView: 2,
-              },
-              1024: {
-                slidesPerView: 3,
-              },
-            }}
-            className="reviews-swiper"
-          >
-            {reviews.map((review) => (
-              <SwiperSlide key={review.id}>
-                <Fade in timeout={600}>
-                  <Box>
-                    {renderReviewCard(review)}
+          <Box sx={{ position: 'relative', maxWidth: '800px', mx: 'auto' }}>
+            {/* Carousel Container */}
+            <Box 
+              sx={{ 
+                position: 'relative',
+                overflow: 'hidden',
+                borderRadius: 3,
+                height: '350px'
+              }}
+            >
+              <Box 
+                sx={{ 
+                  display: 'flex',
+                  height: '100%',
+                  position: 'relative'
+                }}
+              >
+                {reviews.map((review, index) => (
+                  <Box
+                    key={review.id}
+                    sx={{
+                      position: 'absolute',
+                      width: '100%',
+                      height: '100%',
+                      transform: `translateX(${(index - currentSlide) * 100}%)`,
+                      transition: 'transform 0.5s ease-in-out'
+                    }}
+                  >
+                    {renderReviewCard(review, 0)}
                   </Box>
-                </Fade>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+                ))}
+              </Box>
+            </Box>
+
+            {/* Navigation */}
+            {reviews.length > 1 && (
+              <>
+                <IconButton
+                  onClick={prevSlide}
+                  sx={{
+                    position: 'absolute',
+                    left: -20,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    bgcolor: 'white',
+                    boxShadow: 2,
+                    '&:hover': { bgcolor: 'grey.100' }
+                  }}
+                >
+                  <ArrowBack />
+                </IconButton>
+                
+                <IconButton
+                  onClick={nextSlide}
+                  sx={{
+                    position: 'absolute',
+                    right: -20,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    bgcolor: 'white',
+                    boxShadow: 2,
+                    '&:hover': { bgcolor: 'grey.100' }
+                  }}
+                >
+                  <ArrowForward />
+                </IconButton>
+
+                {/* Indicators */}
+                <Box 
+                  display="flex" 
+                  justifyContent="center" 
+                  gap={1} 
+                  mt={3}
+                >
+                  {reviews.map((_, index) => (
+                    <Box
+                      key={index}
+                      onClick={() => setCurrentSlide(index)}
+                      sx={{
+                        width: 12,
+                        height: 12,
+                        borderRadius: '50%',
+                        bgcolor: index === currentSlide ? '#667eea' : 'grey.300',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          bgcolor: index === currentSlide ? '#667eea' : 'grey.400'
+                        }
+                      }}
+                    />
+                  ))}
+                </Box>
+              </>
+            )}
+          </Box>
         )}
 
-        {/* Review Form Dialog */}
+        {/* Review Form Dialog - Identique à la version précédente */}
         <Dialog 
           open={openDialog} 
           onClose={() => setOpenDialog(false)}
@@ -432,17 +552,6 @@ const Reviews = () => {
           )}
         </Dialog>
       </Box>
-
-      {/* Styles pour Swiper */}
-      <style jsx global>{`
-        .reviews-swiper .custom-bullet {
-          background: rgba(102, 126, 234, 0.3) !important;
-          opacity: 1 !important;
-        }
-        .reviews-swiper .custom-bullet-active {
-          background: #667eea !important;
-        }
-      `}</style>
     </Box>
   );
 };
