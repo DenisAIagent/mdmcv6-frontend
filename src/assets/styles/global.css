@@ -341,14 +341,27 @@ section h2:not(.hero h2),
   color: var(--color-text) !important;
 }
 
-/* CORRECTION : Titre "Derniers Articles" forcé en blanc */
+/* CORRECTION RENFORCÉE : Titre "Derniers Articles" forcé en blanc */
 .articles-section h2,
 .articles-section .section-title,
-h2:contains("Derniers Articles"),
-[class*="articles"] h2,
 .blog-section h2,
-.posts-section h2 {
-  color: white !important;
+.posts-section h2,
+section h2.section-title,
+h2.section-title,
+h2[class*="title"],
+[class*="articles"] h2,
+[class*="blog"] h2,
+div h2,
+section div h2,
+* h2:not(.hero h2):not(.footer h2) {
+  color: #ffffff !important;
+}
+
+/* Spécificité maximale pour forcer le blanc */
+body section h2,
+body div h2.section-title,
+body .section-title {
+  color: #ffffff !important;
 }
 
 /* Sous-titres spécifiques EN ROUGE */
