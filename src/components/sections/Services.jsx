@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { FaYoutube, FaFacebookF, FaInstagram, FaTiktok } from 'react-icons/fa';
 import '../../assets/styles/services.css';
 
 const Services = () => {
@@ -7,36 +8,21 @@ const Services = () => {
   const services = [
     {
       id: 'youtube',
-      icon: '🎥',
+      icon: <FaYoutube />,
       title: t('services.youtube.title', 'YouTube Ads'),
-      description: t('services.youtube.description', 'Campagnes publicitaires ciblées pour maximiser vos vues et votre engagement.'),
-      features: [
-        t('services.youtube.feature1', 'Ciblage précis par démographie'),
-        t('services.youtube.feature2', 'Optimisation du coût par vue'),
-        t('services.youtube.feature3', 'Analytics détaillés')
-      ]
+      description: t('services.youtube.description', 'Campagnes publicitaires ciblées pour maximiser vos vues et votre engagement.')
     },
     {
       id: 'meta',
-      icon: '📱',
+      icon: <div className="meta-icons"><FaFacebookF /><FaInstagram /></div>,
       title: t('services.meta.title', 'Meta Ads'),
-      description: t('services.meta.description', 'Facebook et Instagram : touchez votre audience où elle se trouve.'),
-      features: [
-        t('services.meta.feature1', 'Ciblage par intérêts musicaux'),
-        t('services.meta.feature2', 'Formats visuels engageants'),
-        t('services.meta.feature3', 'Retargeting avancé')
-      ]
+      description: t('services.meta.description', 'Facebook et Instagram : touchez votre audience où elle se trouve.')
     },
     {
       id: 'tiktok',
-      icon: '🎵',
+      icon: <FaTiktok />,
       title: t('services.tiktok.title', 'TikTok Ads'),
-      description: t('services.tiktok.description', 'La plateforme qui fait exploser les tendances musicales.'),
-      features: [
-        t('services.tiktok.feature1', 'Contenu viral optimisé'),
-        t('services.tiktok.feature2', 'Audience jeune et engagée'),
-        t('services.tiktok.feature3', 'Intégration native')
-      ]
+      description: t('services.tiktok.description', 'La plateforme qui fait exploser les tendances musicales.')
     }
   ];
 
@@ -52,19 +38,6 @@ const Services = () => {
               <div className="service-icon">{service.icon}</div>
               <h3 className="service-title">{service.title}</h3>
               <p className="service-description">{service.description}</p>
-              
-              <ul className="service-features">
-                {service.features.map((feature, index) => (
-                  <li key={index} className="service-feature">
-                    <span className="feature-check">✓</span>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-              
-              <button className="service-cta btn btn-primary">
-                {t('services.cta', 'En savoir plus')}
-              </button>
             </div>
           ))}
         </div>
@@ -74,3 +47,4 @@ const Services = () => {
 };
 
 export default Services;
+
