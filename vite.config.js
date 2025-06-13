@@ -16,6 +16,16 @@ export default defineConfig({
     },
     extensions: [".js", ".jsx", ".ts", ".tsx", ".json"]
   },
+  // ✅ FIX REACT-DROPZONE : Optimisation des dépendances
+  optimizeDeps: {
+    include: [
+      'react-dropzone',
+      'react',
+      'react-dom',
+      '@mui/material',
+      '@mui/icons-material'
+    ]
+  },
   build: {
     outDir: "dist",
     sourcemap: false,
@@ -26,7 +36,9 @@ export default defineConfig({
         manualChunks: {
           vendor: ["react", "react-dom"],
           mui: ["@mui/material", "@mui/icons-material", "@mui/x-data-grid"],
-          form: ["@hookform/resolvers", "zod", "react-hook-form"]
+          form: ["@hookform/resolvers", "zod", "react-hook-form"],
+          // ✅ Chunk séparé pour react-dropzone
+          dropzone: ["react-dropzone"]
         }
       },
       onwarn(warning, warn) {
@@ -34,6 +46,8 @@ export default defineConfig({
         if (warning.code === "DYNAMIC_IMPORT") return
         if (warning.code === "UNRESOLVED_IMPORT") return
         if (warning.message.includes("dynamic import")) return
+        // ✅ Ignorer les warnings react-dropzone
+        if (warning.message.includes("react-dropzone")) return
         warn(warning)
       }
     }
