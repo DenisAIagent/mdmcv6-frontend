@@ -160,7 +160,7 @@ export const useResourcePreloading = () => {
 
   const preloadRoute = useCallback((routePath) => {
     // Précharge les chunks JavaScript pour une route
-    import(/* webpackChunkName: "route-[request]" */ `../pages${routePath}`)
+    import(/* webpackChunkName: "route-[request]" */ `../pages/${routePath}.jsx`)
       .catch(err => console.warn('Failed to preload route:', routePath, err));
   }, []);
 

@@ -1,164 +1,222 @@
-// frontend/src/features/admin/components/ImageUpload.jsx
+import React, { useState } from 'react';
+import { Box, Typography, Button, List, ListItem, ListItemText, IconButton, LinearProgress, Alert } from '@mui/material';
+import { CloudUpload, Delete, Image, CheckCircle } from '@mui/icons-material';
 
-import React, { useState, useCallback } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { Box, Typography, Button, CircularProgress, Alert } from '@mui/material';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-
-// TODO: Importer la vraie fonction d'upload depuis ton service API
-// import { uploadImage } from '../../../services/api'; // Ajuste le chemin si besoin
-
-// Supprimer la fonction placeholder uploadImageApi si elle existe encore
-
-const ImageUpload = ({ onUploadSuccess, initialImageUrl = null }) => {
+const ImageUpload = ({ onUploadSuccess, maxFiles = 5, uploadUrl = '/api/upload' }) => {
+  const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
-  const [uploadedImageUrl, setUploadedImageUrl] = useState(initialImageUrl);
 
-  const onDrop = useCallback(async (acceptedFiles, rejectedFiles) => {
-    setError(null); // Reset error on new attempt
+  const handleFileSelect = (event) => {
+    const selectedFiles = Array.from(event.target.files);
+    const newFiles = selectedFiles.map(file => ({
+      ...file,
+      id: Math.random().toString(36).substr(2, 9),
+      preview: URL.createObjectURL(file),
+      status: 'selected'
+    }));
+    
+    const updatedFiles = [...files, ...newFiles].slice(0, maxFiles);
+    setFiles(updatedFiles);
+  };
 
-    // Gérer les fichiers rejetés par react-dropzone (type, taille)
-    if (rejectedFiles && rejectedFiles.length > 0) {
-      const rejectionError = rejectedFiles[0].errors[0];
-      let userMessage = "Erreur de fichier.";
-      // Donner des messages plus précis si possible
-      if (rejectionError.code === 'file-invalid-type') {
-          userMessage = "Type de fichier invalide. Images uniquement.";
-      } else if (rejectionError.code === 'file-too-large') {
-          userMessage = "Fichier trop volumineux (Max 5MB)."; // Assure-toi que la limite est définie dans useDropzone ou multer
-      } else {
-          userMessage = rejectionError.message; // Message par défaut de la librairie
-      }
-      setError(userMessage);
-      if (onUploadSuccess) onUploadSuccess(null); // Notifier l'échec au parent
-      return;
-    }
+  const removeFile = (fileId) => {
+    const updatedFiles = files.filter(file => file.id !== fileId);
+    setFiles(updatedFiles);
+  };
 
-    const file = acceptedFiles?.[0];
-    if (!file) return;
-
-    setUploading(true);
-    // setUploadedImageUrl(null); // Optionnel: Effacer l'image précédente pendant l'upload
-
+  const uploadFile = async (file) => {
     const formData = new FormData();
-    formData.append('image', file); // 'image' doit correspondre au nom attendu par multer backend
-
+    formData.append('image', file);
+    
     try {
-      // TODO: Remplacer par l'appel API réel vers ton backend qui utilise Cloudinary
-      // const response = await uploadImage(formData);
-      // ------- Simulation pour le moment -------
-      console.log("Simulating API call to upload:", file.name);
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simule délai réseau
-      // Simule une réponse succès/échec aléatoire
-      const simulateSuccess = Math.random() > 0.1; // 90% succès
-      if (!simulateSuccess) throw new Error("Échec simulé de l'upload");
-      const response = {
-          success: true,
-          // Utilise une image réelle de Cloudinary pour un aperçu plus réaliste
-          data: { imageUrl: `https://res.cloudinary.com/demo/image/upload/w_200,h_150,c_fill,g_auto/${file.name}` },
-          message: "Simulation d'upload réussie."
-      };
-      // ------- Fin de la simulation -------
+      setUploading(true);
+      setError(null);
+      
+      setFiles(prev => prev.map(f => 
+        f.id === file.id ? { ...f, status: 'uploading' } : f
+      ));
 
-      // Traitement de la réponse réelle
-      if (response && response.success && response.data.imageUrl) {
-        const newUrl = response.data.imageUrl;
-        setUploadedImageUrl(newUrl);
-        if (onUploadSuccess) {
-          onUploadSuccess(newUrl); // Passe la nouvelle URL au formulaire parent
-        }
-        // TODO: Ajouter un toast.success("Image téléversée !") ici
-      } else {
-        // Si l'API répond success: false ou si data.imageUrl manque
-        throw new Error(response?.message || "Erreur lors de l'upload de l'image.");
+      const response = await fetch(uploadUrl, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`);
       }
+
+      const result = await response.json();
+      const imageUrl = result.url || result.imageUrl || result.path;
+
+      setFiles(prev => prev.map(f => 
+        f.id === file.id ? { ...f, status: 'uploaded', url: imageUrl } : f
+      ));
+
+      onUploadSuccess && onUploadSuccess(imageUrl);
+      
     } catch (err) {
-      console.error("Upload error:", err);
-      setError(err.message || "Une erreur inconnue est survenue lors de l'upload.");
-       if (onUploadSuccess) {
-          onUploadSuccess(null); // Notifier le parent de l'échec
-        }
-       // TODO: Ajouter un toast.error(err.message || "Échec de l'upload.") ici
+      console.error('Upload error:', err);
+      setError(err.message);
+      
+      setFiles(prev => prev.map(f => 
+        f.id === file.id ? { ...f, status: 'error' } : f
+      ));
     } finally {
       setUploading(false);
     }
-  }, [onUploadSuccess]);
+  };
 
-  // Configuration de react-dropzone
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      'image/jpeg': [],
-      'image/png': [],
-      'image/gif': [],
-      'image/webp': []
-    }, // Syntaxe plus récente pour 'accept'
-    maxSize: 5 * 1024 * 1024, // Limite de taille (ex: 5MB) - doit correspondre au backend
-    multiple: false
-  });
+  const uploadAllFiles = async () => {
+    const filesToUpload = files.filter(f => f.status === 'selected');
+    
+    for (const file of filesToUpload) {
+      await uploadFile(file);
+    }
+  };
 
   return (
-    <Box sx={{ mt: 2 }}>
-      <Typography variant="subtitle1" gutterBottom>
-        Image (Artiste / Pochette)
-      </Typography>
+    <Box sx={{ width: '100%' }}>
       <Box
-        {...getRootProps()}
         sx={{
-          border: `2px dashed ${isDragActive ? 'primary.main' : (error ? 'error.main' : 'grey.500')}`, // Bordure rouge en cas d'erreur
-          borderRadius: 1,
+          border: '2px dashed #ccc',
+          borderRadius: 2,
           p: 3,
           textAlign: 'center',
-          cursor: 'pointer',
-          backgroundColor: isDragActive ? 'action.hover' : 'background.paper',
-          transition: 'border-color 0.2s ease-in-out, background-color 0.2s ease-in-out', // Transition douce
+          backgroundColor: '#fafafa',
           '&:hover': {
             borderColor: 'primary.main',
-          },
+            backgroundColor: 'primary.50'
+          }
         }}
       >
-        <input {...getInputProps()} />
-        {uploading ? (
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <CircularProgress size={40} sx={{ mb: 2 }} />
-            <Typography>Téléversement...</Typography>
-          </Box>
-        ) : uploadedImageUrl ? (
-          // Affichage de l'aperçu si une image a été uploadée avec succès
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <img
-              src={uploadedImageUrl}
-              alt="Aperçu"
-              style={{ maxWidth: '100%', maxHeight: '150px', marginBottom: '10px', borderRadius: '4px', objectFit: 'cover' }} // objectFit: 'cover'
-            />
-            <Box sx={{ display: 'flex', alignItems: 'center', color: 'success.main', mt:1 }}>
-                <CheckCircleOutlineIcon sx={{ mr: 1 }} fontSize="small"/>
-                <Typography variant="body2">Image chargée. Cliquez/Déposez pour remplacer.</Typography>
-            </Box>
-          </Box>
-        ) : (
-          // État initial ou après une erreur sans image uploadée
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <CloudUploadIcon sx={{ fontSize: 40, mb: 1, color: 'text.secondary' }} />
-            {isDragActive ? (
-              <Typography>Déposez l'image ici ...</Typography>
-            ) : (
-              <Typography>Glissez-déposez une image ici, ou cliquez pour sélectionner</Typography>
-            )}
-            <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
-              (JPEG, PNG, GIF, WEBP - Max 5MB)
-            </Typography>
-          </Box>
-        )}
+        <CloudUpload sx={{ fontSize: 48, color: 'grey.400', mb: 2 }} />
+        
+        <Typography variant="h6" gutterBottom>
+          Sélectionner des images
+        </Typography>
+        
+        <input
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={handleFileSelect}
+          style={{ display: 'none' }}
+          id="file-upload"
+          disabled={uploading}
+        />
+        
+        <label htmlFor="file-upload">
+          <Button
+            variant="contained"
+            component="span"
+            startIcon={<CloudUpload />}
+            disabled={uploading}
+          >
+            Choisir des images
+          </Button>
+        </label>
+        
+        <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+          Images uniquement - Max {maxFiles} fichiers
+        </Typography>
       </Box>
-      {/* Affichage de l'erreur sous la zone de drop */}
+
       {error && (
-        <Alert severity="error" icon={<ErrorOutlineIcon fontSize="inherit" />} sx={{ mt: 2 }} onClose={() => setError(null)}>
-          {error}
+        <Alert severity="error" sx={{ mt: 2 }}>
+          Erreur d'upload: {error}
         </Alert>
+      )}
+
+      {files.length > 0 && (
+        <Box sx={{ mt: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+            <Typography variant="subtitle2">
+              Images sélectionnées ({files.length})
+            </Typography>
+            
+            {files.some(f => f.status === 'selected') && (
+              <Button
+                variant="outlined"
+                onClick={uploadAllFiles}
+                disabled={uploading}
+                startIcon={<CloudUpload />}
+                size="small"
+              >
+                Uploader tout
+              </Button>
+            )}
+          </Box>
+          
+          {uploading && <LinearProgress sx={{ mb: 2 }} />}
+          
+          <List>
+            {files.map((file) => (
+              <ListItem
+                key={file.id}
+                secondaryAction={
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    {file.status === 'selected' && (
+                      <Button
+                        size="small"
+                        onClick={() => uploadFile(file)}
+                        disabled={uploading}
+                      >
+                        Upload
+                      </Button>
+                    )}
+                    
+                    {file.status === 'uploaded' && (
+                      <CheckCircle color="success" />
+                    )}
+                    
+                    <IconButton
+                      edge="end"
+                      onClick={() => removeFile(file.id)}
+                      color="error"
+                      disabled={uploading && file.status === 'uploading'}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </Box>
+                }
+              >
+                <Image 
+                  sx={{ 
+                    mr: 2, 
+                    color: file.status === 'uploaded' ? 'success.main' : 
+                           file.status === 'error' ? 'error.main' : 'primary.main' 
+                  }} 
+                />
+                <ListItemText
+                  primary={file.name}
+                  secondary={
+                    <Box>
+                      <Typography variant="caption">
+                        {(file.size / 1024 / 1024).toFixed(2)} MB
+                      </Typography>
+                      {file.status === 'uploading' && (
+                        <Typography variant="caption" color="primary" sx={{ ml: 1 }}>
+                          Upload en cours...
+                        </Typography>
+                      )}
+                      {file.status === 'uploaded' && (
+                        <Typography variant="caption" color="success.main" sx={{ ml: 1 }}>
+                          Uploadé ✓
+                        </Typography>
+                      )}
+                      {file.status === 'error' && (
+                        <Typography variant="caption" color="error" sx={{ ml: 1 }}>
+                          Erreur ✗
+                        </Typography>
+                      )}
+                    </Box>
+                  }
+                />
+              </ListItem>
+            ))}
+          </List>
+        </Box>
       )}
     </Box>
   );
