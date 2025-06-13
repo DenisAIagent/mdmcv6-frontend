@@ -1,54 +1,29 @@
-# Fichiers de développement
-.git
-.gitignore
-README.md
-CHECKLIST_FINALE*
-*.md
+import { defineConfig } from "vite"
+import react from "@vitejs/plugin-react"
+import path from "path"
 
-# Cache et builds locaux
-node_modules
-dist
-.vite
-.cache
-
-# Fichiers de configuration locaux
-.env.local
-.env.development
-.env.test
-
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Tests
-coverage
-.nyc_output
-test-results
-
-# IDE
-.vscode
-.idea
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Scripts de développement
-scripts/dev*
-scripts/test*
-
-# Images non optimisées (garder seulement les optimisées)
-src/assets/**/*.png
-src/assets/**/*.jpg
-src/assets/**/*.jpeg
-!src/assets/**/*-optimized.*
-!src/assets/**/*-compressed.*
-
-# Documentation
-docs/
-*.md
+export default defineConfig({
+  plugins: [react()],
+  
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src")
+    }
+  },
+  
+  build: {
+    outDir: "dist",
+    sourcemap: false,
+    minify: "esbuild"
+  },
+  
+  server: {
+    port: 3000,
+    host: "0.0.0.0"
+  },
+  
+  preview: {
+    port: process.env.PORT || 3000,
+    host: "0.0.0.0"
+  }
+})

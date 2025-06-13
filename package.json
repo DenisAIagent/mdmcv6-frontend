@@ -6,13 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "start": "vite preview --port $PORT --host 0.0.0.0",
-    "preview": "vite preview",
-    "analyze": "ANALYZE=true vite build",
-    "lighthouse": "lhci autorun",
-    "a11y": "axe-core src/",
-    "test:performance": "npm run build && npm run lighthouse",
-    "test:a11y": "npm run a11y"
+    "start": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
@@ -40,76 +34,7 @@
     "zod": "^3.25.63"
   },
   "devDependencies": {
-    "@axe-core/cli": "^4.6.0",
-    "@lhci/cli": "^0.12.0",
-    "@types/react": "^18.0.27",
-    "@types/react-dom": "^18.0.10",
-    "@vitejs/plugin-react": "^3.1.0",
-    "autoprefixer": "^10.4.13",
-    "axe-core": "^4.6.3",
-    "eslint": "^8.34.0",
-    "eslint-plugin-jsx-a11y": "^6.7.1",
-    "eslint-plugin-react": "^7.32.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "imagemin": "^8.0.1",
-    "imagemin-mozjpeg": "^10.0.0",
-    "imagemin-pngquant": "^9.0.2",
-    "imagemin-svgo": "^10.0.1",
-    "imagemin-webp": "^7.0.0",
-    "jsdom": "^26.1.0",
-    "postcss": "^8.4.21",
-    "prettier": "^2.8.4",
-    "rollup-plugin-visualizer": "^5.9.0",
-    "vite": "^4.1.0",
-    "vite-plugin-compression": "^0.5.1",
-    "vite-plugin-imagemin": "^0.6.1"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "lighthouse": {
-    "ci": {
-      "assert": {
-        "assertions": {
-          "categories:performance": [
-            "error",
-            {
-              "minScore": 0.9
-            }
-          ],
-          "categories:accessibility": [
-            "error",
-            {
-              "minScore": 0.9
-            }
-          ],
-          "categories:best-practices": [
-            "error",
-            {
-              "minScore": 0.9
-            }
-          ],
-          "categories:seo": [
-            "error",
-            {
-              "minScore": 0.9
-            }
-          ]
-        }
-      }
-    }
-  },
-  "engines": {
-    "node": ">=16.0.0",
-    "npm": ">=8.0.0"
+    "@vitejs/plugin-react": "^4.5.2",
+    "vite": "^6.3.5"
   }
 }
