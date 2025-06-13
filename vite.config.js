@@ -24,6 +24,15 @@ export default defineConfig({
   
   preview: {
     port: process.env.PORT || 3000,
-    host: "0.0.0.0"
+    host: "0.0.0.0",
+    allowedHosts: [
+      "healthcheck.railway.app",
+      ".railway.app",
+      "localhost",
+      "www.mdmcmusicads.com",
+      "mdmcmusicads.com",
+      ".mdmcmusicads.com",
+      "blog.mdmcmusicads.com"
+    ]
   }
 })
