@@ -29,15 +29,11 @@ export default defineConfig({
           form: ["@hookform/resolvers", "zod", "react-hook-form"]
         }
       },
-      external: [
-        "@mui/x-data-grid",
-        "@hookform/resolvers/zod",
-        "zod",
-        "react-hook-form"
-      ],
       onwarn(warning, warn) {
         if (warning.code === "MODULE_LEVEL_DIRECTIVE") return
         if (warning.code === "DYNAMIC_IMPORT") return
+        if (warning.code === "UNRESOLVED_IMPORT") return
+        if (warning.message.includes("dynamic import")) return
         warn(warning)
       }
     }
