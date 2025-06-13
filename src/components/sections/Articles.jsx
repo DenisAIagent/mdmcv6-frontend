@@ -211,4 +211,4 @@ const Articles = () => {
   );
 };
 
-export default Articles;
+export default Articles;console.log('TEST DEPLOY ACTIF Fri Jun 13 20:45:43 WEST 2025');
