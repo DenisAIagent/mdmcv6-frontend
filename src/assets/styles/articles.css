@@ -20,10 +20,7 @@
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 15px;
-  background: linear-gradient(135deg, #ff3a3a, #ff6b6b);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #ffffff; /* ✅ CORRIGÉ : Blanc au lieu du gradient rouge */
 }
 
 .error-message {
@@ -115,6 +112,14 @@
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.visit-blog-btn:hover {
+  background: linear-gradient(135deg, #ff6b6b, #ff8a8a);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(255, 58, 58, 0.3);
+}
   letter-spacing: 0.5px;
 }
 
@@ -352,11 +357,3 @@
   cursor: pointer;
   transition: all 0.3s ease;
   text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.visit-blog-btn:hover {
-  background: linear-gradient(135deg, #ff6b6b, #ff8a8a);
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(255, 58, 58, 0.3);
-}
