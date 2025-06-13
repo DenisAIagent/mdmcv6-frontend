@@ -341,12 +341,14 @@ section h2:not(.hero h2),
   color: var(--color-text) !important;
 }
 
-/* CORRECTION EXACTE : Titre "Derniers Articles" forcé en blanc */
-.articles-header h2,
-.articles-header .section-title,
-div.articles-header h2,
-section .articles-header h2 {
+/* CORRECTION DÉFINITIVE : Supprime le gradient rouge et force le blanc */
+.articles-header h2 {
   color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background: none !important;
+  background-image: none !important;
+  background-clip: unset !important;
+  -webkit-background-clip: unset !important;
   font-size: 2.5rem !important;
   font-weight: 700 !important;
   margin-bottom: 15px !important;
