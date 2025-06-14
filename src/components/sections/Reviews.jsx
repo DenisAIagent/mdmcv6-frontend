@@ -1,642 +1,606 @@
+// src/components/sections/Reviews.jsx
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
+  Container,
   Typography,
-  Button,
-  Rating,
-  TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  IconButton,
-  CircularProgress,
-  Alert,
+  Grid,
   Card,
   CardContent,
   Avatar,
-  Grid,
+  Rating,
+  Button,
+  Skeleton,
+  Alert,
+  Chip,
+  IconButton,
   Fade,
-  Chip
+  Slide,
+  useTheme,
+  alpha,
+  Stack,
+  Divider
 } from '@mui/material';
-import { Close, Star, FormatQuote, Business, Email, Language, ArrowBack, ArrowForward } from '@mui/icons-material';
+import {
+  Star,
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
+  Verified,
+  TrendingUp,
+  Refresh,
+  FormatQuote,
+  Business
+} from '@mui/icons-material';
+import { motion, AnimatePresence } from 'framer-motion';
 
-// Service Airtable intégré
-class AirtableReviewsService {
-  constructor() {
-    this.baseId = 'apprn2ASTLVgJeG6Y';
-    this.tableName = 'Reviews';
-    this.apiKey = 'patVtnWrSFIAdUZ5T.d1b31fa65b9d76ed80ea5a69d4aa9676f32140a13458c2fd3b62df8d117c0574';
-    this.baseUrl = `https://api.airtable.com/v0/${this.baseId}/${this.tableName}`;
-    
-    console.log('🔧 Airtable Service initialized:', { baseId: this.baseId });
-  }
+// Import du service Airtable
+import airtableService from '../../services/airtableReviews.service';
 
-  async getApprovedReviews() {
-    try {
-      console.log('🔍 Airtable: Récupération des avis approuvés...');
-      
-      const url = `${this.baseUrl}?filterByFormula={Status}='Approved'&sort[0][field]=Submitted At&sort[0][direction]=desc`;
-      
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json'
-        }
-      });
+// Composant pour une carte d'avis individuelle
+const ReviewCard = ({ review, index, delay = 0 }) => {
+  const theme = useTheme();
 
-      if (!response.ok) {
-        throw new Error(`Airtable API error: ${response.status}`);
-      }
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30, scale: 0.9 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ 
+        delay: delay + (index * 0.1), 
+        duration: 0.6,
+        ease: "easeOut"
+      }}
+      whileHover={{ y: -8, transition: { duration: 0.3 } }}
+    >
+      <Card
+        sx={{
+          height: '100%',
+          position: 'relative',
+          overflow: 'hidden',
+          background: review.featured 
+            ? `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.08)} 0%, ${alpha(theme.palette.secondary.main, 0.08)} 100%)`
+            : 'background.paper',
+          border: review.featured 
+            ? `2px solid ${alpha(theme.palette.primary.main, 0.4)}`
+            : `1px solid ${alpha(theme.palette.divider, 0.12)}`,
+          borderRadius: 3,
+          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+          '&:hover': {
+            boxShadow: `0 20px 40px ${alpha(theme.palette.primary.main, 0.15)}`,
+            border: `2px solid ${alpha(theme.palette.primary.main, 0.3)}`,
+          },
+          '&::before': review.featured ? {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '4px',
+            background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+          } : {}
+        }}
+      >
+        {/* Badge pour avis vedette */}
+        {review.featured && (
+          <Chip
+            label="⭐ Coup de cœur"
+            size="small"
+            sx={{
+              position: 'absolute',
+              top: 16,
+              right: 16,
+              bgcolor: theme.palette.primary.main,
+              color: 'white',
+              zIndex: 2,
+              fontWeight: 600,
+              fontSize: '0.75rem',
+              height: 28,
+              boxShadow: theme.shadows[3]
+            }}
+          />
+        )}
 
-      const data = await response.json();
-      console.log('✅ Airtable: Avis récupérés', { count: data.records?.length || 0 });
-      
-      return this.formatReviews(data.records || []);
-    } catch (error) {
-      console.warn('⚠️ Airtable: Erreur API, fallback activé', error);
-      return this.getFallbackReviews();
-    }
-  }
+        <CardContent sx={{ p: 3 }}>
+          {/* Header avec avatar et infos client */}
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 3 }}>
+            <Avatar
+              src={review.avatar}
+              sx={{
+                width: 56,
+                height: 56,
+                mr: 2.5,
+                bgcolor: review.featured 
+                  ? theme.palette.primary.main 
+                  : theme.palette.secondary.main,
+                fontSize: '1.2rem',
+                fontWeight: 700,
+                border: `3px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                boxShadow: theme.shadows[3]
+              }}
+            >
+              {review.initials}
+            </Avatar>
+            
+            <Box sx={{ flexGrow: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                <Typography 
+                  variant="h6" 
+                  sx={{ 
+                    fontWeight: 700,
+                    color: 'text.primary',
+                    fontSize: '1.1rem'
+                  }}
+                >
+                  {review.name}
+                </Typography>
+                <Verified 
+                  sx={{ 
+                    color: theme.palette.success.main, 
+                    fontSize: 18 
+                  }} 
+                />
+              </Box>
+              
+              {review.company && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
+                  <Business sx={{ fontSize: 14, color: 'text.secondary' }} />
+                  <Typography 
+                    variant="body2" 
+                    color="text.secondary"
+                    sx={{ fontWeight: 500 }}
+                  >
+                    {review.company}
+                  </Typography>
+                </Box>
+              )}
+              
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Rating
+                  value={review.rating}
+                  readOnly
+                  size="small"
+                  sx={{
+                    '& .MuiRating-iconFilled': {
+                      color: '#FFD700'
+                    },
+                    '& .MuiRating-iconEmpty': {
+                      color: alpha('#FFD700', 0.3)
+                    }
+                  }}
+                />
+                <Typography 
+                  variant="caption" 
+                  color="text.secondary"
+                  sx={{ fontWeight: 500 }}
+                >
+                  {review.timeAgo}
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
 
-  async submitReview(reviewData) {
-    try {
-      console.log('📝 Airtable: Soumission avis...', { name: reviewData.name });
-      
-      const record = {
-        fields: {
-          'Name': reviewData.name,
-          'Email': reviewData.email,
-          'Company': reviewData.company || '',
-          'Website': reviewData.website || '',
-          'Rating': parseInt(reviewData.rating),
-          'Message': reviewData.message,
-          'Status': 'Pending',
-          'IP Address': 'production'
-        }
-      };
+          {/* Citation avec guillemets */}
+          <Box sx={{ position: 'relative', mb: 3 }}>
+            <FormatQuote 
+              sx={{ 
+                position: 'absolute',
+                top: -16,
+                left: -8,
+                color: alpha(theme.palette.primary.main, 0.15),
+                fontSize: 48,
+                transform: 'rotate(180deg)',
+                zIndex: 0
+              }} 
+            />
+            
+            <Typography
+              variant="body1"
+              sx={{
+                lineHeight: 1.7,
+                fontStyle: 'italic',
+                position: 'relative',
+                zIndex: 1,
+                pl: 2,
+                color: 'text.primary',
+                fontSize: '0.95rem'
+              }}
+            >
+              "{review.comment}"
+            </Typography>
+          </Box>
 
-      const response = await fetch(this.baseUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(record)
-      });
+          {/* Footer avec source */}
+          <Divider sx={{ mb: 2 }} />
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center'
+          }}>
+            <Chip
+              label={`${review.rating}/5 étoiles`}
+              size="small"
+              variant="outlined"
+              sx={{
+                fontSize: '0.75rem',
+                height: 26,
+                bgcolor: alpha(theme.palette.success.main, 0.08),
+                borderColor: alpha(theme.palette.success.main, 0.3),
+                color: theme.palette.success.main,
+                fontWeight: 600
+              }}
+            />
+            
+            <Typography 
+              variant="caption" 
+              color="text.secondary"
+              sx={{ 
+                fontSize: '0.7rem',
+                fontWeight: 500
+              }}
+            >
+              via {review.source}
+            </Typography>
+          </Box>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+};
 
-      if (!response.ok) {
-        throw new Error(`Airtable submission error: ${response.status}`);
-      }
-
-      const result = await response.json();
-      console.log('✅ Airtable: Avis soumis avec succès', { id: result.id });
-      
-      return {
-        success: true,
-        message: 'Merci pour votre avis ! Il sera publié après modération.',
-        id: result.id
-      };
-    } catch (error) {
-      console.warn('⚠️ Airtable: Soumission échouée, mode simulation', error);
-      return {
-        success: true,
-        message: 'Merci pour votre avis ! Il sera publié après modération.',
-        id: `fallback_${Date.now()}`
-      };
-    }
-  }
-
-  formatReviews(records) {
-    return records.map(record => ({
-      id: record.id,
-      name: record.fields.Name || 'Anonyme',
-      company: record.fields.Company || '',
-      rating: record.fields.Rating || 5,
-      comment: record.fields.Message || '',
-      avatar: this.generateAvatar(record.fields.Name),
-      submittedAt: record.fields['Submitted At'] || new Date().toISOString()
-    }));
-  }
-
-  generateAvatar(name) {
-    const seed = name ? name.toLowerCase().replace(/\s+/g, '') : 'default';
-    return `https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face&sig=${seed}`;
-  }
-
-  getFallbackReviews() {
-    console.log('🔄 Airtable: Utilisation des données de fallback');
-    return [
-      {
-        id: 'fallback_1',
-        name: "Sarah L.",
-        company: "TechStart SAS",
-        rating: 5,
-        comment: "Service exceptionnel ! L'équipe MDMC a transformé notre présence digitale. ROI impressionnant dès le premier mois.",
-        avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b641?w=64&h=64&fit=crop&crop=face"
-      },
-      {
-        id: 'fallback_2',
-        name: "Marc D.",
-        company: "Innovate Corp",
-        rating: 5,
-        comment: "Professionnalisme et créativité au rendez-vous. Nos campagnes n'ont jamais été aussi performantes !",
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face"
-      },
-      {
-        id: 'fallback_3',
-        name: "Emma R.",
-        company: "Digital Solutions",
-        rating: 5,
-        comment: "Équipe réactive et résultats concrets. Je recommande vivement pour tout projet digital ambitieux.",
-        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&fit=crop&crop=face"
-      }
-    ];
-  }
-}
-
-const airtableService = new AirtableReviewsService();
-
+// Composant principal Reviews
 const Reviews = () => {
   const { t } = useTranslation();
+  const theme = useTheme();
+  
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    company: '',
-    website: '',
-    rating: 5,
-    message: ''
-  });
+  const [currentPage, setCurrentPage] = useState(0);
+  const [connectionTest, setConnectionTest] = useState(null);
+  
+  const reviewsPerPage = 6;
 
-  // Chargement des avis via Airtable
+  // Test de connexion Airtable au montage
   useEffect(() => {
+    const testAirtableConnection = async () => {
+      const result = await airtableService.testConnection();
+      setConnectionTest(result);
+      console.log('🔧 Test connexion Airtable:', result);
+    };
+
+    testAirtableConnection();
+  }, []);
+
+  // Chargement des avis
+  useEffect(() => {
+    const loadReviews = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        console.log('📊 Chargement des avis clients...');
+        const reviewsData = await airtableService.getApprovedReviews();
+        
+        if (reviewsData && reviewsData.length > 0) {
+          setReviews(reviewsData);
+          console.log('✅ Avis chargés:', { count: reviewsData.length });
+        } else {
+          console.log('ℹ️ Aucun avis trouvé');
+          setReviews([]);
+        }
+      } catch (err) {
+        console.error('❌ Erreur chargement avis:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadReviews();
   }, []);
 
-  // Auto-rotation du carousel
-  useEffect(() => {
-    if (reviews.length > 1) {
-      const interval = setInterval(() => {
-        setCurrentSlide(prev => (prev + 1) % reviews.length);
-      }, 5000);
-      return () => clearInterval(interval);
-    }
-  }, [reviews.length]);
-
-  const loadReviews = async () => {
-    try {
-      setLoading(true);
-      const data = await airtableService.getApprovedReviews();
-      setReviews(data);
-      setError(null);
-      console.log('✅ Reviews: Chargées avec succès', { count: data.length });
-    } catch (err) {
-      console.error('❌ Reviews: Erreur de chargement', err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const handleSubmit = async () => {
-    if (!formData.name || !formData.email || !formData.message) {
-      alert('Veuillez remplir tous les champs obligatoires');
-      return;
-    }
-
-    try {
-      setSubmitting(true);
-      const result = await airtableService.submitReview(formData);
-      
-      if (result.success) {
-        setSubmitSuccess(true);
-        setFormData({
-          name: '',
-          email: '',
-          company: '',
-          website: '',
-          rating: 5,
-          message: ''
-        });
-        
-        setTimeout(() => {
-          setOpenDialog(false);
-          setSubmitSuccess(false);
-        }, 2000);
-      }
-    } catch (err) {
-      console.error('❌ Reviews: Erreur de soumission', err);
-      alert('Erreur lors de la soumission. Veuillez réessayer.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const nextSlide = () => {
-    setCurrentSlide(prev => (prev + 1) % reviews.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide(prev => (prev - 1 + reviews.length) % reviews.length);
-  };
-
-  const renderReviewCard = (review) => (
-    <Card 
-      sx={{ 
-        height: '100%',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
-        position: 'relative',
-        overflow: 'hidden',
-        minHeight: '300px',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(255,255,255,0.1)',
-          backdropFilter: 'blur(10px)',
-          zIndex: 1
-        }
-      }}
-    >
-      <CardContent sx={{ position: 'relative', zIndex: 2, height: '100%', display: 'flex', flexDirection: 'column', p: 3 }}>
-        <Box display="flex" alignItems="center" gap={2} mb={2}>
-          <Avatar 
-            src={review.avatar} 
-            sx={{ width: 60, height: 60, border: '3px solid rgba(255,255,255,0.3)' }}
-          />
-          <Box flex={1}>
-            <Typography variant="h6" fontWeight="bold">
-              {review.name}
-            </Typography>
-            {review.company && (
-              <Typography variant="body2" sx={{ opacity: 0.9, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <Business sx={{ fontSize: 16 }} />
-                {review.company}
-              </Typography>
-            )}
-          </Box>
-          <Box textAlign="center">
-            <Rating 
-              value={review.rating} 
-              readOnly 
-              size="small"
-              sx={{ 
-                '& .MuiRating-iconFilled': { color: '#ffd700' },
-                '& .MuiRating-iconEmpty': { color: 'rgba(255,255,255,0.3)' }
-              }}
-            />
-            <Typography variant="caption" display="block">
-              {review.rating}/5
-            </Typography>
-          </Box>
-        </Box>
-        
-        <Box position="relative" flex={1}>
-          <FormatQuote sx={{ 
-            position: 'absolute', 
-            top: -8, 
-            left: -8, 
-            fontSize: 40, 
-            opacity: 0.3 
-          }} />
-          <Typography 
-            variant="body1" 
-            sx={{ 
-              fontStyle: 'italic',
-              lineHeight: 1.6,
-              pl: 2
-            }}
-          >
-            {review.comment}
-          </Typography>
-        </Box>
-      </CardContent>
-    </Card>
+  // Pagination
+  const totalPages = Math.ceil(reviews.length / reviewsPerPage);
+  const currentReviews = reviews.slice(
+    currentPage * reviewsPerPage,
+    (currentPage + 1) * reviewsPerPage
   );
 
-  return (
-    <Box sx={{ py: 8, px: 2 }}>
-      <Box maxWidth="1200px" mx="auto">
-        {/* Header */}
-        <Box textAlign="center" mb={6}>
+  const handleNextPage = () => {
+    setCurrentPage((prev) => (prev + 1) % totalPages);
+  };
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
+  };
+
+  const handleRefresh = async () => {
+    const loadReviews = async () => {
+      setLoading(true);
+      const reviewsData = await airtableService.getApprovedReviews();
+      setReviews(reviewsData || []);
+      setLoading(false);
+    };
+    loadReviews();
+  };
+
+  // Calcul des statistiques
+  const avgRating = reviews.length > 0 
+    ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
+    : '5.0';
+
+  const featuredCount = reviews.filter(review => review.featured).length;
+
+  // Composant de chargement
+  const LoadingSkeleton = () => (
+    <Grid container spacing={3}>
+      {[...Array(6)].map((_, index) => (
+        <Grid item xs={12} md={6} lg={4} key={index}>
+          <Card sx={{ height: 320 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Skeleton variant="circular" width={56} height={56} sx={{ mr: 2.5 }} />
+                <Box sx={{ flexGrow: 1 }}>
+                  <Skeleton variant="text" width="70%" height={28} />
+                  <Skeleton variant="text" width="50%" height={20} sx={{ mt: 0.5 }} />
+                  <Skeleton variant="text" width="40%" height={20} sx={{ mt: 0.5 }} />
+                </Box>
+              </Box>
+              <Skeleton variant="text" width="100%" height={20} />
+              <Skeleton variant="text" width="100%" height={20} />
+              <Skeleton variant="text" width="85%" height={20} />
+              <Skeleton variant="text" width="30%" height={24} sx={{ mt: 2 }} />
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
+    </Grid>
+  );
+
+  if (loading) {
+    return (
+      <Box 
+        component="section" 
+        id="reviews"
+        sx={{ 
+          py: { xs: 8, md: 12 },
+          background: `linear-gradient(135deg, ${alpha('#000', 0.02)} 0%, ${alpha('#000', 0.05)} 100%)`
+        }}
+      >
+        <Container maxWidth="lg">
           <Typography 
-            variant="h3" 
-            component="h2" 
-            gutterBottom
+            variant="h2" 
+            align="center" 
             sx={{ 
-              fontWeight: 'bold',
-              background: 'linear-gradient(45deg, #667eea, #764ba2)',
+              mb: 6,
+              fontWeight: 800,
+              background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
               backgroundClip: 'text',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent'
             }}
           >
-            {t('reviews.title', 'Ce que disent nos clients')}
+            {t('reviews.title', 'Avis de nos Clients')}
           </Typography>
-          <Typography variant="h6" color="text.secondary" mb={4}>
-            {t('reviews.subtitle', 'Des professionnels de la musique qui nous font confiance')}
+          <LoadingSkeleton />
+        </Container>
+      </Box>
+    );
+  }
+
+  if (error && reviews.length === 0) {
+    return (
+      <Box component="section" id="reviews" sx={{ py: { xs: 8, md: 12 } }}>
+        <Container maxWidth="lg">
+          <Typography variant="h2" align="center" sx={{ mb: 6 }}>
+            {t('reviews.title', 'Avis de nos Clients')}
           </Typography>
-          
-          <Button
-            variant="contained"
-            onClick={() => setOpenDialog(true)}
-            sx={{
-              background: 'linear-gradient(45deg, #667eea, #764ba2)',
-              borderRadius: '25px',
-              px: 4,
-              py: 1.5,
-              fontSize: '1.1rem',
-              textTransform: 'none',
-              boxShadow: '0 4px 20px rgba(102, 126, 234, 0.4)',
-              '&:hover': {
-                background: 'linear-gradient(45deg, #5a6fd8, #6a42a0)',
-                transform: 'translateY(-2px)',
-                boxShadow: '0 6px 25px rgba(102, 126, 234, 0.6)'
-              }
-            }}
+          <Alert 
+            severity="warning" 
+            sx={{ maxWidth: 600, mx: 'auto' }}
+            action={
+              <Button color="inherit" size="small" onClick={handleRefresh}>
+                <Refresh sx={{ mr: 1 }} />
+                Réessayer
+              </Button>
+            }
           >
-            ⭐ Laisser un avis
-          </Button>
-        </Box>
-
-        {/* Reviews Carousel */}
-        {loading ? (
-          <Box display="flex" justifyContent="center" py={4}>
-            <CircularProgress />
-          </Box>
-        ) : error ? (
-          <Alert severity="info" sx={{ mb: 4 }}>
-            Chargement des avis depuis Airtable. Les données de démonstration sont affichées.
+            Problème de connexion avec Airtable. Les avis seront bientôt disponibles.
+            {connectionTest && !connectionTest.success && (
+              <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                Statut: {connectionTest.error || 'Configuration en cours'}
+              </Typography>
+            )}
           </Alert>
-        ) : null}
+        </Container>
+      </Box>
+    );
+  }
 
-        {reviews.length > 0 && (
-          <Box sx={{ position: 'relative', maxWidth: '800px', mx: 'auto' }}>
-            {/* Carousel Container */}
-            <Box 
+  return (
+    <Box 
+      component="section" 
+      id="reviews"
+      sx={{ 
+        py: { xs: 8, md: 12 },
+        background: `linear-gradient(135deg, ${alpha('#000', 0.02)} 0%, ${alpha('#000', 0.05)} 100%)`
+      }}
+    >
+      <Container maxWidth="lg">
+        {/* Header avec statistiques */}
+        <Fade in timeout={800}>
+          <Box sx={{ textAlign: 'center', mb: 8 }}>
+            <Typography 
+              variant="h2" 
               sx={{ 
-                position: 'relative',
-                overflow: 'hidden',
-                borderRadius: 3,
-                height: '350px'
+                mb: 3,
+                background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontWeight: 800
               }}
             >
-              <Box 
-                sx={{ 
-                  display: 'flex',
-                  height: '100%',
-                  position: 'relative'
-                }}
-              >
-                {reviews.map((review, index) => (
-                  <Box
-                    key={review.id}
-                    sx={{
-                      position: 'absolute',
-                      width: '100%',
-                      height: '100%',
-                      transform: `translateX(${(index - currentSlide) * 100}%)`,
-                      transition: 'transform 0.5s ease-in-out'
-                    }}
-                  >
-                    {renderReviewCard(review)}
-                  </Box>
-                ))}
-              </Box>
-            </Box>
-
-            {/* Navigation */}
-            {reviews.length > 1 && (
-              <>
-                <IconButton
-                  onClick={prevSlide}
-                  sx={{
-                    position: 'absolute',
-                    left: -20,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    bgcolor: 'white',
-                    boxShadow: 2,
-                    '&:hover': { bgcolor: 'grey.100' }
-                  }}
-                >
-                  <ArrowBack />
-                </IconButton>
-                
-                <IconButton
-                  onClick={nextSlide}
-                  sx={{
-                    position: 'absolute',
-                    right: -20,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    bgcolor: 'white',
-                    boxShadow: 2,
-                    '&:hover': { bgcolor: 'grey.100' }
-                  }}
-                >
-                  <ArrowForward />
-                </IconButton>
-
-                {/* Indicators */}
-                <Box 
-                  display="flex" 
-                  justifyContent="center" 
-                  gap={1} 
-                  mt={3}
-                >
-                  {reviews.map((_, index) => (
-                    <Box
-                      key={index}
-                      onClick={() => setCurrentSlide(index)}
-                      sx={{
-                        width: 12,
-                        height: 12,
-                        borderRadius: '50%',
-                        bgcolor: index === currentSlide ? '#667eea' : 'grey.300',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease',
-                        '&:hover': {
-                          bgcolor: index === currentSlide ? '#667eea' : 'grey.400'
-                        }
-                      }}
-                    />
-                  ))}
-                </Box>
-              </>
-            )}
-          </Box>
-        )}
-
-        {/* Review Form Dialog */}
-        <Dialog 
-          open={openDialog} 
-          onClose={() => setOpenDialog(false)}
-          maxWidth="md"
-          fullWidth
-          PaperProps={{
-            sx: {
-              borderRadius: 3,
-              background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-            }
-          }}
-        >
-          <DialogTitle sx={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            background: 'linear-gradient(45deg, #667eea, #764ba2)',
-            color: 'white',
-            m: 0
-          }}>
-            <Typography variant="h5" component="div">
-              ⭐ Partager votre expérience
+              {t('reviews.title', 'Avis de nos Clients')}
             </Typography>
-            <IconButton 
-              onClick={() => setOpenDialog(false)}
-              sx={{ color: 'white' }}
+            
+            <Typography 
+              variant="h6" 
+              color="text.secondary" 
+              sx={{ mb: 4, maxWidth: 600, mx: 'auto', lineHeight: 1.6 }}
             >
-              <Close />
-            </IconButton>
-          </DialogTitle>
+              {t('reviews.subtitle', 'Découvrez les témoignages de nos clients satisfaits')}
+            </Typography>
 
-          <DialogContent sx={{ p: 4 }}>
-            {submitSuccess ? (
-              <Alert severity="success" sx={{ mb: 3 }}>
-                Merci pour votre avis ! Il sera publié après modération dans votre interface admin Airtable.
-              </Alert>
-            ) : (
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Nom complet *"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    variant="outlined"
-                    sx={{ mb: 2 }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Email *"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    variant="outlined"
-                    sx={{ mb: 2 }}
-                    InputProps={{
-                      startAdornment: <Email sx={{ mr: 1, color: 'text.secondary' }} />
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Entreprise"
-                    value={formData.company}
-                    onChange={(e) => handleInputChange('company', e.target.value)}
-                    variant="outlined"
-                    sx={{ mb: 2 }}
-                    InputProps={{
-                      startAdornment: <Business sx={{ mr: 1, color: 'text.secondary' }} />
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Site web"
-                    value={formData.website}
-                    onChange={(e) => handleInputChange('website', e.target.value)}
-                    variant="outlined"
-                    sx={{ mb: 2 }}
-                    InputProps={{
-                      startAdornment: <Language sx={{ mr: 1, color: 'text.secondary' }} />
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <Box display="flex" alignItems="center" gap={2} mb={2}>
-                    <Typography variant="body1">Note :</Typography>
-                    <Rating
-                      value={formData.rating}
-                      onChange={(e, newValue) => handleInputChange('rating', newValue)}
-                      size="large"
-                      sx={{ 
-                        '& .MuiRating-iconFilled': { color: '#ffd700' }
-                      }}
-                    />
-                    <Chip 
-                      label={`${formData.rating}/5`} 
-                      color="primary" 
-                      size="small"
-                    />
-                  </Box>
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Votre témoignage *"
-                    multiline
-                    rows={4}
-                    value={formData.message}
-                    onChange={(e) => handleInputChange('message', e.target.value)}
-                    variant="outlined"
-                    placeholder="Décrivez votre expérience avec MDMC..."
-                  />
-                </Grid>
-              </Grid>
-            )}
-          </DialogContent>
+            {/* Statistiques */}
+            <Stack 
+              direction={{ xs: 'column', sm: 'row' }} 
+              spacing={4} 
+              justifyContent="center" 
+              alignItems="center"
+              sx={{ mb: 6 }}
+            >
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="h3" sx={{ fontWeight: 800, color: theme.palette.primary.main }}>
+                  {avgRating}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Note moyenne
+                </Typography>
+              </Box>
+              
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="h3" sx={{ fontWeight: 800, color: theme.palette.secondary.main }}>
+                  {reviews.length}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Avis clients
+                </Typography>
+              </Box>
+              
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="h3" sx={{ fontWeight: 800, color: theme.palette.success.main }}>
+                  {featuredCount}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Coups de cœur
+                </Typography>
+              </Box>
+            </Stack>
 
-          {!submitSuccess && (
-            <DialogActions sx={{ p: 3, gap: 2 }}>
-              <Button 
-                onClick={() => setOpenDialog(false)}
+            {/* Indicateur de source */}
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
+              <Chip
+                label={connectionTest?.success ? "🟢 Connecté à Airtable" : "🟡 Mode Fallback"}
+                size="small"
                 variant="outlined"
-                disabled={submitting}
-              >
-                Annuler
-              </Button>
-              <Button 
-                onClick={handleSubmit}
-                variant="contained"
-                disabled={submitting || !formData.name || !formData.email || !formData.message}
                 sx={{
-                  background: 'linear-gradient(45deg, #667eea, #764ba2)',
-                  px: 4,
+                  bgcolor: connectionTest?.success 
+                    ? alpha(theme.palette.success.main, 0.1)
+                    : alpha(theme.palette.warning.main, 0.1),
+                  borderColor: connectionTest?.success 
+                    ? theme.palette.success.main
+                    : theme.palette.warning.main
+                }}
+              />
+              <IconButton size="small" onClick={handleRefresh} title="Actualiser">
+                <Refresh fontSize="small" />
+              </IconButton>
+            </Box>
+          </Box>
+        </Fade>
+
+        {/* Grille des avis */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentPage}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Grid container spacing={4}>
+              {currentReviews.map((review, index) => (
+                <Grid item xs={12} md={6} lg={4} key={review.id}>
+                  <ReviewCard 
+                    review={review} 
+                    index={index}
+                    delay={0.2}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Controls de pagination */}
+        {totalPages > 1 && (
+          <Fade in timeout={1000} style={{ transitionDelay: '800ms' }}>
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center',
+              gap: 2,
+              mt: 6 
+            }}>
+              <IconButton 
+                onClick={handlePrevPage}
+                disabled={totalPages <= 1}
+                sx={{
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
                   '&:hover': {
-                    background: 'linear-gradient(45deg, #5a6fd8, #6a42a0)',
+                    bgcolor: alpha(theme.palette.primary.main, 0.2)
                   }
                 }}
               >
-                {submitting ? <CircularProgress size={24} color="inherit" /> : 'Publier l\'avis'}
-              </Button>
-            </DialogActions>
-          )}
-        </Dialog>
-      </Box>
+                <KeyboardArrowLeft />
+              </IconButton>
+              
+              <Typography variant="body2" color="text.secondary">
+                {currentPage + 1} / {totalPages}
+              </Typography>
+              
+              <IconButton 
+                onClick={handleNextPage}
+                disabled={totalPages <= 1}
+                sx={{
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  '&:hover': {
+                    bgcolor: alpha(theme.palette.primary.main, 0.2)
+                  }
+                }}
+              >
+                <KeyboardArrowRight />
+              </IconButton>
+            </Box>
+          </Fade>
+        )}
+
+        {/* CTA vers tous les avis */}
+        <Fade in timeout={1000} style={{ transitionDelay: '1000ms' }}>
+          <Box sx={{ textAlign: 'center', mt: 6 }}>
+            <Button
+              variant="outlined"
+              size="large"
+              href="/all-reviews"
+              sx={{
+                borderRadius: 50,
+                px: 4,
+                py: 1.5,
+                fontWeight: 600,
+                borderWidth: 2,
+                '&:hover': {
+                  borderWidth: 2,
+                  transform: 'translateY(-2px)',
+                  boxShadow: theme.shadows[8]
+                }
+              }}
+            >
+              Voir tous les avis ({reviews.length})
+            </Button>
+          </Box>
+        </Fade>
+      </Container>
     </Box>
   );
 };
