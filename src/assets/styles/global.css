@@ -354,6 +354,23 @@ section h2:not(.hero h2),
   margin-bottom: 15px !important;
 }
 
+/* FORCE BLANC SUR TOUS LES TITRES D'ARTICLES - PRIORITÉ GLOBALE */
+.articles-section h2,
+.articles-container h2,
+.articles-header h2,
+section.articles-section h2,
+div.articles-container h2,
+div.articles-header h2 {
+  background: linear-gradient(135deg, #ffffff, #ffffff) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  color: #ffffff !important;
+  font-size: 2.5rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 15px !important;
+}
+
 /* Sous-titres spécifiques EN ROUGE */
 .hero-subtitle,
 .hero-description,
