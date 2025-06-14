@@ -1,6 +1,7 @@
 // src/services/api.service.js - Version Complète Finale
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://mdmcv4-backend-production-b615.up.railway.app/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 
+  (import.meta.env.MODE === 'development' ? '/api' : 'https://mdmcv4-backend-production-b615.up.railway.app/api');
 const API_TIMEOUT = 10000;
 
 console.log('🔧 API Service Config:', {
