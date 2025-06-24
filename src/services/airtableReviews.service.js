@@ -242,85 +242,63 @@ class AirtableReviewsService {
   }
 
   getFallbackReviews() {
-    console.log('🔄 Airtable: Utilisation des données de fallback');
+    console.log('🔄 Airtable: Utilisation des données de fallback - vrais témoignages clients');
     return [
       {
-        id: 'fallback_1',
-        name: "Sarah Martinez",
-        company: "TechFlow Agency",
+        id: 'IF',
+        name: "Isabelle Fontan",
+        company: "MOX Musique",
         rating: 5,
-        comment: "Service exceptionnel ! L'équipe MDMC a complètement transformé notre stratégie de promotion musicale. ROI impressionnant dès le premier mois, et un suivi personnalisé au top.",
+        comment: "Denis est un professionnel fiable, sérieux, réactif et surtout efficace. Nous avons travaillé ensemble sur de nombreuses campagnes, il a su me conseiller au mieux et je suis très satisfaite des résultats que nous avons obtenus. C'est l'expert Google Ads qui sera à l'écoute de votre problématique !",
         featured: true,
         avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b641?w=64&h=64&fit=crop&crop=face",
-        submittedAt: "2024-12-01T10:00:00Z",
+        submittedAt: "2023-02-03T10:00:00Z",
         source: "Google Reviews",
-        initials: "SM",
-        timeAgo: "Il y a 2 semaines"
+        initials: "IF",
+        timeAgo: "Février 2023",
+        usage: "Fallback chanson / adultes / profils exigeants"
       },
       {
-        id: 'fallback_2',
-        name: "Marc Dubois",
-        company: "Innovate Music",
+        id: 'FT',
+        name: "Fred Tavernier",
+        company: "Try & Dye Records",
         rating: 5,
-        comment: "Professionnalisme et créativité au rendez-vous. Nos campagnes n'ont jamais été aussi performantes ! Je recommande vivement MDMC pour toute stratégie digitale.",
-        featured: false,
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face",
-        submittedAt: "2024-11-28T14:30:00Z",
-        source: "Facebook",
-        initials: "MD",
-        timeAgo: "Il y a 3 semaines"
-      },
-      {
-        id: 'fallback_3',
-        name: "Emma Rodriguez",
-        company: "Digital Sound Co.",
-        rating: 5,
-        comment: "Équipe ultra-réactive et résultats concrets dès les premières semaines. L'expertise en promotion musicale est vraiment impressionnante. Merci MDMC !",
+        comment: "Cela fait maintenant quelques années que nous travaillons avec Denis pour la gestion de nos campagnes promotionnelles autour de la sortie des vidéoclips de nos artistes, notamment OUTED, et nous sommes très contents du résultat. La communication et les échanges sont efficaces et rapides et les résultats au rendez-vous. Denis est à l'écoute de nos besoins et sait réagir en conséquence en fonction des budgets.",
         featured: true,
-        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&fit=crop&crop=face",
-        submittedAt: "2024-11-25T09:15:00Z",
+        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face",
+        submittedAt: "2023-02-03T14:30:00Z",
         source: "LinkedIn",
-        initials: "ER",
-        timeAgo: "Il y a 3 semaines"
+        initials: "FT",
+        timeAgo: "Février 2023",
+        usage: "Fallback rock / indé / label"
       },
       {
-        id: 'fallback_4',
-        name: "Thomas Chen",
-        company: "Beats & Bytes",
+        id: 'TB',
+        name: "Tania Barros",
+        company: "Où sortir à Lisbonne",
         rating: 5,
-        comment: "La stratégie multicanal proposée par MDMC a révolutionné notre approche. +180% de streams en 6 mois, c'est du jamais vu !",
+        comment: "Super travail de Denis. J'aime beaucoup travailler avec lui. Il est disponible et très pro. Je recommande les yeux fermés !",
         featured: false,
-        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=face",
-        submittedAt: "2024-11-20T16:45:00Z",
-        source: "Trustpilot",
-        initials: "TC",
-        timeAgo: "Il y a 1 mois"
+        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&fit=crop&crop=face",
+        submittedAt: "2023-02-03T09:15:00Z",
+        source: "Facebook",
+        initials: "TB",
+        timeAgo: "Février 2023",
+        usage: "Fallback B2B / événementiel / local"
       },
       {
-        id: 'fallback_5',
-        name: "Julie Moreau",
-        company: "Indé Music Lab",
+        id: 'ML',
+        name: "Manon L'Huillier",
+        company: "MLH Promotion",
         rating: 5,
-        comment: "Accompagnement sur-mesure et expertise technique au top. MDMC comprend vraiment les enjeux des artistes indépendants. Bravo !",
+        comment: "Un travail efficace sur chaque collaboration. Denis a su être à l'écoute de nos attentes et nous proposer des stratégies adaptées aux deadlines et aux budgets imposés.",
         featured: false,
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&fit=crop&crop=face",
-        submittedAt: "2024-11-18T11:20:00Z",
+        submittedAt: "2019-07-09T11:20:00Z",
         source: "Google Reviews",
-        initials: "JM",
-        timeAgo: "Il y a 1 mois"
-      },
-      {
-        id: 'fallback_6',
-        name: "Alexandre Silva",
-        company: "Urban Sounds",
-        rating: 4,
-        comment: "Excellent travail sur notre campagne de lancement. L'équipe est à l'écoute et propose des solutions créatives adaptées à notre budget.",
-        featured: false,
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face",
-        submittedAt: "2024-11-15T13:10:00Z",
-        source: "Facebook",
-        initials: "AS",
-        timeAgo: "Il y a 1 mois"
+        initials: "ML",
+        timeAgo: "Juillet 2019",
+        usage: "Fallback label / chanson française / promo rapide"
       }
     ];
   }
