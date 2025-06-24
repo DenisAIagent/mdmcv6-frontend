@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import rssService from '../../services/rss.service';
 import '../../assets/styles/articles.css';
 
 const Articles = () => {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const BLOG_BASE_URL = 'https://blog.mdmcmusicads.com';
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     loadArticles();
@@ -16,152 +16,120 @@ const Articles = () => {
     try {
       setLoading(true);
       setError(null);
-      console.log('🔄 Articles: Récupération directe WordPress...');
+      console.log('📡 Articles: Chargement via flux RSS...');
       
-      const apiUrl = `${BLOG_BASE_URL}/wp-json/wp/v2/posts?per_page=3&_embed`;
+      // Récupération des 3 derniers articles via RSS
+      const response = await rssService.getLatestArticles(3);
       
-      const response = await fetch(apiUrl);
-      
-      if (!response.ok) {
-        throw new Error(`WordPress API error: ${response.status}`);
+      if (response.success && response.data.length > 0) {
+        setArticles(response.data);
+        setRetryCount(0); // Reset retry count on success
+        console.log('✅ Articles: Importés via RSS avec succès', { 
+          count: response.data.length,
+          source: response.source 
+        });
+      } else {
+        throw new Error(response.error || 'Aucun article trouvé dans le flux RSS');
       }
       
-      const posts = await response.json();
-      console.log('✅ Articles: Récupérés directement', { count: posts.length });
-      
-      const formattedArticles = posts.map(post => formatWordPressPost(post));
-      setArticles(formattedArticles);
-      
     } catch (err) {
-      console.error('❌ Articles: Erreur WordPress API', err);
+      console.error('❌ Articles: Erreur import RSS', err);
       setError(err.message);
-      // Fallback articles
-      setArticles(getFallbackArticles());
-      console.log('🔄 Articles: Fallback activé');
+      setArticles([]); // Pas de fallbacks - liste vide
     } finally {
       setLoading(false);
     }
   };
 
-  const formatWordPressPost = (post) => {
-    // Extraction d'image intelligente
-    let imageUrl = extractWordPressImage(post);
-    
-    // Correction des URLs internes
-    const fixedImageUrl = imageUrl ? imageUrl.replace(
-      'https://blog-wp-production.up.railway.app', 
-      BLOG_BASE_URL
-    ) : null;
-    
-    return {
-      id: post.id,
-      title: post.title.rendered,
-      excerpt: post.excerpt.rendered.replace(/<[^>]*>/g, '').substring(0, 150) + '...',
-      link: post.link.replace('https://blog-wp-production.up.railway.app', BLOG_BASE_URL),
-      image: fixedImageUrl,
-      date: new Date(post.date).toLocaleDateString('fr-FR'),
-      author: post._embedded?.author?.[0]?.name || 'MDMC Team'
-    };
+  const handleRetry = () => {
+    const newRetryCount = retryCount + 1;
+    setRetryCount(newRetryCount);
+    console.log(`🔄 Articles: Tentative ${newRetryCount}...`);
+    loadArticles();
   };
 
-  const extractWordPressImage = (post) => {
-    // 1. Image mise en avant
-    if (post._embedded?.['wp:featuredmedia']?.[0]?.source_url) {
-      console.log('✅ Image WordPress trouvée:', post._embedded['wp:featuredmedia'][0].source_url);
-      return post._embedded['wp:featuredmedia'][0].source_url;
-    }
-    
-    // 2. Première image du contenu
-    const contentMatch = post.content?.rendered?.match(/<img[^>]+src="([^">]+)"/);
-    if (contentMatch) {
-      console.log('✅ Image contenu trouvée:', contentMatch[1]);
-      return contentMatch[1];
-    }
-    
-    // 3. Placeholder basé sur l'ID
-    const placeholderUrl = `https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=250&fit=crop&q=80&sig=${post.id}`;
-    console.log('🔄 Image placeholder:', placeholderUrl);
-    return placeholderUrl;
-  };
-
-  const getFallbackArticles = () => {
-    return [
-      {
-        id: 1,
-        title: "Stratégies Marketing Digital 2025",
-        excerpt: "Découvrez les tendances qui révolutionnent le marketing digital cette année. De l'IA aux nouvelles plateformes sociales...",
-        link: "https://blog.mdmcmusicads.com",
-        image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=250&fit=crop&q=80",
-        date: new Date().toLocaleDateString('fr-FR'),
-        author: "MDMC Team"
-      },
-      {
-        id: 2,
-        title: "ROI et Performance : Mesurer l'Impact",
-        excerpt: "Comment optimiser vos campagnes pour un retour sur investissement maximal. Métriques clés et outils essentiels...",
-        link: "https://blog.mdmcmusicads.com",
-        image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop&q=80",
-        date: new Date().toLocaleDateString('fr-FR'),
-        author: "MDMC Team"
-      },
-      {
-        id: 3,
-        title: "Innovation Créative et Technologie",
-        excerpt: "L'alliance parfaite entre créativité et innovation technologique pour des campagnes inoubliables...",
-        link: "https://blog.mdmcmusicads.com",
-        image: "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=400&h=250&fit=crop&q=80",
-        date: new Date().toLocaleDateString('fr-FR'),
-        author: "MDMC Team"
-      }
-    ];
-  };
-
+  // État de chargement
   if (loading) {
     return (
       <section className="articles-section">
         <div className="articles-container">
-          <h2>Derniers articles</h2>
+          <div className="articles-header">
+            <h2>Derniers articles</h2>
+            <p>Récupération des derniers articles depuis notre blog...</p>
+          </div>
           <div className="articles-loading">
             <div className="loading-spinner"></div>
-            <p>Chargement des articles...</p>
+            <p>📡 Connexion au flux RSS en cours...</p>
           </div>
         </div>
       </section>
     );
   }
 
+  // État d'erreur (sans fallbacks)
   if (error && articles.length === 0) {
     return (
       <section className="articles-section">
         <div className="articles-container">
-          <h2>Articles temporairement indisponibles</h2>
+          <div className="articles-header">
+            <h2>Articles temporairement indisponibles</h2>
+          </div>
+          
           <div className="articles-error">
-            <p>Problème de connexion: {error}</p>
-            <p>Consultez directement notre blog :</p>
-            <a 
-              href="https://blog.mdmcmusicads.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="blog-link-button"
-            >
-              VISITER LE BLOG MDMC
-            </a>
+            <div className="error-icon">📡</div>
+            <h3>Problème de connexion au blog</h3>
+            <p>Impossible de récupérer les articles depuis le flux RSS.</p>
+            <p className="error-details">
+              <strong>Erreur:</strong> {error}
+            </p>
+            
+            <div className="error-actions">
+              <button 
+                onClick={handleRetry} 
+                className="retry-button"
+                disabled={retryCount >= 3}
+              >
+                {retryCount >= 3 ? '❌ Limite atteinte' : `🔄 Réessayer${retryCount > 0 ? ` (${retryCount}/3)` : ''}`}
+              </button>
+              
+              <a 
+                href="https://blog.mdmcmusicads.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="blog-link-button"
+              >
+                📖 Consulter le blog directement
+              </a>
+            </div>
+            
+            {retryCount >= 3 && (
+              <p className="retry-limit-message">
+                Limite de tentatives atteinte. Veuillez rafraîchir la page ou consulter directement notre blog.
+              </p>
+            )}
           </div>
         </div>
       </section>
     );
   }
 
+  // État normal avec articles RSS
   return (
     <section className="articles-section">
       <div className="articles-container">
         <div className="articles-header">
           <h2>Derniers articles</h2>
           <p>Découvrez nos insights et stratégies pour booster votre business</p>
+          
+          {/* Indicateur de source RSS */}
+          <div className="rss-indicator">
+            <span className="rss-badge">📡 Synchronisé avec le blog</span>
+            <span className="articles-count">{articles.length} articles récents</span>
+          </div>
         </div>
         
         <div className="articles-grid">
-          {articles.map((article) => (
+          {articles.map((article, index) => (
             <article key={article.id} className="article-card">
               <div className="article-image">
                 <img 
@@ -169,9 +137,21 @@ const Articles = () => {
                   alt={article.title}
                   loading="lazy"
                   onError={(e) => {
-                    e.target.src = 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=250&fit=crop&q=80';
+                    console.warn(`⚠️ Erreur chargement image pour l'article ${index + 1}`);
+                    // Image de secours spécifique au marketing musical
+                    const fallbackImages = [
+                      'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=250&fit=crop&q=80',
+                      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop&q=80',
+                      'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=400&h=250&fit=crop&q=80'
+                    ];
+                    e.target.src = fallbackImages[index % 3];
                   }}
                 />
+                
+                {/* Badge pour indiquer la source RSS */}
+                <div className="article-source-badge">
+                  RSS
+                </div>
               </div>
               
               <div className="article-content">
@@ -183,14 +163,16 @@ const Articles = () => {
                 <h3 className="article-title">{article.title}</h3>
                 <p className="article-excerpt">{article.excerpt}</p>
                 
-                <a 
-                  href={article.link} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="article-link"
-                >
-                  Lire la suite →
-                </a>
+                <div className="article-footer">
+                  <a 
+                    href={article.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="article-link"
+                  >
+                    Lire la suite →
+                  </a>
+                </div>
               </div>
             </article>
           ))}
@@ -203,12 +185,20 @@ const Articles = () => {
             rel="noopener noreferrer"
             className="view-all-button"
           >
-            Voir tous les articles
+            Découvrir tous nos articles
           </a>
+          
+          <button 
+            onClick={handleRetry} 
+            className="refresh-articles-button"
+            title="Actualiser les articles"
+          >
+            🔄 Actualiser
+          </button>
         </div>
       </div>
     </section>
   );
 };
 
-export default Articles;console.log('TEST DEPLOY ACTIF Fri Jun 13 20:45:43 WEST 2025');
+export default Articles;
