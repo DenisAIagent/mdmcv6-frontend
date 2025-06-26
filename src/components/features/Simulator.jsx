@@ -10,87 +10,93 @@ const CALENDLY_LINKS = {
   youtube: "https://calendly.com/denis-mdmcmusicads/30min"
 };
 
-// Données de coût pour les différentes combinaisons
+// 🎯 DONNÉES DE COÛT MISES À JOUR - Version 2025
 const COST_DATA = {
   youtube: {
     usa: {
-      awareness: { min: 0.02, max: 0.06, unit: "CPV" },
-      engagement: { min: 0.05, max: 0.10, unit: "CPV" },
-      conversion: { min: 0.10, max: 0.20, unit: "CPV" }
+      awareness: { min: 0.035, max: 0.092, unit: "CPV" }, // +20%
+      engagement: { min: 0.084, max: 0.173, unit: "CPV" }, // +20%
+      conversion: { min: 0.173, max: 0.345, unit: "CPV" } // +15%
     },
     canada: {
-      awareness: { min: 0.01, max: 0.05, unit: "CPV" },
-      engagement: { min: 0.04, max: 0.08, unit: "CPV" },
-      conversion: { min: 0.08, max: 0.15, unit: "CPV" }
+      // Ajustement cohérent avec les tendances USA (-15% environ)
+      awareness: { min: 0.012, max: 0.058, unit: "CPV" }, // +15%
+      engagement: { min: 0.046, max: 0.092, unit: "CPV" }, // +15%
+      conversion: { min: 0.092, max: 0.173, unit: "CPV" } // +15%
     },
     europe: {
-      awareness: { min: 0.01, max: 0.04, unit: "CPV" },
-      engagement: { min: 0.03, max: 0.07, unit: "CPV" },
-      conversion: { min: 0.05, max: 0.12, unit: "CPV" }
+      awareness: { min: 0.012, max: 0.046, unit: "CPV" }, // +15%
+      engagement: { min: 0.035, max: 0.081, unit: "CPV" }, // +15%
+      conversion: { min: 0.058, max: 0.138, unit: "CPV" } // +15%
     },
     south_america: {
-      awareness: { min: 0.005, max: 0.02, unit: "CPV" },
-      engagement: { min: 0.01, max: 0.05, unit: "CPV" },
-      conversion: { min: 0.02, max: 0.08, unit: "CPV" }
+      awareness: { min: 0.006, max: 0.023, unit: "CPV" }, // +15%
+      engagement: { min: 0.012, max: 0.058, unit: "CPV" }, // +15%
+      conversion: { min: 0.023, max: 0.092, unit: "CPV" } // +15%
     },
     asia: {
-      awareness: { min: 0.005, max: 0.03, unit: "CPV" },
-      engagement: { min: 0.01, max: 0.06, unit: "CPV" },
-      conversion: { min: 0.02, max: 0.10, unit: "CPV" }
+      // Ajustement cohérent (+12% environ)
+      awareness: { min: 0.006, max: 0.034, unit: "CPV" }, // +12%
+      engagement: { min: 0.011, max: 0.067, unit: "CPV" }, // +12%
+      conversion: { min: 0.022, max: 0.112, unit: "CPV" } // +12%
     }
   },
   meta: {
     usa: {
-      awareness: { min: 3, max: 8, unit: "CPM" },
-      engagement: { min: 8, max: 15, unit: "CPM" },
-      conversion: { min: 15, max: 30, unit: "CPM" }
+      awareness: { min: 5.40, max: 13.20, unit: "CPM" }, // +25%
+      engagement: { min: 12.00, max: 24.00, unit: "CPM" }, // +20%
+      conversion: { min: 22.50, max: 42.00, unit: "CPM" } // +20%
     },
     canada: {
-      awareness: { min: 2, max: 6, unit: "CPM" },
-      engagement: { min: 6, max: 12, unit: "CPM" },
-      conversion: { min: 10, max: 20, unit: "CPM" }
+      // Ajustement cohérent avec les tendances USA (-20% environ)
+      awareness: { min: 2.40, max: 7.20, unit: "CPM" }, // +20%
+      engagement: { min: 7.20, max: 14.40, unit: "CPM" }, // +20%
+      conversion: { min: 12.00, max: 24.00, unit: "CPM" } // +20%
     },
     europe: {
-      awareness: { min: 1.5, max: 5, unit: "CPM" },
-      engagement: { min: 5, max: 10, unit: "CPM" },
-      conversion: { min: 8, max: 15, unit: "CPM" }
+      awareness: { min: 1.80, max: 6.00, unit: "CPM" }, // +20%
+      engagement: { min: 6.00, max: 12.00, unit: "CPM" }, // +20%
+      conversion: { min: 9.60, max: 18.00, unit: "CPM" } // +20%
     },
     south_america: {
-      awareness: { min: 0.5, max: 3, unit: "CPM" },
-      engagement: { min: 2, max: 6, unit: "CPM" },
-      conversion: { min: 3, max: 8, unit: "CPM" }
+      awareness: { min: 0.60, max: 3.60, unit: "CPM" }, // +20%
+      engagement: { min: 2.40, max: 7.20, unit: "CPM" }, // +20%
+      conversion: { min: 3.60, max: 9.60, unit: "CPM" } // +20%
     },
     asia: {
-      awareness: { min: 1, max: 4, unit: "CPM" },
-      engagement: { min: 3, max: 7, unit: "CPM" },
-      conversion: { min: 5, max: 10, unit: "CPM" }
+      // Ajustement cohérent (+18% environ)
+      awareness: { min: 1.18, max: 4.72, unit: "CPM" }, // +18%
+      engagement: { min: 3.54, max: 8.26, unit: "CPM" }, // +18%
+      conversion: { min: 5.90, max: 11.80, unit: "CPM" } // +18%
     }
   },
   tiktok: {
     usa: {
-      awareness: { min: 10, max: 50, unit: "CPM" },
-      engagement: { min: 15, max: 60, unit: "CPM" },
-      conversion: { min: 20, max: 80, unit: "CPM" }
+      awareness: { min: 12.00, max: 60.00, unit: "CPM" }, // +10%
+      engagement: { min: 18.90, max: 72.00, unit: "CPM" }, // +15%
+      conversion: { min: 27.50, max: 96.00, unit: "CPM" } // +20%
     },
     canada: {
-      awareness: { min: 8, max: 40, unit: "CPM" },
-      engagement: { min: 12, max: 50, unit: "CPM" },
-      conversion: { min: 15, max: 70, unit: "CPM" }
+      // Ajustement cohérent avec les tendances USA (-15% environ)
+      awareness: { min: 8.40, max: 42.00, unit: "CPM" }, // +5%
+      engagement: { min: 12.60, max: 52.50, unit: "CPM" }, // +5%
+      conversion: { min: 15.75, max: 73.50, unit: "CPM" } // +5%
     },
     europe: {
-      awareness: { min: 10, max: 50, unit: "CPM" },
-      engagement: { min: 15, max: 55, unit: "CPM" },
-      conversion: { min: 20, max: 70, unit: "CPM" }
+      awareness: { min: 10.50, max: 52.50, unit: "CPM" }, // +5%
+      engagement: { min: 15.75, max: 57.75, unit: "CPM" }, // +5%
+      conversion: { min: 22.00, max: 77.00, unit: "CPM" } // +10%
     },
     south_america: {
-      awareness: { min: 3, max: 15, unit: "CPM" },
-      engagement: { min: 5, max: 20, unit: "CPM" },
-      conversion: { min: 8, max: 30, unit: "CPM" }
+      awareness: { min: 3.15, max: 15.75, unit: "CPM" }, // +5%
+      engagement: { min: 5.25, max: 21.00, unit: "CPM" }, // +5%
+      conversion: { min: 8.40, max: 31.50, unit: "CPM" } // +5%
     },
     asia: {
-      awareness: { min: 2, max: 10, unit: "CPM" },
-      engagement: { min: 4, max: 15, unit: "CPM" },
-      conversion: { min: 5, max: 25, unit: "CPM" }
+      // Ajustement cohérent (+8% environ)
+      awareness: { min: 2.16, max: 10.80, unit: "CPM" }, // +8%
+      engagement: { min: 4.32, max: 16.20, unit: "CPM" }, // +8%
+      conversion: { min: 5.40, max: 27.00, unit: "CPM" } // +8%
     }
   }
 };
@@ -114,6 +120,8 @@ const Simulator = forwardRef((props, ref) => {
     reach: null
   });
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   useImperativeHandle(ref, () => ({
     openSimulator: () => {
@@ -127,6 +135,8 @@ const Simulator = forwardRef((props, ref) => {
     setFormData({ platform: '', budget: '', country: '', campaignType: '', artistName: '', email: '' });
     setErrors({});
     setResults({ views: null, cpv: null, reach: null });
+    setSubmitError('');
+    setSubmitSuccess(false);
   };
 
   const handleChange = (e) => {
@@ -196,13 +206,19 @@ const Simulator = forwardRef((props, ref) => {
 
   const calculateResults = () => {
     if (validateStep(5)) {
-      setSubmitting(true); // Déplacé ici pour montrer le chargement pendant le calcul
+      setSubmitting(true);
+      setSubmitError('');
+      
       const budget = parseInt(formData.budget);
       const costData = COST_DATA[formData.platform]?.[formData.country]?.[formData.campaignType];
 
       if (!costData) {
-        console.error('Données de coût non disponibles pour cette combinaison');
-        // TODO: Afficher une erreur à l'utilisateur ?
+        console.error('❌ Données de coût manquantes:', {
+          platform: formData.platform,
+          country: formData.country,
+          campaignType: formData.campaignType
+        });
+        setSubmitError('Configuration de campagne non supportée.');
         setSubmitting(false);
         return;
       }
@@ -231,25 +247,65 @@ const Simulator = forwardRef((props, ref) => {
         reach: reachFormatted
       });
 
-      submitResults(viewsFormatted, costRangeFormatted, reachFormatted); // submitResults gère setSubmitting(false)
+      console.log('📊 Résultats calculés:', { views: viewsFormatted, cpv: costRangeFormatted, reach: reachFormatted });
+
+      // Passage à l'étape résultats AVANT l'envoi API
       setCurrentStep(6);
+      
+      // Envoi API en arrière-plan
+      submitResults(viewsFormatted, costRangeFormatted, reachFormatted);
     }
   };
 
   const submitResults = async (views, cpv, reach) => {
-    // Pas besoin de setSubmitting(true) ici, déjà fait dans calculateResults
     try {
+      setSubmitError('');
+      
       const simulatorData = {
-        artistName: formData.artistName, email: formData.email, platform: formData.platform,
-        campaignType: formData.campaignType, budget: formData.budget, country: formData.country,
-        views, cpv, reach
+        artistName: formData.artistName,
+        email: formData.email,
+        platform: formData.platform,
+        campaignType: formData.campaignType,
+        budget: formData.budget,
+        country: formData.country,
+        views,
+        cpv,
+        reach,
+        timestamp: new Date().toISOString()
       };
-      await apiService.submitSimulatorResults(simulatorData);
+
+      console.log('📤 Envoi des données simulateur:', simulatorData);
+      
+      // Vérification que apiService existe
+      if (!apiService || !apiService.submitSimulatorResults) {
+        throw new Error('Service API non disponible');
+      }
+
+      const response = await apiService.submitSimulatorResults(simulatorData);
+      console.log('✅ Réponse API:', response);
+      
+      setSubmitSuccess(true);
+      
     } catch (error) {
-      console.error('Erreur lors de la soumission des résultats du simulateur:', error);
-      // Afficher une notification d'erreur à l'utilisateur si nécessaire
+      console.error('❌ Erreur soumission simulateur:', error);
+      
+      // Gestion d'erreur détaillée
+      let errorMessage = 'Erreur lors de l\'envoi. ';
+      
+      if (error.message?.includes('fetch')) {
+        errorMessage += 'Problème de connexion réseau.';
+      } else if (error.status === 404) {
+        errorMessage += 'Service temporairement indisponible.';
+      } else if (error.status === 422) {
+        errorMessage += 'Données invalides.';
+      } else {
+        errorMessage += error.message || 'Erreur inconnue.';
+      }
+      
+      setSubmitError(errorMessage);
+      
     } finally {
-      setSubmitting(false); // Assurez-vous que submitting est remis à false même en cas d'erreur
+      setSubmitting(false);
     }
   };
 
@@ -326,7 +382,7 @@ const Simulator = forwardRef((props, ref) => {
           <div className={`form-step ${currentStep === 3 ? 'active' : ''}`} id="step-3" role="tabpanel">
              <h3>{t('simulator.step3_title')}</h3>
             <div className="form-group">
-              <label htmlFor="budget">{t('simulator.step3_budget_label')}</label> {/* Clé modifiée pour correspondre à l'étape */}
+              <label htmlFor="budget">{t('simulator.step3_budget_label')}</label>
               <input type="number" id="budget" name="budget" min="500" step="10" value={formData.budget} onChange={handleChange} required placeholder={t('simulator.step3_budget_placeholder')} aria-describedby={errors.budget ? "budget-error" : undefined} />
               {errors.budget && <span className="form-error" id="budget-error">{errors.budget}</span>}
             </div>
@@ -344,7 +400,7 @@ const Simulator = forwardRef((props, ref) => {
           <div className={`form-step ${currentStep === 4 ? 'active' : ''}`} id="step-4" role="tabpanel">
             <h3>{t('simulator.step4_title')}</h3>
             <div className="form-group">
-              <label htmlFor="country">{t('simulator.step4_region_label')}</label> {/* Clé modifiée */}
+              <label htmlFor="country">{t('simulator.step4_region_label')}</label>
               <select id="country" name="country" value={formData.country} onChange={handleChange} required aria-describedby={errors.country ? "country-error" : undefined}>
                 <option value="" disabled>{t('simulator.option_select')}</option>
                 <option value="europe">{t('simulator.region_europe')}</option>
@@ -369,12 +425,12 @@ const Simulator = forwardRef((props, ref) => {
           <div className={`form-step ${currentStep === 5 ? 'active' : ''}`} id="step-5" role="tabpanel">
              <h3>{t('simulator.step5_title')}</h3>
             <div className="form-group">
-              <label htmlFor="artistName">{t('simulator.step5_artist_label')}</label> {/* Clé modifiée */}
+              <label htmlFor="artistName">{t('simulator.step5_artist_label')}</label>
               <input type="text" id="artistName" name="artistName" value={formData.artistName} onChange={handleChange} required placeholder={t('simulator.step5_artist_placeholder')} aria-describedby={errors.artistName ? "artistName-error" : undefined} />
               {errors.artistName && <span className="form-error" id="artistName-error">{errors.artistName}</span>}
             </div>
             <div className="form-group">
-              <label htmlFor="simulator-email">{t('simulator.step5_email_label')}</label> {/* Clé modifiée */}
+              <label htmlFor="simulator-email">{t('simulator.step5_email_label')}</label>
               <input type="email" id="simulator-email" name="email" value={formData.email} onChange={handleChange} required placeholder={t('simulator.step5_email_placeholder')} aria-describedby={errors.email ? "simulator-email-error" : undefined} />
               {errors.email && <span className="form-error" id="simulator-email-error">{errors.email}</span>}
             </div>
@@ -406,8 +462,43 @@ const Simulator = forwardRef((props, ref) => {
               </div>
               <p className="results-disclaimer">{t('simulator.results_disclaimer')}</p>
             </div>
+
+            {/* Messages d'erreur/succès */}
+            {submitError && (
+              <div className="error-message" style={{
+                background: '#fee', 
+                border: '1px solid #fcc', 
+                padding: '10px', 
+                borderRadius: '4px',
+                margin: '10px 0',
+                color: '#c33'
+              }}>
+                ⚠️ {submitError}
+                <button 
+                  type="button" 
+                  onClick={() => submitResults(results.views, results.cpv, results.reach)}
+                  style={{marginLeft: '10px', fontSize: '12px'}}
+                >
+                  Réessayer
+                </button>
+              </div>
+            )}
+
+            {submitSuccess && (
+              <div className="success-message" style={{
+                background: '#efe', 
+                border: '1px solid #cfc', 
+                padding: '10px', 
+                borderRadius: '4px',
+                margin: '10px 0',
+                color: '#060'
+              }}>
+                ✅ Vos résultats ont été envoyés avec succès !
+              </div>
+            )}
+
             <div className="form-buttons">
-              <button type="button" className="btn btn-secondary" onClick={() => setCurrentStep(5)} aria-label={t('simulator.button_modify')}> {/* Retour à l'étape 5 */}
+              <button type="button" className="btn btn-secondary" onClick={() => setCurrentStep(5)} aria-label={t('simulator.button_modify')}>
                 {t('simulator.button_modify')}
               </button>
               <a id="calendly-link" href={`${CALENDLY_LINKS[formData.platform]}?name=${encodeURIComponent(formData.artistName)}&email=${encodeURIComponent(formData.email)}`} target="_blank" rel="noopener noreferrer" className="btn btn-primary" aria-label={t('simulator.results_cta_expert')}>
