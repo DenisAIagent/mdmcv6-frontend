@@ -13,90 +13,54 @@ const CALENDLY_LINKS = {
 // 🎯 DONNÉES DE COÛT MISES À JOUR - Version 2025
 const COST_DATA = {
   youtube: {
-    usa: {
-      awareness: { min: 0.035, max: 0.092, unit: "CPV" }, // +20%
-      engagement: { min: 0.084, max: 0.173, unit: "CPV" }, // +20%
-      conversion: { min: 0.173, max: 0.345, unit: "CPV" } // +15%
-    },
-    canada: {
-      // Ajustement cohérent avec les tendances USA (-15% environ)
-      awareness: { min: 0.012, max: 0.058, unit: "CPV" }, // +15%
-      engagement: { min: 0.046, max: 0.092, unit: "CPV" }, // +15%
-      conversion: { min: 0.092, max: 0.173, unit: "CPV" } // +15%
-    },
     europe: {
-      awareness: { min: 0.012, max: 0.046, unit: "CPV" }, // +15%
-      engagement: { min: 0.035, max: 0.081, unit: "CPV" }, // +15%
-      conversion: { min: 0.058, max: 0.138, unit: "CPV" } // +15%
+      awareness: { min: 0.012, max: 0.046, unit: "CPV" },
+      engagement: { min: 0.035, max: 0.081, unit: "CPV" },
+      conversion: { min: 0.058, max: 0.138, unit: "CPV" }
+    },
+    usa: {
+      awareness: { min: 0.024, max: 0.072, unit: "CPV" },
+      engagement: { min: 0.06, max: 0.12, unit: "CPV" },
+      conversion: { min: 0.115, max: 0.23, unit: "CPV" }
     },
     south_america: {
-      awareness: { min: 0.006, max: 0.023, unit: "CPV" }, // +15%
-      engagement: { min: 0.012, max: 0.058, unit: "CPV" }, // +15%
-      conversion: { min: 0.023, max: 0.092, unit: "CPV" } // +15%
-    },
-    asia: {
-      // Ajustement cohérent (+12% environ)
-      awareness: { min: 0.006, max: 0.034, unit: "CPV" }, // +12%
-      engagement: { min: 0.011, max: 0.067, unit: "CPV" }, // +12%
-      conversion: { min: 0.022, max: 0.112, unit: "CPV" } // +12%
+      awareness: { min: 0.006, max: 0.023, unit: "CPV" },
+      engagement: { min: 0.012, max: 0.058, unit: "CPV" },
+      conversion: { min: 0.023, max: 0.092, unit: "CPV" }
     }
   },
   meta: {
-    usa: {
-      awareness: { min: 5.40, max: 13.20, unit: "CPM" }, // +25%
-      engagement: { min: 12.00, max: 24.00, unit: "CPM" }, // +20%
-      conversion: { min: 22.50, max: 42.00, unit: "CPM" } // +20%
-    },
-    canada: {
-      // Ajustement cohérent avec les tendances USA (-20% environ)
-      awareness: { min: 2.40, max: 7.20, unit: "CPM" }, // +20%
-      engagement: { min: 7.20, max: 14.40, unit: "CPM" }, // +20%
-      conversion: { min: 12.00, max: 24.00, unit: "CPM" } // +20%
-    },
     europe: {
-      awareness: { min: 1.80, max: 6.00, unit: "CPM" }, // +20%
-      engagement: { min: 6.00, max: 12.00, unit: "CPM" }, // +20%
-      conversion: { min: 9.60, max: 18.00, unit: "CPM" } // +20%
+      awareness: { min: 1.80, max: 6.00, unit: "CPM" },
+      engagement: { min: 6.00, max: 12.00, unit: "CPM" },
+      conversion: { min: 9.60, max: 18.00, unit: "CPM" }
+    },
+    usa: {
+      awareness: { min: 3.75, max: 10.00, unit: "CPM" },
+      engagement: { min: 9.60, max: 18.00, unit: "CPM" },
+      conversion: { min: 18.00, max: 36.00, unit: "CPM" }
     },
     south_america: {
-      awareness: { min: 0.60, max: 3.60, unit: "CPM" }, // +20%
-      engagement: { min: 2.40, max: 7.20, unit: "CPM" }, // +20%
-      conversion: { min: 3.60, max: 9.60, unit: "CPM" } // +20%
-    },
-    asia: {
-      // Ajustement cohérent (+18% environ)
-      awareness: { min: 1.18, max: 4.72, unit: "CPM" }, // +18%
-      engagement: { min: 3.54, max: 8.26, unit: "CPM" }, // +18%
-      conversion: { min: 5.90, max: 11.80, unit: "CPM" } // +18%
+      awareness: { min: 0.60, max: 3.60, unit: "CPM" },
+      engagement: { min: 2.40, max: 7.20, unit: "CPM" },
+      conversion: { min: 3.60, max: 9.60, unit: "CPM" }
     }
   },
   tiktok: {
-    usa: {
-      awareness: { min: 12.00, max: 60.00, unit: "CPM" }, // +10%
-      engagement: { min: 18.90, max: 72.00, unit: "CPM" }, // +15%
-      conversion: { min: 27.50, max: 96.00, unit: "CPM" } // +20%
-    },
-    canada: {
-      // Ajustement cohérent avec les tendances USA (-15% environ)
-      awareness: { min: 8.40, max: 42.00, unit: "CPM" }, // +5%
-      engagement: { min: 12.60, max: 52.50, unit: "CPM" }, // +5%
-      conversion: { min: 15.75, max: 73.50, unit: "CPM" } // +5%
-    },
     europe: {
-      awareness: { min: 10.50, max: 52.50, unit: "CPM" }, // +5%
-      engagement: { min: 15.75, max: 57.75, unit: "CPM" }, // +5%
-      conversion: { min: 22.00, max: 77.00, unit: "CPM" } // +10%
+      awareness: { min: 10.5, max: 52.5, unit: "CPM" },
+      engagement: { min: 15.75, max: 57.75, unit: "CPM" },
+      conversion: { min: 22.0, max: 77.0, unit: "CPM" }
+    },
+    usa: {
+      awareness: { min: 11.0, max: 55.0, unit: "CPM" },
+      engagement: { min: 17.25, max: 69.0, unit: "CPM" },
+      conversion: { min: 24.0, max: 96.0, unit: "CPM" }
     },
     south_america: {
-      awareness: { min: 3.15, max: 15.75, unit: "CPM" }, // +5%
-      engagement: { min: 5.25, max: 21.00, unit: "CPM" }, // +5%
-      conversion: { min: 8.40, max: 31.50, unit: "CPM" } // +5%
-    },
-    asia: {
-      // Ajustement cohérent (+8% environ)
-      awareness: { min: 2.16, max: 10.80, unit: "CPM" }, // +8%
-      engagement: { min: 4.32, max: 16.20, unit: "CPM" }, // +8%
-      conversion: { min: 5.40, max: 27.00, unit: "CPM" } // +8%
+      awareness: { min: 3.15, max: 15.75, unit: "CPM" },
+      engagement: { min: 5.25, max: 21.0, unit: "CPM" },
+      conversion: { min: 8.4, max: 31.5, unit: "CPM" }
     }
   }
 };
@@ -405,9 +369,7 @@ const Simulator = forwardRef((props, ref) => {
                 <option value="" disabled>{t('simulator.option_select')}</option>
                 <option value="europe">{t('simulator.region_europe')}</option>
                 <option value="usa">{t('simulator.region_usa')}</option>
-                <option value="canada">{t('simulator.region_canada')}</option>
                 <option value="south_america">{t('simulator.region_south_america')}</option>
-                <option value="asia">{t('simulator.region_asia')}</option>
               </select>
               {errors.country && <span className="form-error" id="country-error">{errors.country}</span>}
             </div>
