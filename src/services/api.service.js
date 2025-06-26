@@ -1,6 +1,4 @@
-// 🎯 COPIEZ-COLLEZ EXACTEMENT CES LIGNES dans api.service.js
-
-// 1. TROUVEZ cette section (ligne ~200+ dans votre fichier) :
+// SERVICE MUSIC PLATFORM - Section existante
   musicPlatform = {
     fetchLinksFromSourceUrl: async (sourceUrl) => {
       console.log('🎵 MusicPlatform: Récupération liens...', sourceUrl);
@@ -11,9 +9,7 @@
     }
   };
 
-// 2. AJOUTEZ CES LIGNES JUSTE APRÈS la ligne "};  " qui ferme musicPlatform :
-
-  // SERVICE SIMULATOR - Fix final
+  // SERVICE SIMULATOR - Nouvelle section
   async submitSimulatorResults(simulatorData) {
     try {
       console.log('🎯 Simulator: Tentative envoi...', simulatorData);
@@ -60,8 +56,4 @@
     URL.revokeObjectURL(url);
   }
 
-// 3. VÉRIFIEZ que la fermeture de classe arrive APRÈS ces méthodes :
 }
-
-// Instance singleton
-const apiService = new ApiService();
