@@ -268,20 +268,6 @@ class ApiService {
       });
     }
   };
-
-  // SERVICE SIMULATOR - Pour les résultats du simulateur de campagnes
-  async submitSimulatorResults(simulatorData) {
-    try {
-      console.log('📊 Simulator: Envoi des résultats...', simulatorData);
-      return await this.request('/simulator/results', {
-        method: 'POST',
-        body: JSON.stringify(simulatorData)
-      });
-    } catch (error) {
-      console.error('📊 Simulator: Erreur lors de l\'envoi des résultats', error);
-      throw error;
-    }
-  }
 }
 
 // Instance singleton
