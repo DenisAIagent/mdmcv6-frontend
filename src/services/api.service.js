@@ -1,7 +1,7 @@
 // src/services/api.service.js - Version Complète Finale
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 
-  (import.meta.env.MODE === 'development' ? '/api' : 'https://n8n-production-de00.up.railway.app/webhook-test/music-simulator-lead');
+  (import.meta.env.MODE === 'development' ? '/api' : 'https://n8n-production-de00.up.railway.app/webhook/music-simulator-lead');
 const API_TIMEOUT = 10000;
 
 console.log('🔧 API Service Config:', {
