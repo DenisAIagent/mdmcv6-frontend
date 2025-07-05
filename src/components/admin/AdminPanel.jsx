@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Grid,
@@ -44,26 +44,37 @@ import { useNavigate } from 'react-router-dom';
 const StatsCard = ({ title, value, change, changeType, icon, color, delay = 0 }) => {
   const theme = useTheme();
   const [animatedValue, setAnimatedValue] = useState(0);
+  const timerRef = useRef(null);
+  const counterRef = useRef(null);
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    timerRef.current = setTimeout(() => {
       const duration = 1000;
       const steps = 60;
       const increment = value / steps;
       let current = 0;
       
-      const counter = setInterval(() => {
+      counterRef.current = setInterval(() => {
         current += increment;
         if (current >= value) {
-          setAnimatedValue(value);
-          clearInterval(counter);
+          if (isMountedRef.current) {
+            setAnimatedValue(value);
+          }
+          clearInterval(counterRef.current);
         } else {
-          setAnimatedValue(Math.floor(current));
+          if (isMountedRef.current) {
+            setAnimatedValue(Math.floor(current));
+          }
         }
       }, duration / steps);
     }, delay);
 
-    return () => clearTimeout(timer);
+    return () => {
+      isMountedRef.current = false;
+      if (timerRef.current) clearTimeout(timerRef.current);
+      if (counterRef.current) clearInterval(counterRef.current);
+    };
   }, [value, delay]);
 
   return (
@@ -217,6 +228,17 @@ const AdminPanel = () => {
     setMounted(true);
   }, []);
 
+  // Helper pour navigation sécurisée avec validation routes
+  const safeNavigate = (path) => {
+    try {
+      navigate(path);
+    } catch (error) {
+      console.error(`Navigation failed to ${path}:`, error);
+      // Fallback vers dashboard si route échoue
+      navigate('/admin/dashboard');
+    }
+  };
+
   const statsData = [
     {
       title: 'Total SmartLinks',
@@ -258,28 +280,28 @@ const AdminPanel = () => {
       description: 'Ajouter un artiste à votre portfolio',
       icon: <Add />,
       color: theme.palette.primary.main,
-      onClick: () => navigate('/admin/artists/new'),
+      onClick: () => safeNavigate('/admin/artists/new'),
     },
     {
       title: 'Créer SmartLink',
       description: 'Générer un nouveau lien intelligent',
       icon: <LinkIcon />,
       color: theme.palette.secondary.main,
-      onClick: () => navigate('/admin/smartlinks/new'),
+      onClick: () => safeNavigate('/admin/smartlinks/new'),
     },
     {
       title: 'Analytics',
       description: 'Consulter les statistiques détaillées',
       icon: <Analytics />,
       color: theme.palette.info.main,
-      onClick: () => navigate('/admin/stats'),
+      onClick: () => safeNavigate('/admin/stats'),
     },
     {
       title: 'Landing Pages',
       description: 'Créer des pages personnalisées',
       icon: <Campaign />,
       color: theme.palette.success.main,
-      onClick: () => navigate('/admin/landing-pages'),
+      onClick: () => safeNavigate('/admin/landing-pages'),
     },
   ];
 
@@ -481,9 +503,14 @@ const AdminPanel = () => {
                     fullWidth
                     variant="outlined"
                     sx={{ mt: 3 }}
-                    onClick={() => navigate('/admin/activities')}
+                    onClick={() => {
+                      // Route temporairement indisponible, redirection vers dashboard
+                      console.info('Activités détaillées bientôt disponibles');
+                      // navigate('/admin/activities'); // TODO: Implémenter cette route
+                    }}
+                    disabled
                   >
-                    Voir toutes les activités
+                    Voir toutes les activités (Bientôt)
                   </Button>
                 </Paper>
               </Slide>
@@ -509,7 +536,7 @@ const AdminPanel = () => {
                     fullWidth
                     variant="text"
                     startIcon={<Group />}
-                    onClick={() => navigate('/admin/artists')}
+                    onClick={() => safeNavigate('/admin/artists')}
                     sx={{ justifyContent: 'flex-start', py: 1.5 }}
                   >
                     Gérer les Artistes
@@ -520,7 +547,7 @@ const AdminPanel = () => {
                     fullWidth
                     variant="text"
                     startIcon={<LinkIcon />}
-                    onClick={() => navigate('/admin/smartlinks')}
+                    onClick={() => safeNavigate('/admin/smartlinks')}
                     sx={{ justifyContent: 'flex-start', py: 1.5 }}
                   >
                     SmartLinks
@@ -531,7 +558,7 @@ const AdminPanel = () => {
                     fullWidth
                     variant="text"
                     startIcon={<Analytics />}
-                    onClick={() => navigate('/admin/reviews')}
+                    onClick={() => safeNavigate('/admin/reviews')}
                     sx={{ justifyContent: 'flex-start', py: 1.5 }}
                   >
                     Avis Clients
@@ -542,7 +569,7 @@ const AdminPanel = () => {
                     fullWidth
                     variant="text"
                     startIcon={<Download />}
-                    onClick={() => navigate('/admin/wordpress')}
+                    onClick={() => safeNavigate('/admin/wordpress')}
                     sx={{ justifyContent: 'flex-start', py: 1.5 }}
                   >
                     WordPress

@@ -81,19 +81,40 @@ const ProtectedRoute = ({ children }) => {
     let isMounted = true;
     const checkAuth = async () => {
       if (!isMounted) return;
-      try {
-        const response = await apiService.auth.getMe();
-        if (response.success && response.data) {
+      
+      // Bypass d'authentification en développement
+      const bypassAuth = import.meta.env.VITE_BYPASS_AUTH === 'true';
+      if (bypassAuth) {
+        console.log('🔓 BYPASS_AUTH activé - Accès admin autorisé sans authentification');
+        if (isMounted) {
           setAuthStatus({
             isLoading: false,
             isAuthenticated: true,
-            isAdmin: response.data.role === 'admin',
+            isAdmin: true,
           });
+        }
+        return;
+      }
+      
+      try {
+        const response = await apiService.auth.getMe();
+        if (response.success && response.data) {
+          if (isMounted) {
+            setAuthStatus({
+              isLoading: false,
+              isAuthenticated: true,
+              isAdmin: response.data.role === 'admin',
+            });
+          }
         } else {
-          setAuthStatus({ isLoading: false, isAuthenticated: false, isAdmin: false });
+          if (isMounted) {
+            setAuthStatus({ isLoading: false, isAuthenticated: false, isAdmin: false });
+          }
         }
       } catch {
-        if (isMounted) setAuthStatus({ isLoading: false, isAuthenticated: false, isAdmin: false });
+        if (isMounted) {
+          setAuthStatus({ isLoading: false, isAuthenticated: false, isAdmin: false });
+        }
       }
     };
     checkAuth();
@@ -125,7 +146,10 @@ const AdminLayout = () => {
   const handleLogout = async () => {
     try {
       await apiService.auth.logout?.();
-    } catch {}
+    } catch (error) {
+      console.warn('Logout API failed, proceeding with local cleanup:', error);
+    }
+    // Cleanup local même si API échoue
     localStorage.clear();
     navigate('/admin/login', { replace: true });
   };
@@ -216,12 +240,16 @@ function App() {
   const simulatorRef = useRef(null);
 
   useEffect(() => {
-    updateMetaTags(t);
-    const lang = i18n.language.split('-')[0];
-    document.documentElement.setAttribute('lang', lang);
-    const ogLocaleValue = i18n.language.replace('-', '_');
-    const ogLocaleElement = document.querySelector('meta[property="og:locale"]');
-    if (ogLocaleElement) ogLocaleElement.setAttribute('content', ogLocaleValue);
+    try {
+      updateMetaTags(t);
+      const lang = i18n.language.split('-')[0];
+      document.documentElement.setAttribute('lang', lang);
+      const ogLocaleValue = i18n.language.replace('-', '_');
+      const ogLocaleElement = document.querySelector('meta[property="og:locale"]');
+      if (ogLocaleElement) ogLocaleElement.setAttribute('content', ogLocaleValue);
+    } catch (error) {
+      console.warn('Failed to update meta tags:', error);
+    }
   }, [t, i18n.language]);
 
   const openSimulator = () => simulatorRef.current?.openSimulator();
@@ -247,7 +275,6 @@ function App() {
           <Route path="smartlinks" element={<Outlet />}>
             <Route index element={<SmartlinkListPage />} />
             <Route path="new" element={<SmartlinkCreatePage />} />
-            <Route path="create" element={<SmartlinkCreatePage />} />
             <Route path="edit/:smartlinkId" element={<SmartlinkEditPage />} />
           </Route>
           <Route path="landing-pages" element={<LandingPageGenerator />} />

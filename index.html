@@ -24,6 +24,29 @@
   </head>
   <body>
     <div id="root"></div>
+    
+    <!-- Script de redirection pour HashRouter -->
+    <script>
+      // Gestion des routes admin pour HashRouter
+      (function() {
+        const path = window.location.pathname;
+        const hash = window.location.hash;
+        
+        // Si on accède directement à /admin sans hash, rediriger vers /#/admin
+        if (path.startsWith('/admin') && !hash) {
+          const adminPath = path.replace('/admin', '/admin');
+          window.location.replace('/#' + adminPath);
+          return;
+        }
+        
+        // Si on accède à /admin sans hash spécifique, rediriger vers /#/admin/login
+        if (path === '/admin' && hash === '') {
+          window.location.replace('/#/admin');
+          return;
+        }
+      })();
+    </script>
+    
     <script type="module" src="/src/main.jsx" crossorigin="anonymous"></script>
   </body>
 </html>

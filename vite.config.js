@@ -18,14 +18,19 @@ export default defineConfig({
   },
   
   server: {
-    port: 3000,
-    host: "0.0.0.0",
-    proxy: {
-      '/api': {
-        target: 'https://mdmcv4-backend-production-b615.up.railway.app',
-        changeOrigin: true,
-        secure: true
-      }
+    port: 3001,
+    host: "localhost",
+    middlewareMode: false,
+    // Redirection pour les routes admin vers HashRouter
+    configure: (app) => {
+      app.use('/admin*', (req, res, next) => {
+        if (req.path.startsWith('/admin') && !req.path.includes('#')) {
+          const redirectPath = `/#${req.path}`;
+          res.redirect(302, redirectPath);
+        } else {
+          next();
+        }
+      });
     }
   },
   

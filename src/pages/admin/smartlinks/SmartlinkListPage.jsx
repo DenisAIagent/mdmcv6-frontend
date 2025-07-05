@@ -28,9 +28,21 @@ function SmartlinkListPage() {
       setSmartlinks(smartlinksWithId);
     } catch (err) {
       console.error("SmartlinkListPage - Failed to fetch SmartLinks:", err);
-      const errorMsg = err.message || err.data?.error || 'Erreur serveur lors du chargement des SmartLinks.';
-      setError(errorMsg);
-      toast.error(errorMsg);
+      
+      // Gestion spécifique de l'erreur d'authentification
+      if (err.message?.includes('401') || err.message?.includes('Non autorisé')) {
+        const errorMsg = 'Authentification requise. Veuillez vous connecter en tant qu\'administrateur.';
+        setError(errorMsg);
+        toast.error(errorMsg);
+        // Redirection vers login après un délai
+        setTimeout(() => {
+          window.location.href = '/#/admin/login';
+        }, 2000);
+      } else {
+        const errorMsg = err.message || err.data?.error || 'Erreur serveur lors du chargement des SmartLinks.';
+        setError(errorMsg);
+        toast.error(errorMsg);
+      }
       setSmartlinks([]);
     } finally {
       setLoading(false);

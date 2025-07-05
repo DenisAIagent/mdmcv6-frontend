@@ -1,4 +1,4 @@
-import { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
+import { useState, forwardRef, useImperativeHandle, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import apiService from '../../services/api.service';
 import '../../assets/styles/simulator.css';
@@ -114,6 +114,13 @@ const Simulator = forwardRef((props, ref) => {
     reach: null
   });
   const [submitting, setSubmitting] = useState(false);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   useImperativeHandle(ref, () => ({
     openSimulator: () => {
@@ -171,7 +178,7 @@ const Simulator = forwardRef((props, ref) => {
           newErrors.artistName = t('simulator.artist_error');
           isValid = false;
         }
-        if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
+        if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
           newErrors.email = t('simulator.email_error');
           isValid = false;
         }
@@ -196,13 +203,15 @@ const Simulator = forwardRef((props, ref) => {
 
   const calculateResults = () => {
     if (validateStep(5)) {
-      setSubmitting(true); // Déplacé ici pour montrer le chargement pendant le calcul
+      setSubmitting(true);
       const budget = parseInt(formData.budget);
       const costData = COST_DATA[formData.platform]?.[formData.country]?.[formData.campaignType];
 
       if (!costData) {
         console.error('Données de coût non disponibles pour cette combinaison');
-        // TODO: Afficher une erreur à l'utilisateur ?
+        setErrors({ 
+          calculation: t('simulator.calculation_error', 'Impossible de calculer les résultats pour cette combinaison. Veuillez réessayer avec d\'autres paramètres.') 
+        });
         setSubmitting(false);
         return;
       }
@@ -249,7 +258,9 @@ const Simulator = forwardRef((props, ref) => {
       console.error('Erreur lors de la soumission des résultats du simulateur:', error);
       // Afficher une notification d'erreur à l'utilisateur si nécessaire
     } finally {
-      setSubmitting(false); // Assurez-vous que submitting est remis à false même en cas d'erreur
+      if (isMountedRef.current) {
+        setSubmitting(false);
+      }
     }
   };
 
@@ -385,6 +396,7 @@ const Simulator = forwardRef((props, ref) => {
               <button type="button" className="btn btn-primary" onClick={calculateResults} disabled={submitting} aria-label={t('simulator.button_show_results')}>
                 {submitting ? t('simulator.submitting_text') : t('simulator.button_show_results')}
               </button>
+              {errors.calculation && <span className="form-error" style={{marginTop: '10px', display: 'block'}}>{errors.calculation}</span>}
             </div>
           </div>
 

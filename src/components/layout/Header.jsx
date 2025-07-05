@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from '../common/LanguageSelector';
 // Assurez-vous que le chemin vers le CSS est correct
@@ -8,23 +8,67 @@ const Header = () => {
   const { t } = useTranslation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const scrollTimeoutRef = useRef(null);
 
-  // Gestion du scroll pour changer l'apparence du header
+  // Menu items centralisés pour éviter duplication
+  const menuItems = [
+    { href: "#hero", key: "nav.home" },
+    { href: "#services", key: "nav.services" },
+    { href: "#about", key: "nav.about" },
+    { href: "#articles", key: "nav.articles" },
+    { href: "#contact", key: "nav.contact" }
+  ];
+
+  // Gestion du scroll avec throttling pour optimiser les performances
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      if (scrollTimeoutRef.current) return;
+      
+      scrollTimeoutRef.current = setTimeout(() => {
+        setIsScrolled(window.scrollY > 50);
+        scrollTimeoutRef.current = null;
+      }, 16); // ~60fps
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
     };
   }, []);
+
+  // Gestion clavier pour accessibilité menu mobile
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    if (isMobileMenuOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      // Empêcher scroll du body quand menu ouvert
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
 
   // Fermer le menu mobile lors du clic sur un lien
   const handleNavLinkClick = () => {
     setIsMobileMenuOpen(false);
+  };
+
+  // Gestion fallback logo si image manquante
+  const handleLogoError = (e) => {
+    e.target.style.display = 'none';
+    e.target.nextElementSibling.style.display = 'block';
   };
 
   return (
@@ -32,19 +76,27 @@ const Header = () => {
       <div className="container header-container">
         <div className="logo">
           <a href="#hero" aria-label="MDMC - Retour à l'accueil">
-            {/* === Chemin du logo CORRIGÉ === */}
-            <img src="/assets/images/logo.png" alt="MDMC Logo" />
-            {/* ============================== */}
+            <img 
+              src="/assets/images/logo.png" 
+              alt="MDMC Logo" 
+              onError={handleLogoError}
+            />
+            <span 
+              style={{ display: 'none', fontWeight: 'bold', fontSize: '1.5rem' }}
+              aria-hidden="true"
+            >
+              MDMC
+            </span>
           </a>
         </div>
 
         <nav className="nav-desktop">
           <ul>
-            <li><a href="#hero" onClick={handleNavLinkClick}>{t('nav.home')}</a></li>
-            <li><a href="#services" onClick={handleNavLinkClick}>{t('nav.services')}</a></li>
-            <li><a href="#about" onClick={handleNavLinkClick}>{t('nav.about')}</a></li>
-            <li><a href="#articles" onClick={handleNavLinkClick}>{t('nav.articles')}</a></li>
-            <li><a href="#contact" onClick={handleNavLinkClick}>{t('nav.contact')}</a></li>
+            {menuItems.map(({ href, key }) => (
+              <li key={key}>
+                <a href={href} onClick={handleNavLinkClick}>{t(key)}</a>
+              </li>
+            ))}
             <li><LanguageSelector /></li>
           </ul>
         </nav>
@@ -62,11 +114,11 @@ const Header = () => {
 
         <nav className={`nav-mobile ${isMobileMenuOpen ? 'active' : ''}`}>
           <ul>
-            <li><a href="#hero" onClick={handleNavLinkClick}>{t('nav.home')}</a></li>
-            <li><a href="#services" onClick={handleNavLinkClick}>{t('nav.services')}</a></li>
-            <li><a href="#about" onClick={handleNavLinkClick}>{t('nav.about')}</a></li>
-            <li><a href="#articles" onClick={handleNavLinkClick}>{t('nav.articles')}</a></li>
-            <li><a href="#contact" onClick={handleNavLinkClick}>{t('nav.contact')}</a></li>
+            {menuItems.map(({ href, key }) => (
+              <li key={`mobile-${key}`}>
+                <a href={href} onClick={handleNavLinkClick}>{t(key)}</a>
+              </li>
+            ))}
             <li className="mobile-language-selector-container">
               <LanguageSelector />
             </li>

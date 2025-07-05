@@ -10,48 +10,7 @@ console.log('🔧 API Service Config:', {
   timestamp: new Date().toISOString()
 });
 
-// Fallback uniquement pour les reviews (données réelles clients)
-const FALLBACK_REVIEWS = {
-  success: true,
-  data: [
-    {
-      _id: 'sidilarsen1',
-      name: 'David',
-      title: 'Chanteur de Sidilarsen',
-      rating: 5,
-      message: "Avant MDMC, notre chaîne YouTube stagnait. Depuis, on a franchi un vrai cap : millions de vues, abonnés x4, impact direct sur notre carrière. Collaboration ultra efficace.",
-      createdAt: new Date().toISOString(),
-      avatar: null
-    },
-    {
-      _id: 'mox1',
-      name: 'Isabelle Fontan',
-      title: 'MOX Musique',
-      rating: 5,
-      message: "Denis est un professionnel fiable, sérieux, réactif et surtout efficace. Il m'a conseillé au mieux sur de nombreuses campagnes, avec des résultats très satisfaisants. L'expert Google Ads qu'il vous faut !",
-      createdAt: '2023-02-03T00:00:00.000Z',
-      avatar: null
-    },
-    {
-      _id: 'trydye1',
-      name: 'Fred Tavernier',
-      title: 'Try & Dye Records',
-      rating: 5,
-      message: "Cela fait plusieurs années que nous collaborons avec Denis sur les campagnes clips de nos artistes (dont OUTED). Communication fluide, résultats au rendez-vous, Denis s'adapte à nos besoins et nos budgets avec réactivité.",
-      createdAt: '2023-02-03T00:00:00.000Z',
-      avatar: null
-    },
-    {
-      _id: 'mlh1',
-      name: "Manon L'Huillier",
-      title: 'MLH Promotion',
-      rating: 5,
-      message: "Un travail efficace à chaque collaboration. Denis a su être à l'écoute de nos attentes et proposer des stratégies adaptées aux deadlines et aux budgets imposés.",
-      createdAt: '2019-07-09T00:00:00.000Z',
-      avatar: null
-    }
-  ]
-};
+// Service API MDMC - Version Production
 
 class ApiService {
   constructor() {
@@ -64,13 +23,22 @@ class ApiService {
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
     try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        ...options.headers
+      };
+
+      // Si BYPASS_AUTH est activé, ajouter un token de développement
+      const bypassAuth = import.meta.env.VITE_BYPASS_AUTH === 'true';
+      if (bypassAuth) {
+        headers['Authorization'] = 'Bearer dev-bypass-token';
+        console.log('🔓 API Request: Bypass auth activé');
+      }
+
       const config = {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          ...options.headers
-        },
+        headers,
         credentials: 'include',
         signal: controller.signal,
         ...options
@@ -91,7 +59,14 @@ class ApiService {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        // Essayer de récupérer le message d'erreur du backend
+        try {
+          const errorData = await response.json();
+          const errorMessage = errorData.error || errorData.message || response.statusText;
+          throw new Error(`${response.status}: ${errorMessage}`);
+        } catch (parseError) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
       }
 
       return await response.json();
@@ -118,9 +93,8 @@ class ApiService {
         const response = await this.request(endpoint);
         return response;
       } catch (error) {
-        console.warn('⚠️ Reviews: API indisponible, fallback activé');
-        console.log('🔄 Reviews: Utilisation des données de fallback');
-        return FALLBACK_REVIEWS;
+        console.error('❌ Reviews: Erreur API:', error);
+        throw error;
       }
     },
 
@@ -132,9 +106,8 @@ class ApiService {
           body: JSON.stringify(reviewData)
         });
       } catch (error) {
-        console.warn('⚠️ Reviews: Soumission échouée, mode simulation');
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        return { success: true, message: 'Avis soumis (mode démo)' };
+        console.error('❌ Reviews: Erreur soumission:', error);
+        throw error;
       }
     }
   };
@@ -209,7 +182,7 @@ class ApiService {
     }
   };
 
-  // SERVICE SMARTLINKS - Sans fallback, 404 si pas de données
+  // SERVICE SMARTLINKS 
   smartlinks = {
     getAll: async () => {
       console.log('🔗 SmartLinks: Récupération liste...');
@@ -323,14 +296,7 @@ class ApiService {
 
     } catch (error) {
       console.error('❌ Simulator: Erreur envoi n8n:', error);
-      
-      // Fallback gracieux pour maintenir l'UX
-      return {
-        success: true,
-        message: 'Résultats enregistrés (mode démo)',
-        leadId: `DEMO_${Date.now()}`,
-        fallback: true
-      };
+      throw error;
     }
   };
 }

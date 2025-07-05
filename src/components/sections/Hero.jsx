@@ -20,6 +20,8 @@ const Hero = ({ openSimulator }) => {
   
   const countersRef = useRef(null);
   const hasAnimated = useRef(false);
+  const intervalRef = useRef(null);
+  const observerRef = useRef(null);
   
   useEffect(() => {
     const options = {
@@ -36,15 +38,18 @@ const Hero = ({ openSimulator }) => {
       }
     };
     
-    const observer = new IntersectionObserver(handleIntersect, options);
+    observerRef.current = new IntersectionObserver(handleIntersect, options);
     
     if (countersRef.current) {
-      observer.observe(countersRef.current);
+      observerRef.current.observe(countersRef.current);
     }
     
     return () => {
-      if (countersRef.current) {
-        observer.unobserve(countersRef.current);
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
       }
     };
   }, []);
@@ -55,7 +60,7 @@ const Hero = ({ openSimulator }) => {
     const totalFrames = Math.round(duration / frameDuration);
     let frame = 0;
     
-    const counter = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       frame++;
       const progress = frame / totalFrames;
       
@@ -67,7 +72,8 @@ const Hero = ({ openSimulator }) => {
       });
       
       if (frame === totalFrames) {
-        clearInterval(counter);
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
         setCounts(targetCounts);
       }
     }, frameDuration);

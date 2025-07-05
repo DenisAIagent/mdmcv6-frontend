@@ -6,17 +6,39 @@ const Footer = ({ openSimulator }) => {
   const currentYear = new Date().getFullYear();
   
   const handleSimulatorClick = () => {
-    if (openSimulator) {
+    if (openSimulator && typeof openSimulator === 'function') {
       openSimulator();
+    } else {
+      console.warn('openSimulator is not a valid function');
     }
   };
   
   const handleCookieClick = () => {
-    // Cette fonction sera implémentée plus tard pour ouvrir la bannière de cookies
-    const cookieBanner = document.getElementById('cookie-banner');
-    if (cookieBanner) {
-      cookieBanner.style.display = 'block';
+    // Gestion robuste de l'ouverture bannière cookies
+    try {
+      const cookieBanner = document.getElementById('cookie-banner');
+      if (cookieBanner) {
+        cookieBanner.style.display = 'block';
+      } else {
+        console.warn('Cookie banner element not found');
+        // Fallback : ouvrir une simple alerte
+        alert(t('footer.cookies_fallback', 'Gestion des cookies non disponible pour le moment.'));
+      }
+    } catch (error) {
+      console.error('Error opening cookie banner:', error);
     }
+  };
+
+  // Gestion fallback logo si image manquante (même logique que Header)
+  const handleLogoError = (e) => {
+    e.target.style.display = 'none';
+    e.target.nextElementSibling.style.display = 'block';
+  };
+
+  // Gestion fallback badge Google si CDN indisponible
+  const handleBadgeError = (e) => {
+    e.target.style.display = 'none';
+    e.target.nextElementSibling.style.display = 'inline-block';
   };
 
   return (
@@ -24,7 +46,17 @@ const Footer = ({ openSimulator }) => {
       <div className="container footer-container">
         <div className="footer-brand">
           <a href="#hero" aria-label="MDMC - Retour à l'accueil">
-            <img src="/assets/images/logo.png" alt="MDMC Logo" />
+            <img 
+              src="/assets/images/logo.png" 
+              alt="MDMC Logo" 
+              onError={handleLogoError}
+            />
+            <span 
+              style={{ display: 'none', fontWeight: 'bold', fontSize: '1.2rem' }}
+              aria-hidden="true"
+            >
+              MDMC
+            </span>
           </a>
           <p>{t('footer.logo_p')}</p>
           <div className="google-partner">
@@ -37,8 +69,21 @@ const Footer = ({ openSimulator }) => {
               <img 
                 src="https://www.gstatic.com/partners/badge/images/2024/PartnerBadgeClickable.svg" 
                 alt={t('contact.partners.google_badge_alt')} 
-                loading="lazy" 
+                loading="lazy"
+                onError={handleBadgeError}
               />
+              <span 
+                style={{ 
+                  display: 'none', 
+                  padding: '8px 12px', 
+                  background: '#4285f4', 
+                  color: 'white', 
+                  borderRadius: '4px',
+                  fontSize: '12px'
+                }}
+              >
+                Google Partner
+              </span>
             </a>
           </div>
         </div>
