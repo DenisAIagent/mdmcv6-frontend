@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "vite",
     "build": "rm -rf dist && rm -f dist/index.html && vite build",
-    "start": "vite preview --host 0.0.0.0 --port ${PORT:-3000}"
+    "start": "vite preview --host 0.0.0.0 --port $PORT",
+    "serve": "npx serve -s dist -l $PORT"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
