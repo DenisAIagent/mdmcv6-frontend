@@ -34,8 +34,5 @@ RUN npm prune --production
 # Exposer le port (Railway utilise PORT dynamique)
 EXPOSE $PORT
 
-# Installer serve pour production
-RUN npm install -g serve
-
-# Démarrer avec serve (plus simple et fiable)
-CMD ["sh", "-c", "serve -s dist -l ${PORT:-3000}"]
+# Démarrer avec serveur Express
+CMD ["npm", "start"]
