@@ -6,14 +6,17 @@ WORKDIR /app
 # Copier les fichiers de dépendances
 COPY package*.json ./
 
-# Installer les dépendances
-RUN npm ci --only=production
+# Installer TOUTES les dépendances (dev incluses pour le build)
+RUN npm ci
 
 # Copier le code source
 COPY . .
 
 # Build de production
 RUN npm run build
+
+# Nettoyer les devDependencies après le build
+RUN npm prune --production
 
 # Exposer le port (Railway utilise PORT dynamique)
 EXPOSE $PORT
