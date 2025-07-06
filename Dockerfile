@@ -1,6 +1,19 @@
 # Dockerfile simple pour Railway
 FROM node:18-alpine
 
+# Installer les dépendances système pour imagemin et gifsicle
+RUN apk add --no-cache \
+    autoconf \
+    automake \
+    libtool \
+    make \
+    g++ \
+    libpng-dev \
+    nasm \
+    pkgconfig \
+    python3 \
+    py3-pip
+
 WORKDIR /app
 
 # Copier les fichiers de dépendances
