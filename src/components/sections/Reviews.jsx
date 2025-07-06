@@ -434,10 +434,7 @@ const Reviews = () => {
               variant="h2" 
               sx={{ 
                 mb: 3,
-                background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
+                color: '#ffffff',
                 fontWeight: 800
               }}
             >
@@ -488,25 +485,6 @@ const Reviews = () => {
               </Box>
             </Stack>
 
-            {/* Indicateur de source */}
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-              <Chip
-                label={connectionTest?.success ? "🟢 Connecté à Airtable" : "🟡 Mode Fallback"}
-                size="small"
-                variant="outlined"
-                sx={{
-                  bgcolor: connectionTest?.success 
-                    ? alpha(theme.palette.success.main, 0.1)
-                    : alpha(theme.palette.warning.main, 0.1),
-                  borderColor: connectionTest?.success 
-                    ? theme.palette.success.main
-                    : theme.palette.warning.main
-                }}
-              />
-              <IconButton size="small" onClick={handleRefresh} title="Actualiser">
-                <Refresh fontSize="small" />
-              </IconButton>
-            </Box>
           </Box>
         </Fade>
 

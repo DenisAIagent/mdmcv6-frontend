@@ -42,10 +42,10 @@
   padding-top: 0; /* IMPORTANT : Doit rester 0 car géré par le padding du body */
   padding-bottom: 2rem;
   width: 100%;
-  max-width: 1200px;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-  margin: 0 auto;
+  max-width: none; /* Supprime la limite de largeur */
+  padding-left: 5rem; /* Augmente encore les paddings pour plus d'espace */
+  padding-right: 5rem;
+  margin: 0;
 }
 
 .hero-content {
@@ -94,13 +94,13 @@
 
 .hero-stats {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: 2rem;
   flex-wrap: wrap;
   border-top: 1px solid var(--color-border);
   padding-top: 2.5rem;
   width: 100%;
-  max-width: 800px;
+  max-width: none;
   margin-top: 1rem;
 }
 
@@ -110,7 +110,7 @@
   align-items: center;
   text-align: center;
   flex: 1;
-  min-width: 150px;
+  min-width: 200px;
 }
 
 .stat-number {
@@ -133,6 +133,11 @@
     min-height: 500px; /* Hauteur minimale ajustée pour mobile si besoin */
     padding-top: 3rem;     /* Padding haut ajusté pour mobile */
     padding-bottom: 3rem;  /* Padding bas ajusté pour mobile */
+  }
+
+  .hero-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 
   .hero-slogan {

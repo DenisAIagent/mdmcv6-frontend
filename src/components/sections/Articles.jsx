@@ -360,21 +360,13 @@ const Articles = () => {
         
         <div className="articles-footer">
           <a 
-            href={BLOG_CONFIG.BASE_URL} 
+            href="https://blog.mdmcmusicads.com" 
             target="_blank" 
             rel="noopener noreferrer"
             className="view-all-button"
           >
             Découvrir tous nos articles
           </a>
-          
-          <button 
-            onClick={handleRetry} 
-            className="refresh-articles-button"
-            title="Actualiser depuis Railway"
-          >
-            🔄 Actualiser
-          </button>
         </div>
       </div>
     </section>

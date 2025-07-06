@@ -1,106 +1,207 @@
 import apiService from "./api.service";
 
 const musicPlatformService = {
-  async fetchLinksFromSourceUrl(sourceUrl) {
-    // === VÉRIFICATIONS DE DEBUG ===
-    console.log("DEBUG: apiService:", apiService);
-    console.log("DEBUG: apiService.smartlinks:", apiService?.smartlinks);
-    console.log("DEBUG: fetchPlatformLinks exists:", typeof apiService?.smartlinks?.fetchPlatformLinks);
-    
+  /**
+   * Récupère les liens cross-platform via Odesli API
+   * @param {string} sourceUrl - URL Spotify/Apple/YouTube ou ISRC/UPC
+   * @param {string} userCountry - Code pays (FR, US, etc.)
+   * @returns {Promise<Object>} Données formatées pour l'interface
+   */
+  async fetchLinksFromSourceUrl(sourceUrl, userCountry = 'FR') {
+    // Validation service disponible
     if (!apiService?.smartlinks?.fetchPlatformLinks) {
-      console.error("ERREUR: fetchPlatformLinks n'existe pas dans apiService.smartlinks");
+      console.error("ERREUR: Service smartlinks non configuré");
       throw new Error("Service smartlinks non configuré correctement");
     }
-    // === FIN VÉRIFICATIONS DE DEBUG ===
 
-    console.log(`Frontend: Demande de récupération des liens pour : ${sourceUrl}`);
+    console.log(`🔍 Frontend: Récupération liens pour: ${sourceUrl} (${userCountry})`);
+    
     try {
-      // Préparation de l'URL pour l'API
+      // Préparation de l'input
       let cleanSourceUrl = sourceUrl.trim();
       
-      // Nettoyage des paramètres d'URL pour Spotify
+      // Nettoyage URLs Spotify (suppression paramètres)
       if (cleanSourceUrl.includes('?') && cleanSourceUrl.includes('spotify.com')) {
         cleanSourceUrl = cleanSourceUrl.split('?')[0];
-        console.log("Frontend: URL Spotify nettoyée des paramètres:", cleanSourceUrl);
+        console.log("🧹 URL Spotify nettoyée:", cleanSourceUrl);
       }
       
-      // Correction: Utilisation de apiService.smartlinks.fetchPlatformLinks au lieu de apiService.fetchPlatformLinks
-      const response = await apiService.smartlinks.fetchPlatformLinks(cleanSourceUrl);
+      // Appel API backend avec Odesli
+      const response = await apiService.smartlinks.fetchPlatformLinks(cleanSourceUrl, userCountry);
       
-      console.log("Frontend: Réponse reçue du backend pour fetch-platform-links:", JSON.stringify(response, null, 2));
+      console.log("📥 Réponse Odesli reçue:", response);
 
-      if (response && response.success && response.data) {
-        // Vérification détaillée de la structure de la réponse
-        console.log("Frontend: Structure de response.data:", Object.keys(response.data));
-        console.log("Frontend: Type de response.data:", typeof response.data);
+      if (response?.success && response?.data) {
+        const data = response.data;
         
-        // Vérification spécifique pour les liens
-        const links = response.data.links || {};
-        console.log("Frontend: Type de links:", typeof links);
-        console.log("Frontend: links est-il un tableau?", Array.isArray(links));
-        console.log("Frontend: Contenu brut de links:", JSON.stringify(links, null, 2));
-        console.log("Frontend: Clés de links:", Object.keys(links));
-        
-        // Vérification plus stricte de la présence de liens valides
+        // Traitement des liens de plateformes (Odesli retourne linksByPlatform)
+        const links = data.linksByPlatform || data.links || {};
         const hasLinks = typeof links === 'object' && !Array.isArray(links) && Object.keys(links).length > 0;
-        console.log("Frontend: hasLinks:", hasLinks);
         
         if (hasLinks) {
-          // Nettoyage des liens pour supprimer les caractères indésirables
+          // Nettoyage et formatage des liens
           const cleanedLinks = {};
-          for (const [platform, url] of Object.entries(links)) {
-            // Vérifier si l'URL est une chaîne et nettoyer les points-virgules
-            const cleanUrl = typeof url === 'string' ? url.replace(/;$/, '') : url;
-            cleanedLinks[platform] = cleanUrl;
-          }
+          Object.entries(links).forEach(([platform, linkData]) => {
+            if (linkData && typeof linkData === 'object' && linkData.url) {
+              // Extraire l'URL principale, nettoyer
+              cleanedLinks[platform] = linkData.url.replace(/;$/, '');
+            } else if (typeof linkData === 'string') {
+              // Format simple: plateforme -> URL
+              cleanedLinks[platform] = linkData.replace(/;$/, '');
+            }
+          });
           
-          console.log("Frontend: Liens nettoyés:", cleanedLinks);
+          console.log(`✅ ${Object.keys(cleanedLinks).length} plateformes récupérées:`, Object.keys(cleanedLinks));
           
           return {
             success: true,
             data: {
-              title: response.data.title || "",
-              artist: response.data.artistName || "",
-              artwork: response.data.thumbnailUrl || "",
+              // Métadonnées principales (compatibilité Odesli)
+              title: data.title || "",
+              artist: data.artist || data.artistName || "",
+              album: data.album || data.albumName || "",
+              artwork: data.artwork || data.thumbnailUrl || "",
+              isrc: data.isrc || "",
+              type: data.type || "song",
+              duration: data.duration,
+              releaseDate: data.releaseDate,
+              
+              // Liens formatés pour l'UI
               linksByPlatform: cleanedLinks,
-              isrc: sourceUrl.startsWith("ISRC:") ? sourceUrl.substring(5) : "" 
+              
+              // Données enrichies Odesli
+              alternativeArtworks: data.alternativeArtworks || [],
+              pageUrl: data.pageUrl,
+              entityId: data.entityId,
+              apiProvider: data.apiProvider,
+              inputType: data.inputType,
+              userCountry: data.userCountry
             }
           };
         } else {
-          // Cas où links existe mais est vide ou n'a pas la structure attendue
-          console.log("Frontend: Aucun lien trouvé dans la réponse ou structure incorrecte");
+          console.warn("⚠️ Aucun lien trouvé dans la réponse");
           return {
             success: false,
-            error: "Aucun lien trouvé pour cette URL/ISRC.",
+            error: "Aucune plateforme trouvée pour ce contenu.",
             data: null
           };
         }
       } else {
-        // Gérer les cas où la réponse du backend n'est pas celle attendue ou indique un échec
-        const errorMessage = response && response.message 
-          ? response.message 
-          : "Réponse invalide ou échec de la récupération des liens depuis le backend.";
-        console.error("Frontend: Erreur ou réponse invalide du backend:", response);
+        const errorMessage = response?.error || response?.message || "Réponse API invalide";
+        console.error("❌ Réponse backend invalide:", response);
         return {
           success: false,
           error: errorMessage,
           data: null
         };
       }
+      
     } catch (error) {
-      console.error("Frontend: Erreur lors de l'appel à /smartlinks/fetch-platform-links:", error);
+      console.error("❌ Erreur service musicPlatform:", error);
+      
+      // Gestion d'erreurs spécifiques
       let errorMessage = "Erreur lors de la récupération des liens musicaux.";
-      if (error.response && error.response.data && error.response.data.error) {
+      
+      if (error.response?.status === 404) {
+        errorMessage = "Contenu non trouvé. Vérifiez l'URL ou l'ISRC.";
+      } else if (error.response?.status === 400) {
+        errorMessage = error.response.data?.error || "Format d'URL ou ISRC invalide.";
+      } else if (error.response?.status === 429) {
+        errorMessage = "Trop de requêtes. Réessayez dans quelques minutes.";
+      } else if (error.response?.data?.error) {
         errorMessage = error.response.data.error;
       } else if (error.message) {
         errorMessage = error.message;
       }
+      
       return {
         success: false,
         error: errorMessage,
         data: null
       };
     }
+  },
+
+  /**
+   * Valide le format d'input utilisateur
+   * @param {string} input - URL ou code à valider
+   * @returns {Object} Résultat de validation
+   */
+  validateInput(input) {
+    if (!input || typeof input !== 'string' || input.trim().length === 0) {
+      return { valid: false, error: "URL ou ISRC requis" };
+    }
+
+    const cleanInput = input.trim();
+
+    // ISRC: 12 caractères alphanumériques
+    if (/^[A-Z]{2}[A-Z0-9]{3}[0-9]{2}[0-9]{5}$/.test(cleanInput)) {
+      return { valid: true, type: 'isrc', value: cleanInput };
+    }
+
+    // UPC/EAN: 12-13 chiffres
+    if (/^[0-9]{12,13}$/.test(cleanInput)) {
+      return { valid: true, type: 'upc', value: cleanInput };
+    }
+
+    // URLs supportées
+    const urlPatterns = [
+      { pattern: /open\.spotify\.com\/(track|album|playlist)\/[a-zA-Z0-9]+/, type: 'spotify' },
+      { pattern: /music\.apple\.com\/[a-z]{2}\//, type: 'apple_music' },
+      { pattern: /music\.youtube\.com\/watch/, type: 'youtube_music' },
+      { pattern: /deezer\.com\/(track|album|playlist)\/[0-9]+/, type: 'deezer' },
+      { pattern: /^https?:\/\//, type: 'url' }
+    ];
+
+    for (const { pattern, type } of urlPatterns) {
+      if (pattern.test(cleanInput)) {
+        return { valid: true, type, value: cleanInput };
+      }
+    }
+
+    return { 
+      valid: false, 
+      error: "Format non supporté. Utilisez: URL Spotify/Apple Music/YouTube Music/Deezer, ISRC ou UPC." 
+    };
+  },
+
+  /**
+   * Détecte les formats supportés et fournit des exemples
+   * @returns {Array} Liste des formats supportés avec exemples
+   */
+  getSupportedFormats() {
+    return [
+      {
+        type: 'Spotify URL',
+        example: 'https://open.spotify.com/track/4iV5W9uYEdYUVa79Axb7Rh',
+        description: 'Lien direct vers un titre Spotify'
+      },
+      {
+        type: 'Apple Music URL',
+        example: 'https://music.apple.com/us/album/bohemian-rhapsody/...',
+        description: 'Lien direct vers Apple Music'
+      },
+      {
+        type: 'YouTube Music URL',
+        example: 'https://music.youtube.com/watch?v=fJ9rUzIMcZQ',
+        description: 'Lien direct vers YouTube Music'
+      },
+      {
+        type: 'Deezer URL',
+        example: 'https://deezer.com/track/123456789',
+        description: 'Lien direct vers Deezer'
+      },
+      {
+        type: 'ISRC',
+        example: 'GBUM71507609',
+        description: 'Code ISRC international (12 caractères)'
+      },
+      {
+        type: 'UPC/EAN',
+        example: '050087246235',
+        description: 'Code produit universel (12-13 chiffres)'
+      }
+    ];
   }
 };
 

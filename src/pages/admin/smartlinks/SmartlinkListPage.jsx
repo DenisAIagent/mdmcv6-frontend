@@ -66,7 +66,7 @@ function SmartlinkListPage() {
       toast.error("Slugs manquants, impossible d'ouvrir le lien.");
       return;
     }
-    const publicUrl = `/smartlinks/${artistSlug}/${trackSlug}`; 
+    const publicUrl = `/#/smartlinks/${artistSlug}/${trackSlug}`; 
     window.open(publicUrl, '_blank');
   };
 

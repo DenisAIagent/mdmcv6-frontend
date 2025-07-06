@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  HashRouter as Router,
+  BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
@@ -55,7 +55,18 @@ import Reviews from './components/sections/Reviews';
 import Contact from './components/sections/Contact';
 import AllReviews from './components/pages/AllReviews';
 import ArtistPage from './pages/public/ArtistPage';
-import SmartLinkPage from './pages/public/SmartLinkPage';
+import SmartLinkPageNew from './pages/public/SmartLinkPageNew';
+import SmartLinkPageClean from './pages/public/SmartLinkPageClean';
+
+// Pages de ressources légales
+import FAQ from './pages/public/resources/FAQ';
+import Glossaire from './pages/public/resources/Glossaire';
+import MentionsLegales from './pages/public/resources/MentionsLegales';
+import PolitiqueConfidentialite from './pages/public/resources/PolitiqueConfidentialite';
+import ConditionsGenerales from './pages/public/resources/ConditionsGenerales';
+import Cookies from './pages/public/resources/Cookies';
+import TestPage from './pages/public/resources/TestPage';
+import TestContentValidation from './pages/public/resources/TestContentValidation';
 
 import AdminLogin from './components/admin/AdminLogin';
 import AdminPanel from './components/admin/AdminPanel';
@@ -70,6 +81,10 @@ import WordPressConnector from './components/admin/WordPressConnector';
 import WordPressSync from './components/admin/WordPressSync';
 import ReviewManager from './components/admin/ReviewManager';
 import CampaignStatsShowcase from './components/landing/common/CampaignStatsShowcase';
+import TestSmartLinkIntegration from './test-smartlink-integration';
+import PlatformOrderManager from './components/admin/PlatformOrderManager';
+import URLManager from './components/admin/URLManager';
+import MediaPlayerTest from './components/admin/MediaPlayerTest';
 
 const drawerWidth = 240;
 
@@ -164,6 +179,10 @@ const AdminLayout = () => {
     { label: 'WordPress', path: '/admin/wordpress', icon: <LinkIcon /> },
     { label: 'Avis Clients', path: '/admin/reviews', icon: <PeopleIcon /> },
     { label: 'Statistiques', path: '/admin/stats', icon: <DashboardIcon /> },
+    { label: '🎛️ Ordre Plateformes', path: '/admin/platform-order', icon: <LinkIcon /> },
+    { label: '🔗 URLs & Tracking', path: '/admin/urls', icon: <LinkIcon /> },
+    { label: '🧪 Test SmartLink', path: '/admin/test-smartlink', icon: <LinkIcon /> },
+    { label: '🎧 Test Media Player', path: '/admin/test-media', icon: <LinkIcon /> },
   ];
 
   const drawer = (
@@ -261,8 +280,20 @@ function App() {
         <Route path="/" element={<HomePage openSimulator={openSimulator} />} />
         <Route path="/all-reviews" element={<AllReviews />} />
         <Route path="/artists/:slug" element={<ArtistPage />} />
-        <Route path="/s/:slug" element={<SmartLinkPage />} />
-        <Route path="/smartlinks/:artistSlug/:trackSlug" element={<SmartLinkPage />} />
+        <Route path="/s/:slug" element={<SmartLinkPageNew />} />
+        <Route path="/smartlinks/:artistSlug/:trackSlug" element={<SmartLinkPageClean />} />
+        <Route path="/smartlinks-old/:artistSlug/:trackSlug" element={<SmartLinkPageNew />} />
+        
+        {/* Routes des pages de ressources légales - SEO optimisées */}
+        <Route path="/test" element={<TestPage />} />
+        <Route path="/test-contenu" element={<TestContentValidation />} />
+        <Route path="/ressources/faq" element={<FAQ />} />
+        <Route path="/ressources/glossaire" element={<Glossaire />} />
+        <Route path="/ressources/mentions-legales" element={<MentionsLegales />} />
+        <Route path="/ressources/politique-confidentialite" element={<PolitiqueConfidentialite />} />
+        <Route path="/ressources/conditions-generales" element={<ConditionsGenerales />} />
+        <Route path="/ressources/cookies" element={<Cookies />} />
+        
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
           <Route index element={<Navigate to="dashboard" replace />} />
@@ -281,6 +312,10 @@ function App() {
           <Route path="wordpress" element={<Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}><WordPressConnector /><WordPressSync /></Box>} />
           <Route path="reviews" element={<ReviewManager />} />
           <Route path="stats" element={<CampaignStatsShowcase />} />
+          <Route path="platform-order" element={<PlatformOrderManager />} />
+          <Route path="urls" element={<URLManager />} />
+          <Route path="test-smartlink" element={<TestSmartLinkIntegration />} />
+          <Route path="test-media" element={<MediaPlayerTest />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

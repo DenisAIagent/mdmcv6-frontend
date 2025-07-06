@@ -1,24 +1,31 @@
-/* ===== assets/styles/contact.css (Mis à jour pour centrage) ===== */
+/* ===== Contact Section - Layout moderne ===== */
 
-/* Règle ajoutée pour les titres H2 dans un .section-header */
+.contact {
+  background-color: #0a0a0a;
+  padding: 5rem 0;
+}
+
+.contact .container {
+  max-width: none;
+  padding-left: 5rem;
+  padding-right: 5rem;
+}
+
 .section-header {
-  text-align: center; /* Centre le titre comme "Contactez-nous" */
-  margin-bottom: 2rem; /* Espace en dessous (ajustez si besoin) */
+  text-align: center;
+  margin-bottom: 4rem;
 }
 
 .contact-content {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 3rem;
-  /* Si contact-content doit lui-même être centré, ajoutez max-width et margin auto ici aussi */
+  grid-template-columns: 1fr 1fr;
+  gap: 6rem;
+  align-items: start;
 }
 
-/* Règle ajoutée/modifiée pour centrer le bloc d'infos partenaires */
 .contact-info {
-  max-width: 700px; /* Limite la largeur max du bloc (ajustez selon le design) */
-  margin-left: auto;  /* Centre horizontalement */
-  margin-right: auto; /* Centre horizontalement */
-  text-align: left; /* Empêche l'héritage d'un text-align: right potentiel */
+  max-width: none;
+  margin: 0;
 }
 
 /* Règle modifiée pour centrer le titre H3 des partenaires */
@@ -31,23 +38,23 @@
 
 .partners-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 2.5rem;
-  /* Les items sont déjà centrés par les styles .partner-card */
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 3rem;
 }
 
 .partner-card {
   background-color: #141414;
-  border-radius: 8px;
-  padding: 1.5rem;
-  text-align: center; /* Centre le texte H4/P à l'intérieur */
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   border: 1px solid var(--color-border);
   transform: translateY(0);
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-height: 140px;
   align-items: center; /* Centre le contenu (image) verticalement/horizontalement */
   min-height: 150px;
 }
@@ -110,6 +117,29 @@
   transform: translateY(-3px);
 }
 
+/* Responsive pour mobile */
+@media (max-width: 768px) {
+  .contact .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .contact-content {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .partners-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .partner-card {
+    min-height: 120px;
+    padding: 1.5rem;
+  }
+}
+
 .contact-form {
   background-color: #141414;
   border-radius: 10px;
@@ -126,32 +156,74 @@
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
+  color: #ffffff;
 }
 
 .form-group input,
 .form-group textarea,
-.form-group select { /* Ajout de select pour styliser le dropdown */
+.form-group select {
   width: 100%;
   padding: 0.75rem 1rem;
   border: 1px solid var(--color-border);
   border-radius: 5px;
   background-color: #1A1A1A;
-  color: var(--color-text);
+  color: #ffffff;
   font-family: var(--font-body);
   font-size: 1rem;
   transition: var(--transition);
-  appearance: none; /* Pour styliser la flèche du select si nécessaire */
+  appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
 }
 
-/* Style spécifique pour le select (flèche) si besoin */
+.form-group input::placeholder,
+.form-group textarea::placeholder,
+.form-group select::placeholder {
+  color: #aaaaaa;
+}
+
+/* Style spécifique pour le select (flèche) */
 .form-group select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23aaa' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   background-size: 16px 12px;
-  padding-right: 2.5rem; /* Espace pour la flèche */
+  padding-right: 2.5rem;
+  color: #ffffff !important;
+}
+
+/* Style pour les options du select */
+.form-group select option {
+  background-color: #1A1A1A;
+  color: #ffffff;
+  padding: 0.5rem;
+}
+
+/* Force la couleur blanche pour tous les éléments du formulaire */
+.contact-form * {
+  color: #ffffff !important;
+}
+
+.contact-form label {
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+.contact-form input,
+.contact-form textarea,
+.contact-form select {
+  color: #ffffff !important;
+}
+
+/* Exception : seul le bouton "Réserver un appel" garde sa couleur noire */
+.contact-form .btn {
+  color: #1a1a1a !important;
+}
+
+/* Le bouton "Envoyer" reste blanc */
+.contact-form button[type="submit"],
+.contact-form [type="submit"] {
+  color: #ffffff !important;
 }
 
 

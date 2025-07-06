@@ -43,7 +43,7 @@ const Footer = ({ openSimulator }) => {
 
   return (
     <footer className="footer">
-      <div className="container footer-container">
+      <div className="footer-container">
         <div className="footer-brand">
           <a href="#hero" aria-label="MDMC - Retour à l'accueil">
             <img 
@@ -113,25 +113,18 @@ const Footer = ({ openSimulator }) => {
                   {t('footer.resources_simulator')}
                 </button>
               </li>
-              <li><a href="#">{t('footer.resources_faq')}</a></li>
-              <li><a href="#">{t('footer.resources_glossary')}</a></li>
+              <li><a href="/ressources/faq">{t('footer.resources_faq')}</a></li>
+              <li><a href="/ressources/glossaire">{t('footer.resources_glossary')}</a></li>
             </ul>
           </div>
           
           <div className="footer-column">
             <h4>{t('footer.legal_title')}</h4>
             <ul>
-              <li><a href="#">{t('footer.legal_privacy')}</a></li>
-              <li><a href="#">{t('footer.legal_terms')}</a></li>
-              <li>
-                <button 
-                  type="button" 
-                  className="btn-link-style" 
-                  onClick={handleCookieClick}
-                >
-                  {t('footer.legal_cookies')}
-                </button>
-              </li>
+              <li><a href="/ressources/politique-confidentialite">{t('footer.legal_privacy')}</a></li>
+              <li><a href="/ressources/conditions-generales">{t('footer.legal_terms')}</a></li>
+              <li><a href="/ressources/mentions-legales">{t('footer.legal_mentions')}</a></li>
+              <li><a href="/ressources/cookies">{t('footer.legal_cookies')}</a></li>
             </ul>
           </div>
         </div>

@@ -18,20 +18,12 @@ export default defineConfig({
   },
   
   server: {
-    port: 3001,
+    port: 3000,
     host: "localhost",
-    middlewareMode: false,
-    // Redirection pour les routes admin vers HashRouter
-    configure: (app) => {
-      app.use('/admin*', (req, res, next) => {
-        if (req.path.startsWith('/admin') && !req.path.includes('#')) {
-          const redirectPath = `/#${req.path}`;
-          res.redirect(302, redirectPath);
-        } else {
-          next();
-        }
-      });
-    }
+    // Support des routes SPA avec fallback
+    proxy: {},
+    cors: true,
+    open: true
   },
   
   preview: {

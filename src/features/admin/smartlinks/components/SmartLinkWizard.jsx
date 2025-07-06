@@ -42,8 +42,9 @@ const SmartLinkWizard = () => {
     defaultValues: {
       sourceUrl: '',
       trackTitle: '',
-      artistId: '',
+      artistName: '',
       isrc: '',
+      previewAudioUrl: '',
       utmSource: 'wiseband',
       utmMedium: 'smartlink',
       utmCampaign: '',
@@ -85,6 +86,7 @@ const SmartLinkWizard = () => {
         
         // Mettre à jour les champs du formulaire
         setValue('trackTitle', title || '');
+        setValue('artistName', artist || ''); // Remplir le nom d'artiste depuis l'API
         setValue('isrc', isrc || '');
         setValue('utmCampaign', `${artist || 'artist'}-${title || 'track'}`.toLowerCase().replace(/\s+/g, '-'));
         
@@ -120,9 +122,9 @@ const SmartLinkWizard = () => {
     setIsSubmitting(true);
     
     try {
-      // Vérification de la présence de l'artistId
-      if (!data.artistId) {
-        toast.error("Veuillez sélectionner un artiste avant de créer le SmartLink.");
+      // Vérification de la présence du nom d'artiste
+      if (!data.artistName) {
+        toast.error("Le nom d'artiste est requis pour créer le SmartLink.");
         setIsSubmitting(false);
         return;
       }
@@ -130,7 +132,7 @@ const SmartLinkWizard = () => {
       // Préparation des données pour l'API
       const smartLinkData = {
         // Champs obligatoires pour le backend
-        artistId: data.artistId,
+        artistName: data.artistName,
         trackTitle: data.trackTitle,
         
         // Métadonnées supplémentaires
@@ -138,7 +140,8 @@ const SmartLinkWizard = () => {
         label: data.label || metadata.label,
         distributor: data.distributor || metadata.distributor,
         releaseDate: data.releaseDate || metadata.releaseDate,
-        artwork: metadata.artwork,
+        coverImageUrl: metadata.artwork,
+        previewAudioUrl: data.previewAudioUrl,
         
         // Liens des plateformes (uniquement ceux activés)
         platformLinks: platformLinks
@@ -187,11 +190,26 @@ const SmartLinkWizard = () => {
       if (response && response.success) {
         toast.success("SmartLink créé avec succès !");
         
-        // Redirection vers la liste des SmartLinks ou la page de détail du SmartLink créé
+        // Redirection vers le SmartLink public créé pour voir le résultat
         setTimeout(() => {
-          if (response.data && response.data._id) {
-            navigate(`/admin/smartlinks/${response.data._id}`);
+          if (response.data && response.data.slug && response.data.artistId) {
+            console.log("SmartLink créé:", response.data);
+            
+            // Utiliser le slug de l'artiste depuis la réponse du backend
+            const artistSlug = response.data.artistId?.slug;
+            const trackSlug = response.data.slug;
+            
+            if (artistSlug && trackSlug) {
+              const smartlinkUrl = `/smartlinks/${artistSlug}/${trackSlug}`;
+              console.log("🎯 Redirection vers le SmartLink public:", smartlinkUrl);
+              navigate(smartlinkUrl);
+            } else {
+              console.warn("Informations manquantes pour la redirection:", { artistSlug, trackSlug });
+              // Fallback vers la page d'édition du SmartLink
+              navigate(`/admin/smartlinks/edit/${response.data._id}`);
+            }
           } else {
+            console.warn("Données de réponse incomplètes:", response.data);
             navigate('/admin/smartlinks');
           }
         }, 1500);

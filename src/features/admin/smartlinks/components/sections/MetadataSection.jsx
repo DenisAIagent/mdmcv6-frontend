@@ -1,40 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Grid, Typography, TextField, Card, CardMedia, Autocomplete, CircularProgress } from '@mui/material';
+import { Box, Grid, Typography, TextField, Card, CardMedia } from '@mui/material';
 import { Controller } from 'react-hook-form';
 import apiService from '../../../../../services/api.service';
+import AudioUpload from '../../../../../components/common/AudioUpload';
 
 const MetadataSection = ({ metadata, control, setValue }) => {
-  const [artists, setArtists] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedArtist, setSelectedArtist] = useState(null);
-
-  // Charger la liste des artistes au montage du composant
-  useEffect(() => {
-    const fetchArtists = async () => {
-      setLoading(true);
-      try {
-        const response = await apiService.artists.getAllArtists();
-        if (response && response.success && response.data) {
-          setArtists(response.data);
-          console.log("Liste des artistes chargée:", response.data);
-        }
-      } catch (error) {
-        console.error("Erreur lors du chargement des artistes:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchArtists();
-  }, []);
-
-  // Mettre à jour l'artistId lorsqu'un artiste est sélectionné
-  useEffect(() => {
-    if (selectedArtist) {
-      setValue('artistId', selectedArtist._id);
-      console.log("ArtistId mis à jour:", selectedArtist._id);
-    }
-  }, [selectedArtist, setValue]);
+  // Plus besoin de charger les artistes - le nom vient de l'API Odesli
 
   return (
     <Box>
@@ -80,38 +51,29 @@ const MetadataSection = ({ metadata, control, setValue }) => {
             
             <Grid item xs={12}>
               <Controller
-                name="artistId"
+                name="artistName"
                 control={control}
-                rules={{ required: "La sélection d'un artiste est requise" }}
+                rules={{ required: "Le nom d'artiste est requis" }}
+                defaultValue={metadata.artist || ""}
                 render={({ field, fieldState: { error } }) => (
-                  <Autocomplete
-                    options={artists}
-                    loading={loading}
-                    getOptionLabel={(option) => option.name || ""}
-                    isOptionEqualToValue={(option, value) => option._id === value._id}
-                    onChange={(_, newValue) => {
-                      setSelectedArtist(newValue);
-                      field.onChange(newValue ? newValue._id : null);
+                  <TextField
+                    {...field}
+                    label="Nom de l'artiste"
+                    variant="outlined"
+                    fullWidth
+                    required
+                    error={!!error}
+                    helperText={error ? error.message : "Nom détecté automatiquement depuis l'API"}
+                    value={field.value || metadata.artist || ""}
+                    InputProps={{
+                      readOnly: !!metadata.artist,
+                      startAdornment: metadata.artist && (
+                        <Box sx={{ mr: 1, display: 'flex', alignItems: 'center' }}>
+                          ✅
+                        </Box>
+                      )
                     }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Sélectionner un artiste"
-                        variant="outlined"
-                        required
-                        error={!!error}
-                        helperText={error ? error.message : "Sélectionnez un artiste existant"}
-                        InputProps={{
-                          ...params.InputProps,
-                          endAdornment: (
-                            <>
-                              {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                              {params.InputProps.endAdornment}
-                            </>
-                          ),
-                        }}
-                      />
-                    )}
+                    placeholder="Nom de l'artiste (détecté automatiquement)"
                   />
                 )}
               />
@@ -195,6 +157,22 @@ const MetadataSection = ({ metadata, control, setValue }) => {
                       field.onChange(e);
                       setValue('releaseDate', e.target.value);
                     }}
+                  />
+                )}
+              />
+            </Grid>
+            
+            {/* Upload d'extrait audio pour preview */}
+            <Grid item xs={12}>
+              <Controller
+                name="previewAudioUrl"
+                control={control}
+                render={({ field, fieldState: { error } }) => (
+                  <AudioUpload
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={error?.message}
+                    helperText="Ajoutez un extrait audio de 30 secondes maximum pour le bouton play sur la pochette"
                   />
                 )}
               />

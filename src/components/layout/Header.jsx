@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import LanguageSelector from '../common/LanguageSelector';
 // Assurez-vous que le chemin vers le CSS est correct
 import '../../assets/styles/header.css';
 
@@ -73,7 +72,7 @@ const Header = () => {
 
   return (
     <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
-      <div className="container header-container">
+      <div className="header-container">
         <div className="logo">
           <a href="#hero" aria-label="MDMC - Retour à l'accueil">
             <img 
@@ -97,7 +96,6 @@ const Header = () => {
                 <a href={href} onClick={handleNavLinkClick}>{t(key)}</a>
               </li>
             ))}
-            <li><LanguageSelector /></li>
           </ul>
         </nav>
 
@@ -119,9 +117,6 @@ const Header = () => {
                 <a href={href} onClick={handleNavLinkClick}>{t(key)}</a>
               </li>
             ))}
-            <li className="mobile-language-selector-container">
-              <LanguageSelector />
-            </li>
           </ul>
         </nav>
       </div>
