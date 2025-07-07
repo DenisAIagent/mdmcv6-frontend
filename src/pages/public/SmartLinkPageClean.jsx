@@ -179,6 +179,12 @@ const SmartLinkPageClean = () => {
     try {
       console.log(`📊 Envoi tracking clic: ${platformName} pour SmartLink ${smartLinkId}`);
       
+      // Validation des paramètres
+      if (!smartLinkId || !platformName) {
+        console.warn('⚠️ Paramètres manquants pour le tracking:', { smartLinkId, platformName });
+        return;
+      }
+
       const response = await fetch(`https://mdmcv4-backend-production-b615.up.railway.app/api/v1/smartlinks/${smartLinkId}/log-platform-click`, {
         method: 'POST',
         headers: {
@@ -192,11 +198,20 @@ const SmartLinkPageClean = () => {
       if (response.ok) {
         const result = await response.json();
         console.log(`✅ Clic ${platformName} enregistré:`, result.data);
+        console.log(`📊 Total clics: ${result.data.totalClicks}, Clics ${platformName}: ${result.data.platformClicks}`);
       } else {
-        console.warn(`⚠️ Échec tracking ${platformName}:`, response.status);
+        const errorData = await response.json().catch(() => ({ error: 'Erreur inconnue' }));
+        console.warn(`⚠️ Échec tracking ${platformName} (${response.status}):`, errorData.error);
+        
+        // Log détaillé pour debug
+        if (response.status === 404) {
+          console.warn(`🔍 SmartLink ID ${smartLinkId} introuvable - vérifiez que le SmartLink existe`);
+        } else if (response.status === 401) {
+          console.warn('🔐 Erreur d\'authentification - vérifiez la configuration API');
+        }
       }
     } catch (error) {
-      console.error(`❌ Erreur tracking ${platformName}:`, error);
+      console.error(`❌ Erreur réseau tracking ${platformName}:`, error);
       // Ne pas interrompre l'expérience utilisateur pour une erreur de tracking
     }
   };
