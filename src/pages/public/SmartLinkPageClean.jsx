@@ -479,12 +479,6 @@ const SmartLinkPageClean = () => {
           {/* Sous-titre */}
           <div className="subtitle">
             Choose music service
-            {location && !geoLoading && (
-              <span className="location-info">
-                • {location.countryCode} ({kept}/{total} services)
-              </span>
-            )}
-            {/* Indicateur d'ordre personnalisé/A/B test supprimé pour production */}
           </div>
           
           {/* Liste verticale des plateformes */}
