@@ -39,6 +39,7 @@ import {
   Speed,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import apiService from '../../services/api.service';
 
 // Composant pour les cartes de statistiques
 const StatsCard = ({ title, value, change, changeType, icon, color, delay = 0 }) => {
@@ -239,40 +240,40 @@ const AdminPanel = () => {
     }
   };
 
-  const statsData = [
+  const [statsData, setStatsData] = useState([
     {
       title: 'Total SmartLinks',
-      value: 247,
-      change: '+12%',
+      value: 0,
+      change: '+0%',
       changeType: 'positive',
       icon: <LinkIcon />,
       color: theme.palette.primary.main,
     },
     {
       title: 'Artistes Actifs',
-      value: 89,
-      change: '+8%',
+      value: 0,
+      change: '+0%',
       changeType: 'positive',
       icon: <Group />,
       color: theme.palette.secondary.main,
     },
     {
       title: 'Vues ce mois',
-      value: 15420,
-      change: '+24%',
+      value: 0,
+      change: '+0%',
       changeType: 'positive',
       icon: <Visibility />,
       color: theme.palette.success.main,
     },
     {
       title: 'Clics totaux',
-      value: 8342,
-      change: '-2%',
-      changeType: 'negative',
+      value: 0,
+      change: '+0%',
+      changeType: 'positive',
       icon: <TrendingUp />,
       color: theme.palette.warning.main,
     },
-  ];
+  ]);
 
   const quickActions = [
     {
@@ -305,36 +306,104 @@ const AdminPanel = () => {
     },
   ];
 
-  const recentActivities = [
-    {
-      title: 'Nouveau SmartLink créé',
-      subtitle: '"Summer Vibes" par DJ Echo',
-      time: 'Il y a 2h',
-      avatar: <MusicNote />,
-      color: theme.palette.primary.main,
-    },
-    {
-      title: 'Artiste ajouté',
-      subtitle: 'Luna Santos rejoint la plateforme',
-      time: 'Il y a 4h',
-      avatar: <Group />,
-      color: theme.palette.secondary.main,
-    },
-    {
-      title: 'Milestone atteint',
-      subtitle: '10K clics sur "Midnight Dreams"',
-      time: 'Il y a 6h',
-      avatar: <TrendingUp />,
-      color: theme.palette.success.main,
-    },
-    {
-      title: 'Campagne terminée',
-      subtitle: 'Promo "Electronic Nights" finalisée',
-      time: 'Il y a 8h',
-      avatar: <Campaign />,
-      color: theme.palette.warning.main,
-    },
-  ];
+  const [recentActivities, setRecentActivities] = useState([]);
+  const [weeklyPerformance, setWeeklyPerformance] = useState({
+    newClicks: 0,
+    conversionRate: '0%'
+  });
+  const [loading, setLoading] = useState(true);
+
+  // Charger les vraies données depuis le backend
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
+      console.log('📊 Chargement des données dashboard...');
+      
+      const response = await apiService.analytics.getDashboardStats();
+      
+      if (response.success && response.data) {
+        const { stats, weeklyPerformance, recentActivities } = response.data;
+        
+        // Mettre à jour les statistiques
+        setStatsData([
+          {
+            title: 'Total SmartLinks',
+            value: stats.totalSmartLinks.value,
+            change: stats.totalSmartLinks.change,
+            changeType: stats.totalSmartLinks.changeType,
+            icon: <LinkIcon />,
+            color: theme.palette.primary.main,
+          },
+          {
+            title: 'Artistes Actifs',
+            value: stats.activeArtists.value,
+            change: stats.activeArtists.change,
+            changeType: stats.activeArtists.changeType,
+            icon: <Group />,
+            color: theme.palette.secondary.main,
+          },
+          {
+            title: 'Vues ce mois',
+            value: stats.monthlyViews.value,
+            change: stats.monthlyViews.change,
+            changeType: stats.monthlyViews.changeType,
+            icon: <Visibility />,
+            color: theme.palette.success.main,
+          },
+          {
+            title: 'Clics totaux',
+            value: stats.totalClicks.value,
+            change: stats.totalClicks.change,
+            changeType: stats.totalClicks.changeType,
+            icon: <TrendingUp />,
+            color: theme.palette.warning.main,
+          },
+        ]);
+
+        // Mettre à jour les performances de la semaine
+        setWeeklyPerformance(weeklyPerformance);
+
+        // Mettre à jour les activités récentes
+        const formattedActivities = recentActivities.map(activity => ({
+          title: activity.title,
+          subtitle: activity.subtitle,
+          time: new Date(activity.time).toLocaleString('fr-FR', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+          avatar: <MusicNote />,
+          color: theme.palette.primary.main,
+        }));
+        
+        setRecentActivities(formattedActivities);
+        
+        console.log('✅ Données dashboard chargées avec succès');
+      }
+    } catch (error) {
+      console.error('❌ Erreur chargement dashboard:', error);
+      // Garder les données de base en cas d'erreur
+      setRecentActivities([
+        {
+          title: 'Aucune activité récente',
+          subtitle: 'Les données seront disponibles une fois que vous aurez créé des SmartLinks',
+          time: 'Maintenant',
+          avatar: <MusicNote />,
+          color: theme.palette.primary.main,
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Charger les données au montage du composant
+  useEffect(() => {
+    if (mounted) {
+      loadDashboardData();
+    }
+  }, [mounted]);
 
   if (!mounted) {
     return (
@@ -443,13 +512,13 @@ const AdminPanel = () => {
                   <Grid container spacing={3}>
                     <Grid item xs={6}>
                       <Typography variant="h3" sx={{ fontWeight: 800, mb: 1 }}>
-                        2,847
+                        {weeklyPerformance.newClicks?.toLocaleString() || 0}
                       </Typography>
                       <Typography sx={{ opacity: 0.9 }}>Nouveaux clics</Typography>
                     </Grid>
                     <Grid item xs={6}>
                       <Typography variant="h3" sx={{ fontWeight: 800, mb: 1 }}>
-                        94.2%
+                        {weeklyPerformance.conversionRate || '0%'}
                       </Typography>
                       <Typography sx={{ opacity: 0.9 }}>Taux de conversion</Typography>
                     </Grid>

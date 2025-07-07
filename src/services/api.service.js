@@ -300,6 +300,32 @@ class ApiService {
       throw error;
     }
   };
+
+  // SERVICE ANALYTICS - Statistiques dashboard
+  analytics = {
+    getDashboardStats: async () => {
+      console.log('📊 Analytics: Récupération statistiques dashboard...');
+      return await this.request('/analytics/dashboard');
+    },
+
+    getGlobalStats: async (params = {}) => {
+      console.log('📊 Analytics: Récupération statistiques globales...', params);
+      const query = new URLSearchParams(params).toString();
+      return await this.request(`/analytics/global${query ? `?${query}` : ''}`);
+    },
+
+    getSmartLinkStats: async (id, params = {}) => {
+      console.log('📊 Analytics: Récupération statistiques SmartLink...', id);
+      const query = new URLSearchParams(params).toString();
+      return await this.request(`/analytics/smartlink/${id}${query ? `?${query}` : ''}`);
+    },
+
+    getArtistStats: async (id, params = {}) => {
+      console.log('📊 Analytics: Récupération statistiques artiste...', id);
+      const query = new URLSearchParams(params).toString();
+      return await this.request(`/analytics/artist/${id}${query ? `?${query}` : ''}`);
+    }
+  };
 }
 
 // Instance singleton
