@@ -40,7 +40,13 @@ export const smartLinkSchema = z.object({
     .trim()
     .max(500, { message: "La description ne peut pas dépasser 500 caractères." })
     .optional()
-    .or(z.literal('')), 
+    .or(z.literal('')),
+  customSubtitle: z.string()
+    .trim()
+    .max(40, { message: "Le sous-titre ne peut pas dépasser 40 caractères." })
+    .optional()
+    .or(z.literal('')),
+  useDescriptionAsSubtitle: z.boolean().optional().default(false), 
   platformLinks: z.array(platformLinkSchema)
     .min(1, { message: "Au moins un lien de plateforme est requis." }), 
   trackingIds: trackingIdsSchema,

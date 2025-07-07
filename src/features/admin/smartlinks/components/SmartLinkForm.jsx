@@ -81,6 +81,8 @@ const SmartLinkForm = ({ smartLinkData = null, onFormSubmitSuccess }) => {
         ? new Date(`${smartLinkData.releaseDate}T00:00:00Z`)
         : null,
       description: smartLinkData?.description || "",
+      customSubtitle: smartLinkData?.customSubtitle || "Choose music service",
+      useDescriptionAsSubtitle: smartLinkData?.useDescriptionAsSubtitle || false,
       platformLinks: smartLinkData?.platformLinks?.length
         ? smartLinkData.platformLinks
         : [{ platform: "", url: "" }],
@@ -296,6 +298,8 @@ const SmartLinkForm = ({ smartLinkData = null, onFormSubmitSuccess }) => {
             coverImageUrl: "",
             releaseDate: null,
             description: "",
+            customSubtitle: "Choose music service",
+            useDescriptionAsSubtitle: false,
             platformLinks: [{ platform: "", url: "" }],
             trackingIds: { ga4Id: "", gtmId: "", metaPixelId: "", tiktokPixelId: "" },
             isPublished: false,
@@ -537,6 +541,49 @@ const SmartLinkForm = ({ smartLinkData = null, onFormSubmitSuccess }) => {
           <Grid item xs={12}>
             <TextField {...register("description")} label="Description (optionnel)" fullWidth multiline rows={3} variant="outlined" error={!!errors.description} helperText={errors.description?.message}/>
           </Grid>
+
+          {/* Section Sous-titre personnalisé */}
+          <Grid item xs={12}>
+            <Typography variant="h6" gutterBottom>
+              Sous-titre de la page
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Controller
+              name="useDescriptionAsSubtitle"
+              control={control}
+              render={({ field }) => (
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={field.value}
+                      onChange={field.onChange}
+                      color="primary"
+                    />
+                  }
+                  label="Utiliser la description comme sous-titre"
+                />
+              )}
+            />
+            <FormHelperText>
+              Si activé, la description sera affichée sous le titre. Sinon, utilisez le texte personnalisé ci-dessous.
+            </FormHelperText>
+          </Grid>
+
+          {!watch("useDescriptionAsSubtitle") && (
+            <Grid item xs={12}>
+              <TextField
+                {...register("customSubtitle")}
+                label="Sous-titre personnalisé (max 40 caractères)"
+                fullWidth
+                variant="outlined"
+                error={!!errors.customSubtitle}
+                helperText={errors.customSubtitle?.message || "Ex: 'Découvrez le nouveau single', 'Écouter maintenant'"}
+                inputProps={{ maxLength: 40 }}
+              />
+            </Grid>
+          )}
 
           <Grid item xs={12}>
             <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: "medium", mt: 2 }}>

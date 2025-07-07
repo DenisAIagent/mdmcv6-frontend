@@ -68,14 +68,20 @@ Port 3000 is in use, trying another one...
 12:28:42 [vite] hmr update /src/pages/admin/smartlinks/SmartlinkListPage.jsx
 12:40:34 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
 12:41:02 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
-r update /src/main.jsx, /src/App.jsx
-23:13:54 [vite] hmr invalidate /src/main.jsx Could not Fast Refresh. Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
-23:20:42 [vite] hmr update /src/main.jsx, /src/App.jsx
-23:20:42 [vite] hmr invalidate /src/main.jsx Could not Fast Refresh. Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
-23:20:48 [vite] hmr update /src/main.jsx, /src/App.jsx
-23:20:48 [vite] hmr invalidate /src/main.jsx Could not Fast Refresh. Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
-23:20:57 [vite] hmr update /src/pages/public/resources/PolitiqueConfidentialite.jsx
-23:21:06 [vite] hmr update /src/pages/public/resources/Cookies.jsx
+12:48:08 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
+12:48:36 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
+12:50:02 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
+12:51:15 [vite] ✨ new dependencies optimized: react-helmet
+12:51:15 [vite] ✨ optimized dependencies changed. reloading
+15:34:15 [vite] page reload index.html
+15:34:29 [vite] page reload index.html
+15:49:29 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
+15:51:55 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
+15:54:20 [vite] hmr update /src/components/smartlinks/SmartLinkForm.jsx
+15:54:42 [vite] hmr update /src/components/smartlinks/SmartLinkForm.jsx
+15:55:34 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
+15:55:34 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
+ate /src/pages/public/resources/Cookies.jsx
 23:21:20 [vite] hmr update /src/pages/public/resources/FAQ.jsx
 23:21:26 [vite] hmr update /src/pages/public/resources/Glossaire.jsx
 23:21:53 [vite] hmr update /src/App.jsx
@@ -116,3 +122,14 @@ r update /src/main.jsx, /src/App.jsx
 12:28:42 [vite] hmr update /src/pages/admin/smartlinks/SmartlinkListPage.jsx
 12:40:34 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
 12:41:02 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
+12:48:08 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
+12:48:36 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
+12:50:02 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
+15:34:15 [vite] page reload index.html
+15:34:29 [vite] page reload index.html
+15:49:29 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
+15:51:55 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
+15:54:20 [vite] hmr update /src/components/smartlinks/SmartLinkForm.jsx
+15:54:42 [vite] hmr update /src/components/smartlinks/SmartLinkForm.jsx
+15:55:34 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
+15:55:34 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx

@@ -478,7 +478,10 @@ const SmartLinkPageClean = () => {
           
           {/* Sous-titre */}
           <div className="subtitle">
-            Choose music service
+            {smartLink.useDescriptionAsSubtitle && smartLink.description 
+              ? smartLink.description 
+              : smartLink.customSubtitle || "Choose music service"
+            }
           </div>
           
           {/* Liste verticale des plateformes */}
