@@ -21,6 +21,7 @@ import {
   Delete,
   VolumeUp
 } from '@mui/icons-material';
+import API_CONFIG from '../../config/api.config';
 
 const AudioUpload = ({ value, onChange, error, helperText }) => {
   const [isUploading, setIsUploading] = useState(false);
@@ -83,7 +84,7 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
 
     const token = localStorage.getItem('token');
     
-    const response = await fetch('/api/upload/audio', {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/upload/audio`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`
