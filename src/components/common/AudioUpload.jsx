@@ -76,6 +76,30 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
     });
   };
 
+  // Upload vers le serveur
+  const uploadToServer = async (file) => {
+    const formData = new FormData();
+    formData.append('audio', file);
+
+    const token = localStorage.getItem('token');
+    
+    const response = await fetch('/api/upload/audio', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Erreur lors de l\'upload');
+    }
+
+    const result = await response.json();
+    return result.data;
+  };
+
   // Gestion de la sélection de fichier
   const handleFileSelect = async (event) => {
     const file = event.target.files[0];
@@ -88,25 +112,36 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
       // Validation
       validateAudioFile(file);
 
-      // Simulation de progression d'upload
-      for (let i = 0; i <= 100; i += 10) {
-        setUploadProgress(i);
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
+      // Simulation de progression pour l'UX
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => Math.min(prev + 10, 90));
+      }, 100);
 
-      // Obtenir les infos audio
-      const info = await getAudioInfo(file);
-      setAudioInfo(info);
-
-      // Simuler l'upload vers le serveur
-      // TODO: Remplacer par un vrai upload vers le backend
-      const audioUrl = info.url; // En production: URL du serveur
+      // Upload réel vers le serveur
+      const uploadResult = await uploadToServer(file);
       
-      onChange(audioUrl);
+      // Compléter la progression
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+
+      // Obtenir les infos audio locales pour l'affichage
+      const info = await getAudioInfo(file);
+      setAudioInfo({
+        ...info,
+        serverUrl: uploadResult.audioUrl,
+        duration: uploadResult.duration || info.duration,
+        format: uploadResult.format
+      });
+
+      // Passer l'URL du serveur au parent
+      onChange(uploadResult.audioUrl);
       
     } catch (error) {
       console.error('Erreur upload audio:', error);
-      // TODO: Afficher l'erreur à l'utilisateur
+      // Afficher l'erreur à l'utilisateur
+      setAudioInfo(null);
+      onChange(null);
+      // TODO: Vous pouvez ajouter un state pour les erreurs si nécessaire
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
