@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import { Box, Container, Grid, Typography, Button, Paper } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { DataGrid } from '@mui/x-data-grid';
@@ -193,7 +194,13 @@ function SmartlinkListPage() {
   }
 
   return (
-    <Paper sx={{ p: { xs: 1, sm: 2, md: 3 }, width: '100%', overflow: 'hidden', borderRadius: "8px", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}>
+    <>
+      <Helmet>
+        <meta name="robots" content="noindex,nofollow,noarchive,nosnippet" />
+        <meta name="googlebot" content="noindex,nofollow" />
+        <title>Gestion SmartLinks - Admin MDMC</title>
+      </Helmet>
+      <Paper sx={{ p: { xs: 1, sm: 2, md: 3 }, width: '100%', overflow: 'hidden', borderRadius: "8px", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}>
       {error && !loading && (
         <div style={{ 
           backgroundColor: '#f44336', 
@@ -253,6 +260,7 @@ function SmartlinkListPage() {
         />
       </Box>
     </Paper>
+    </>
   );
 }
 

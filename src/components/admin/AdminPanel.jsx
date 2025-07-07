@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Helmet } from 'react-helmet';
 import {
   Box,
   Grid,
@@ -414,8 +415,14 @@ const AdminPanel = () => {
   }
 
   return (
-    <Container maxWidth="xl">
-      <Fade in={mounted} timeout={800}>
+    <>
+      <Helmet>
+        <meta name="robots" content="noindex,nofollow,noarchive,nosnippet" />
+        <meta name="googlebot" content="noindex,nofollow" />
+        <title>Admin Dashboard - MDMC Music Ads</title>
+      </Helmet>
+      <Container maxWidth="xl">
+        <Fade in={mounted} timeout={800}>
         <Box sx={{ py: 4 }}>
           {/* Header avec animation */}
           <Slide in={mounted} direction="down" timeout={600}>
@@ -650,6 +657,7 @@ const AdminPanel = () => {
         </Box>
       </Fade>
     </Container>
+    </>
   );
 };
 

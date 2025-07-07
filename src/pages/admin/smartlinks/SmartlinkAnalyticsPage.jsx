@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import {
   Box,
   Container,
@@ -120,7 +121,13 @@ function SmartlinkAnalyticsPage() {
   const conversionRate = totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(1) : 0;
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <>
+      <Helmet>
+        <meta name="robots" content="noindex,nofollow,noarchive,nosnippet" />
+        <meta name="googlebot" content="noindex,nofollow" />
+        <title>Analytics SmartLink - Admin MDMC</title>
+      </Helmet>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
         <Button 
@@ -344,6 +351,7 @@ function SmartlinkAnalyticsPage() {
         )}
       </Paper>
     </Container>
+    </>
   );
 }
 
