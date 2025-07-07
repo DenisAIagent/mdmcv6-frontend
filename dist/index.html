@@ -14,6 +14,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MDMC Music Ads - Marketing Musical</title>
     
+    <!-- Meta tags par défaut -->
+    <meta name="description" content="MDMC Music Ads - Plateforme de marketing musical professionnelle. Créez des smart links, analysez vos performances et développez votre audience musicale." />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.mdmcmusicads.com/" />
+    <meta property="og:title" content="MDMC Music Ads - Marketing Musical" />
+    <meta property="og:description" content="Plateforme de marketing musical professionnelle. Créez des smart links, analysez vos performances et développez votre audience musicale." />
+    <meta property="og:image" content="https://www.mdmcmusicads.com/assets/images/logo.png" />
+    <meta property="og:site_name" content="MDMC Music Ads" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://www.mdmcmusicads.com/" />
+    <meta property="twitter:title" content="MDMC Music Ads - Marketing Musical" />
+    <meta property="twitter:description" content="Plateforme de marketing musical professionnelle. Créez des smart links, analysez vos performances et développez votre audience musicale." />
+    <meta property="twitter:image" content="https://www.mdmcmusicads.com/assets/images/logo.png" />
+    
     <!-- CSP CORRIGÉE pour MDMC - Autorise toutes les ressources nécessaires -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https: http:; connect-src 'self' https: http: ws: wss: https://mdmcv4-backend-production-b615.up.railway.app https://blog-wp-production.up.railway.app; frame-src 'self' https://calendly.com; object-src 'none'; base-uri 'self';">
     
@@ -24,18 +42,30 @@
     
     <!-- 🎨 Color Thief via CDN pour extraction couleurs SmartLinks -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
-    <script type="module" crossorigin src="/assets/index-59879532.js"></script>
-    <link rel="stylesheet" href="/assets/index-b8482fe9.css">
+    <script type="module" crossorigin src="/assets/index-735071ea.js"></script>
+    <link rel="stylesheet" href="/assets/index-07842764.css">
   </head>
   <body>
     <div id="root"></div>
     
-    <!-- Script de redirection pour HashRouter -->
+    <!-- Script de redirection pour HashRouter et SEO -->
     <script>
       // Gestion des routes admin pour HashRouter
       (function() {
         const path = window.location.pathname;
         const hash = window.location.hash;
+        const userAgent = navigator.userAgent || '';
+        const isSocialBot = /facebook|twitter|linkedinbot|whatsapp|telegram|discord|slack|bot|crawler|spider/i.test(userAgent);
+        
+        // Redirection spéciale pour les bots sociaux sur smartlinks
+        if (isSocialBot && hash && hash.includes('/smartlinks/')) {
+          const smartlinkMatch = hash.match(/#\/smartlinks\/([^\/]+)\/([^\/\?]+)/);
+          if (smartlinkMatch) {
+            const [, artistSlug, trackSlug] = smartlinkMatch;
+            window.location.href = `/smartlinks/${artistSlug}/${trackSlug}`;
+            return;
+          }
+        }
         
         // Si on accède directement à /admin sans hash, rediriger vers /#/admin
         if (path.startsWith('/admin') && !hash) {

@@ -2,7 +2,7 @@
 
 const API_CONFIG = {
   // URL du backend - Production
-  BASE_URL: process.env.VITE_API_URL || 'https://mdmcv4-backend-production-b615.up.railway.app/api/v1',
+  BASE_URL: import.meta.env.VITE_API_URL || 'https://mdmcv4-backend-production-b615.up.railway.app/api/v1',
   
   // Timeout pour les requêtes (10 secondes)
   TIMEOUT: 10000,
@@ -27,7 +27,7 @@ const ENV_CONFIG = {
 };
 
 // Détecter l'environnement et ajuster la config
-const currentEnv = process.env.VITE_ENVIRONMENT || 'production';
+const currentEnv = import.meta.env.MODE || 'production';
 if (ENV_CONFIG[currentEnv]) {
   Object.assign(API_CONFIG, ENV_CONFIG[currentEnv]);
 }
