@@ -86,6 +86,7 @@ import TestSmartLinkIntegration from './test-smartlink-integration';
 import PlatformOrderManager from './components/admin/PlatformOrderManager';
 import URLManager from './components/admin/URLManager';
 import MediaPlayerTest from './components/admin/MediaPlayerTest';
+import AdminSettingsPage from './pages/admin/AdminSettingsPage';
 
 const drawerWidth = 240;
 
@@ -316,6 +317,7 @@ function App() {
           <Route path="stats" element={<CampaignStatsShowcase />} />
           <Route path="platform-order" element={<PlatformOrderManager />} />
           <Route path="urls" element={<URLManager />} />
+          <Route path="settings" element={<AdminSettingsPage />} />
           <Route path="test-smartlink" element={<TestSmartLinkIntegration />} />
           <Route path="test-media" element={<MediaPlayerTest />} />
         </Route>

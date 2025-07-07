@@ -24,8 +24,9 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import LinkIcon from '@mui/icons-material/Link';
 import LogoutIcon from '@mui/icons-material/Logout';
+import SettingsIcon from '@mui/icons-material/Settings';
 
-import apiService from '@/services/api.service'; // Assure-toi que l'alias @ est bien configuré
+import apiService from '../../services/api.service';
 
 const drawerWidth = 240;
 
@@ -33,6 +34,7 @@ const menuItems = [
   { label: 'Dashboard', path: '/admin/dashboard', icon: <DashboardIcon /> },
   { label: 'Artistes', path: '/admin/artists', icon: <PeopleIcon /> },
   { label: 'SmartLinks', path: '/admin/smartlinks', icon: <LinkIcon /> },
+  { label: 'Paramètres', path: '/admin/settings', icon: <SettingsIcon /> },
 ];
 
 export default function AdminLayout() {
