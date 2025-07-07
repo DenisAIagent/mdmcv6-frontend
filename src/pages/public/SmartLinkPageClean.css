@@ -253,6 +253,16 @@ body.smartlink-page #root {
   letter-spacing: -0.01em;
 }
 
+/* 🎨 Nom de l'artiste - plus gros et visible */
+.artist-name {
+  font-size: 20px;
+  font-weight: 500;
+  color: #333;
+  margin: 0 0 16px 0;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+}
+
 /* 🎨 Sous-titre selon vos spécifications */
 .subtitle {
   font-size: 16px;
