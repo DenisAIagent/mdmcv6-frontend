@@ -33,6 +33,11 @@ export const smartLinkSchema = z.object({
     .trim()
     .url({ message: "URL d'image de couverture invalide." })
     .min(1, { message: "L'URL de l'image de couverture est requise." }),
+  previewAudioUrl: z.string()
+    .trim()
+    .url({ message: "URL audio de preview invalide." })
+    .optional()
+    .or(z.literal('')),
   releaseDate: z.date({ invalid_type_error: "Date de sortie invalide." })
     .optional()
     .nullable(), 
