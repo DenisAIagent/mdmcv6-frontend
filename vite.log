@@ -66,11 +66,9 @@ Port 3000 is in use, trying another one...
 12:28:27 [vite] hmr update /src/pages/admin/smartlinks/SmartlinkListPage.jsx
 12:28:36 [vite] hmr update /src/pages/admin/smartlinks/SmartlinkListPage.jsx
 12:28:42 [vite] hmr update /src/pages/admin/smartlinks/SmartlinkListPage.jsx
-...
-23:12:03 [vite] server restarted.
-23:12:25 [vite] hmr update /src/App.jsx
-23:12:33 [vite] hmr update /src/App.jsx
-23:13:54 [vite] hmr update /src/main.jsx, /src/App.jsx
+12:40:34 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
+12:41:02 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
+r update /src/main.jsx, /src/App.jsx
 23:13:54 [vite] hmr invalidate /src/main.jsx Could not Fast Refresh. Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
 23:20:42 [vite] hmr update /src/main.jsx, /src/App.jsx
 23:20:42 [vite] hmr invalidate /src/main.jsx Could not Fast Refresh. Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
@@ -116,3 +114,5 @@ Port 3000 is in use, trying another one...
 12:28:27 [vite] hmr update /src/pages/admin/smartlinks/SmartlinkListPage.jsx
 12:28:36 [vite] hmr update /src/pages/admin/smartlinks/SmartlinkListPage.jsx
 12:28:42 [vite] hmr update /src/pages/admin/smartlinks/SmartlinkListPage.jsx
+12:40:34 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx
+12:41:02 [vite] hmr update /src/pages/public/SmartLinkPageClean.jsx

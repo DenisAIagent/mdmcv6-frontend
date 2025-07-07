@@ -186,6 +186,18 @@ function SmartlinkAnalyticsPage() {
                 label={`URL: /${smartlink.artistId?.slug}/${smartlink.slug}`}
                 variant="outlined"
                 size="small"
+                onClick={() => {
+                  const url = `${window.location.origin}/#/smartlinks/${smartlink.artistId?.slug}/${smartlink.slug}`;
+                  window.open(url, '_blank');
+                }}
+                sx={{ 
+                  cursor: 'pointer',
+                  '&:hover': {
+                    backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                    transform: 'scale(1.02)'
+                  },
+                  transition: 'all 0.2s ease-in-out'
+                }}
               />
             </Box>
           </Box>

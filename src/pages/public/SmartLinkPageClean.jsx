@@ -174,6 +174,33 @@ const SmartLinkPageClean = () => {
   }, [artistSlug, trackSlug]);
 
   // 🎵 Gestion de la lecture audio
+  // 📊 Fonction pour tracker les clics dans la base de données
+  const trackPlatformClickToDatabase = async (smartLinkId, platformName) => {
+    try {
+      console.log(`📊 Envoi tracking clic: ${platformName} pour SmartLink ${smartLinkId}`);
+      
+      const response = await fetch(`https://mdmcv4-backend-production-b615.up.railway.app/api/v1/smartlinks/${smartLinkId}/log-platform-click`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          platformName: platformName
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log(`✅ Clic ${platformName} enregistré:`, result.data);
+      } else {
+        console.warn(`⚠️ Échec tracking ${platformName}:`, response.status);
+      }
+    } catch (error) {
+      console.error(`❌ Erreur tracking ${platformName}:`, error);
+      // Ne pas interrompre l'expérience utilisateur pour une erreur de tracking
+    }
+  };
+
   const handlePlayAudio = async (e) => {
     if (e) {
       e.preventDefault();
@@ -259,7 +286,7 @@ const SmartLinkPageClean = () => {
       source: utmSource || 'direct'
     });
     
-    // Tracking logic existant
+    // 📊 Enregistrer le clic dans la base de données
     if (smartLinkData?.smartLink?._id) {
       console.log("📊 Tracking platform click:", { 
         platform: platform.platform, 
@@ -268,6 +295,9 @@ const SmartLinkPageClean = () => {
         abTestVariant,
         utmParams 
       });
+      
+      // Appel API pour tracker le clic
+      trackPlatformClickToDatabase(smartLinkData.smartLink._id, platform.platform);
     }
     
     // Redirect to platform
