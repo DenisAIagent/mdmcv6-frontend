@@ -179,10 +179,10 @@ const QuickActionCard = ({ title, description, icon, color, onClick, delay = 0 }
         >
           {icon}
         </Avatar>
-        <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: '#1a1a1a' }}>
           {title}
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" sx={{ color: '#666666' }}>
           {description}
         </Typography>
       </CardContent>
