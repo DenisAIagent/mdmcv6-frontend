@@ -1,8 +1,9 @@
 // src/services/api.service.js - Version Complète Finale
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 
-  (import.meta.env.MODE === 'development' ? '/api' : 'https://n8n-production-de00.up.railway.app/webhook/music-simulator-lead');
-const API_TIMEOUT = 10000;
+import API_CONFIG from '../config/api.config.js';
+
+const API_BASE_URL = API_CONFIG.BASE_URL;
+const API_TIMEOUT = API_CONFIG.TIMEOUT;
 
 console.log('🔧 API Service Config:', {
   baseURL: API_BASE_URL,
