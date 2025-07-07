@@ -76,6 +76,7 @@ import ArtistEditPage from './pages/admin/artists/ArtistEditPage';
 import SmartlinkListPage from './pages/admin/smartlinks/SmartlinkListPage';
 import SmartlinkCreatePage from './pages/admin/smartlinks/SmartlinkCreatePage';
 import SmartlinkEditPage from './pages/admin/smartlinks/SmartlinkEditPage';
+import SmartlinkAnalyticsPage from './pages/admin/smartlinks/SmartlinkAnalyticsPage';
 import LandingPageGenerator from './components/admin/LandingPageGenerator';
 import WordPressConnector from './components/admin/WordPressConnector';
 import WordPressSync from './components/admin/WordPressSync';
@@ -307,6 +308,7 @@ function App() {
             <Route index element={<SmartlinkListPage />} />
             <Route path="new" element={<SmartlinkCreatePage />} />
             <Route path="edit/:smartlinkId" element={<SmartlinkEditPage />} />
+            <Route path="analytics/:id" element={<SmartlinkAnalyticsPage />} />
           </Route>
           <Route path="landing-pages" element={<LandingPageGenerator />} />
           <Route path="wordpress" element={<Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}><WordPressConnector /><WordPressSync /></Box>} />

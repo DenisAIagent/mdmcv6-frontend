@@ -87,6 +87,10 @@ function SmartlinkListPage() {
       }
     }
   };
+
+  const handleAnalyticsClick = (id) => {
+    navigate(`/admin/smartlinks/analytics/${id}`);
+  };
   
   const columns = [
     {
@@ -129,14 +133,15 @@ function SmartlinkListPage() {
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 180,
+      width: 280,
       renderCell: (params) => (
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
           <Button 
             variant="outlined" 
             size="small" 
             onClick={() => handleViewPublicLink(params.row.artistId?.slug, params.row.slug)}
             disabled={!params.row.isPublished || !params.row.artistId?.slug || !params.row.slug}
+            sx={{ minWidth: 'auto', px: 1 }}
           >
             Voir
           </Button>
@@ -145,14 +150,25 @@ function SmartlinkListPage() {
             color="primary" 
             size="small" 
             onClick={() => handleEditClick(params.row.id)}
+            sx={{ minWidth: 'auto', px: 1 }}
           >
             Éditer
+          </Button>
+          <Button 
+            variant="outlined" 
+            color="info" 
+            size="small" 
+            onClick={() => handleAnalyticsClick(params.row.id)}
+            sx={{ minWidth: 'auto', px: 1 }}
+          >
+            Analytics
           </Button>
           <Button 
             variant="outlined" 
             color="error" 
             size="small" 
             onClick={() => handleDelete(params.row.id, params.row.trackTitle)}
+            sx={{ minWidth: 'auto', px: 1 }}
           >
             Suppr.
           </Button>
