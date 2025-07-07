@@ -473,6 +473,9 @@ const SmartLinkPageClean = () => {
           {/* Titre de l'album centré */}
           <h1 className="album-title">{smartLink.trackTitle}</h1>
           
+          {/* Nom de l'artiste */}
+          <p className="artist-name">{artist.name}</p>
+          
           {/* Sous-titre */}
           <div className="subtitle">
             Choose music service
