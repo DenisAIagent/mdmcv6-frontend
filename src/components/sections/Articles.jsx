@@ -305,9 +305,8 @@ const Articles = () => {
           <h2>Derniers articles</h2>
           <p>Découvrez nos insights et stratégies pour booster votre business</p>
           
-          {/* Indicateur Railway */}
+          {/* Indicateur articles */}
           <div className="rss-indicator">
-            <span className="rss-badge">🚂 Synchronisé avec Railway</span>
             <span className="articles-count">{articles.length} articles récents</span>
           </div>
         </div>
