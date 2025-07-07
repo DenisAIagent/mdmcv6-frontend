@@ -2,7 +2,7 @@
 
 const API_CONFIG = {
   // URL du backend - Production
-  BASE_URL: process.env.VITE_API_URL || 'https://mdmcv4-backend-production-b615.up.railway.app/api',
+  BASE_URL: process.env.VITE_API_URL || 'https://mdmcv4-backend-production-b615.up.railway.app/api/v1',
   
   // Timeout pour les requêtes (10 secondes)
   TIMEOUT: 10000,
@@ -19,10 +19,10 @@ const API_CONFIG = {
 // Configuration pour différents environnements
 const ENV_CONFIG = {
   development: {
-    BASE_URL: 'http://localhost:5001/api',
+    BASE_URL: 'http://localhost:5001/api/v1',
   },
   production: {
-    BASE_URL: 'https://mdmcv4-backend-production-b615.up.railway.app/api',
+    BASE_URL: 'https://mdmcv4-backend-production-b615.up.railway.app/api/v1',
   }
 };
 
