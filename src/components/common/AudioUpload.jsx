@@ -82,13 +82,24 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
     const formData = new FormData();
     formData.append('audio', file);
 
-    const token = localStorage.getItem('token');
+    // Gestion de l'authentification comme dans api.service.js
+    const headers = {};
+    
+    // Si BYPASS_AUTH est activé, utiliser le token de développement
+    const bypassAuth = import.meta.env.VITE_BYPASS_AUTH === 'true';
+    if (bypassAuth) {
+      headers['Authorization'] = 'Bearer dev-bypass-token';
+      console.log('🔓 Upload Audio: Bypass auth activé');
+    } else {
+      const token = localStorage.getItem('token');
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
     
     const response = await fetch(`${API_CONFIG.BASE_URL}/upload/audio`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
+      headers,
       body: formData
     });
 
