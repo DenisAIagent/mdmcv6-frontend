@@ -141,9 +141,10 @@ const PasswordSettings = () => {
     setMessage('');
 
     try {
-      // Appel à l'API pour changer le mot de passe - utilise la même config que api.service
-      console.log('🔗 Password Change API URL:', API_CONFIG.BASE_URL);
-      const response = await fetch(`${API_CONFIG.BASE_URL}/auth/updatepassword`, {
+      // Appel à l'API pour changer le mot de passe - FORCE Railway URL
+      const railwayApiUrl = 'https://mdmcv4-backend-production-b615.up.railway.app/api/v1';
+      console.log('🔗 Password Change API URL (FORCED):', railwayApiUrl);
+      const response = await fetch(`${railwayApiUrl}/auth/updatepassword`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
