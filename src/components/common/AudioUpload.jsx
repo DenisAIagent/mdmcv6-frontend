@@ -97,19 +97,25 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
     
     // Gestion de l'authentification
     const token = localStorage.getItem('token');
-    const bypassAuth = import.meta.env.VITE_BYPASS_AUTH === 'true' || import.meta.env.VITE_BYPASS_AUTH === true;
+    const bypassAuthVar = import.meta.env.VITE_BYPASS_AUTH;
+    const bypassAuth = bypassAuthVar === 'true' || bypassAuthVar === true || bypassAuthVar === '"true"';
     
-    console.log('🔐 Upload Audio - Token présent:', !!token);
-    console.log('🔐 Upload Audio - VITE_BYPASS_AUTH:', import.meta.env.VITE_BYPASS_AUTH);
-    console.log('🔐 Upload Audio - Bypass activé:', bypassAuth);
+    console.log('🔐 Upload Audio - Variables auth:');
+    console.log('  - Token localStorage:', token ? `présent (${token.substring(0, 20)}...)` : 'absent');
+    console.log('  - VITE_BYPASS_AUTH brut:', bypassAuthVar, typeof bypassAuthVar);
+    console.log('  - Bypass auth calculé:', bypassAuth);
     
-    if (token && token !== 'null' && token !== 'undefined') {
+    // Forcer bypass auth en développement
+    const forcedBypass = true; // TEMPORAIRE pour test
+    
+    if (token && token !== 'null' && token !== 'undefined' && token.length > 10) {
       headers['Authorization'] = `Bearer ${token}`;
-      console.log('🔓 Upload Audio: Utilisation token utilisateur');
-    } else if (bypassAuth) {
+      console.log('✅ Upload Audio: Utilisation token utilisateur');
+    } else if (bypassAuth || forcedBypass) {
       headers['Authorization'] = 'Bearer dev-bypass-token';
-      console.log('🔓 Upload Audio: Utilisation bypass auth (pas de token valide)');
+      console.log('✅ Upload Audio: Utilisation bypass auth (forcé pour test)');
     } else {
+      console.log('❌ Upload Audio: Ni token ni bypass disponible');
       throw new Error('Vous devez être connecté pour uploader un fichier audio');
     }
     
@@ -145,6 +151,18 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
     const file = event.target.files[0];
     if (!file) return;
 
+    console.log('🎵 AudioUpload: Début upload fichier:', file.name);
+    console.log('🔍 Debug - Variables d\'environnement:');
+    console.log('  - VITE_BYPASS_AUTH:', import.meta.env.VITE_BYPASS_AUTH);
+    console.log('  - VITE_API_URL:', import.meta.env.VITE_API_URL);
+    console.log('  - MODE:', import.meta.env.MODE);
+    
+    const token = localStorage.getItem('token');
+    console.log('🔍 Debug - LocalStorage token:', token ? 'présent' : 'absent');
+    if (token) {
+      console.log('🔍 Debug - Token preview:', token.substring(0, 20) + '...');
+    }
+
     try {
       setIsUploading(true);
       setUploadProgress(0);
@@ -178,7 +196,8 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
       onChange(uploadResult.audioUrl);
       
     } catch (error) {
-      console.error('Erreur upload audio:', error);
+      console.error('❌ Erreur upload audio complète:', error);
+      console.error('❌ Stack trace:', error.stack);
       // Afficher l'erreur à l'utilisateur
       setUploadError(error.message);
       setAudioInfo(null);
@@ -233,6 +252,15 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
       <Typography variant="subtitle1" gutterBottom>
         🎵 Extrait Audio (Preview)
       </Typography>
+      
+      {/* Debug info - à supprimer après test */}
+      <Box sx={{ mb: 2, p: 1, bgcolor: 'grey.100', borderRadius: 1, fontSize: '0.75rem' }}>
+        <Typography variant="caption" color="text.secondary">
+          🔍 Debug: BYPASS_AUTH={String(import.meta.env.VITE_BYPASS_AUTH)} | 
+          TOKEN={localStorage.getItem('token') ? 'présent' : 'absent'} | 
+          API={API_CONFIG.BASE_URL}
+        </Typography>
+      </Box>
       
       {/* Zone d'upload */}
       {!audioInfo && !isUploading && (
