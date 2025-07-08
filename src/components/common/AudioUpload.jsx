@@ -100,11 +100,6 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
     const bypassAuthVar = import.meta.env.VITE_BYPASS_AUTH;
     const bypassAuth = bypassAuthVar === 'true' || bypassAuthVar === true || bypassAuthVar === '"true"';
     
-    console.log('🔐 Upload Audio - Variables auth:');
-    console.log('  - Token localStorage:', token ? `présent (${token.substring(0, 20)}...)` : 'absent');
-    console.log('  - VITE_BYPASS_AUTH brut:', bypassAuthVar, typeof bypassAuthVar);
-    console.log('  - Bypass auth calculé:', bypassAuth);
-    
     if (token && token !== 'null' && token !== 'undefined' && token.length > 10) {
       headers['Authorization'] = `Bearer ${token}`;
       console.log('✅ Upload Audio: Utilisation token utilisateur');
@@ -112,13 +107,9 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
       headers['Authorization'] = 'Bearer dev-bypass-token';
       console.log('✅ Upload Audio: Utilisation bypass auth');
     } else {
-      console.log('❌ Upload Audio: Ni token ni bypass disponible');
-      console.log('❌ Vérifiez que VITE_BYPASS_AUTH=true dans .env.production');
+      console.log('❌ Upload Audio: Configuration d\'authentification manquante');
       throw new Error('Configuration d\'authentification manquante. Contactez l\'administrateur.');
     }
-    
-    console.log('🔗 Upload Audio URL:', `${API_CONFIG.BASE_URL}/upload/audio`);
-    console.log('🔐 Upload Audio Headers:', headers);
     
     const response = await fetch(`${API_CONFIG.BASE_URL}/upload/audio`, {
       method: 'POST',
@@ -150,16 +141,6 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
     if (!file) return;
 
     console.log('🎵 AudioUpload: Début upload fichier:', file.name);
-    console.log('🔍 Debug - Variables d\'environnement:');
-    console.log('  - VITE_BYPASS_AUTH:', import.meta.env.VITE_BYPASS_AUTH);
-    console.log('  - VITE_API_URL:', import.meta.env.VITE_API_URL);
-    console.log('  - MODE:', import.meta.env.MODE);
-    
-    const token = localStorage.getItem('token');
-    console.log('🔍 Debug - LocalStorage token:', token ? 'présent' : 'absent');
-    if (token) {
-      console.log('🔍 Debug - Token preview:', token.substring(0, 20) + '...');
-    }
 
     try {
       setIsUploading(true);
@@ -251,14 +232,6 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
         🎵 Extrait Audio (Preview)
       </Typography>
       
-      {/* Debug info - à supprimer après test */}
-      <Box sx={{ mb: 2, p: 1, bgcolor: 'grey.100', borderRadius: 1, fontSize: '0.75rem' }}>
-        <Typography variant="caption" color="text.secondary">
-          🔍 Debug: BYPASS_AUTH={String(import.meta.env.VITE_BYPASS_AUTH)} | 
-          TOKEN={localStorage.getItem('token') ? 'présent' : 'absent'} | 
-          API={API_CONFIG.BASE_URL}
-        </Typography>
-      </Box>
       
       {/* Zone d'upload */}
       {!audioInfo && !isUploading && (
