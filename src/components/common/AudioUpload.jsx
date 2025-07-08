@@ -95,17 +95,20 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
     // Gestion de l'authentification comme dans api.service.js
     const headers = {};
     
-    // Toujours vérifier le token en premier
+    // Gestion de l'authentification
     const token = localStorage.getItem('token');
+    const bypassAuth = import.meta.env.VITE_BYPASS_AUTH === 'true' || import.meta.env.VITE_BYPASS_AUTH === true;
     
-    // Si BYPASS_AUTH est activé ET qu'il n'y a pas de token, utiliser le token de développement
-    const bypassAuth = import.meta.env.VITE_BYPASS_AUTH === 'true';
-    if (token) {
+    console.log('🔐 Upload Audio - Token présent:', !!token);
+    console.log('🔐 Upload Audio - VITE_BYPASS_AUTH:', import.meta.env.VITE_BYPASS_AUTH);
+    console.log('🔐 Upload Audio - Bypass activé:', bypassAuth);
+    
+    if (token && token !== 'null' && token !== 'undefined') {
       headers['Authorization'] = `Bearer ${token}`;
-      console.log('🔓 Upload Audio: Token utilisateur trouvé');
+      console.log('🔓 Upload Audio: Utilisation token utilisateur');
     } else if (bypassAuth) {
       headers['Authorization'] = 'Bearer dev-bypass-token';
-      console.log('🔓 Upload Audio: Bypass auth activé');
+      console.log('🔓 Upload Audio: Utilisation bypass auth (pas de token valide)');
     } else {
       throw new Error('Vous devez être connecté pour uploader un fichier audio');
     }
