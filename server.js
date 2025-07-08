@@ -10,19 +10,24 @@ const PORT = process.env.PORT || 8080;
 
 // Headers de sécurité et CSP
 app.use((req, res, next) => {
+  console.log('🔒 Setting security headers for:', req.path);
+  
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Content-Type-Options', 'nosniff'); 
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Content-Security-Policy', 
-    "default-src 'self'; " +
+  
+  const cspPolicy = "default-src 'self'; " +
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://cdnjs.cloudflare.com; " +
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
     "font-src 'self' https://fonts.gstatic.com; " +
     "img-src 'self' data: https: https://via.placeholder.com; " +
     "media-src 'self' blob: data: https: https://res.cloudinary.com; " +
-    "connect-src 'self' https://api.mdmcmusicads.com https://region1.google-analytics.com https://ipapi.co;"
-  );
+    "connect-src 'self' https://api.mdmcmusicads.com https://region1.google-analytics.com https://ipapi.co;";
+  
+  res.setHeader('Content-Security-Policy', cspPolicy);
+  console.log('🔒 CSP Policy set:', cspPolicy.substring(0, 100) + '...');
+  
   next();
 });
 
