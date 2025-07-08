@@ -163,13 +163,26 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
       setUploadProgress(100);
 
       // Obtenir les infos audio locales pour l'affichage
-      const info = await getAudioInfo(file);
-      setAudioInfo({
-        ...info,
-        serverUrl: uploadResult.audioUrl,
-        duration: uploadResult.duration || info.duration,
-        format: uploadResult.format
-      });
+      try {
+        const info = await getAudioInfo(file);
+        setAudioInfo({
+          ...info,
+          serverUrl: uploadResult.audioUrl,
+          duration: uploadResult.duration || info.duration,
+          format: uploadResult.format
+        });
+      } catch (audioError) {
+        console.log('⚠️ Impossible de lire localement, utilisation URL serveur uniquement');
+        // Fallback : utiliser directement l'URL du serveur
+        setAudioInfo({
+          name: file.name,
+          size: file.size,
+          duration: uploadResult.duration || 30,
+          url: uploadResult.audioUrl, // Utiliser directement l'URL serveur
+          serverUrl: uploadResult.audioUrl,
+          format: uploadResult.format
+        });
+      }
 
       // Passer l'URL du serveur au parent
       onChange(uploadResult.audioUrl);
@@ -311,9 +324,10 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
             {/* Élément audio caché */}
             <audio
               ref={audioRef}
-              src={audioInfo.url}
+              src={audioInfo.serverUrl || audioInfo.url}
               onEnded={() => setIsPlaying(false)}
               style={{ display: 'none' }}
+              crossOrigin="anonymous"
             />
           </CardContent>
         </Card>
