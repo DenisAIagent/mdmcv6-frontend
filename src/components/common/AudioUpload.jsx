@@ -105,18 +105,16 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
     console.log('  - VITE_BYPASS_AUTH brut:', bypassAuthVar, typeof bypassAuthVar);
     console.log('  - Bypass auth calculé:', bypassAuth);
     
-    // Forcer bypass auth en développement
-    const forcedBypass = true; // TEMPORAIRE pour test
-    
     if (token && token !== 'null' && token !== 'undefined' && token.length > 10) {
       headers['Authorization'] = `Bearer ${token}`;
       console.log('✅ Upload Audio: Utilisation token utilisateur');
-    } else if (bypassAuth || forcedBypass) {
+    } else if (bypassAuth) {
       headers['Authorization'] = 'Bearer dev-bypass-token';
-      console.log('✅ Upload Audio: Utilisation bypass auth (forcé pour test)');
+      console.log('✅ Upload Audio: Utilisation bypass auth');
     } else {
       console.log('❌ Upload Audio: Ni token ni bypass disponible');
-      throw new Error('Vous devez être connecté pour uploader un fichier audio');
+      console.log('❌ Vérifiez que VITE_BYPASS_AUTH=true dans .env.production');
+      throw new Error('Configuration d\'authentification manquante. Contactez l\'administrateur.');
     }
     
     console.log('🔗 Upload Audio URL:', `${API_CONFIG.BASE_URL}/upload/audio`);
