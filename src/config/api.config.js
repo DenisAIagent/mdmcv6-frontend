@@ -1,8 +1,8 @@
 // src/config/api.config.js
 
 const API_CONFIG = {
-  // URL du backend - Production
-  BASE_URL: import.meta.env.VITE_API_URL || 'https://mdmcv4-backend-production-b615.up.railway.app/api/v1',
+  // URL du backend - Production (force la bonne URL)
+  BASE_URL: import.meta.env.VITE_API_URL?.replace(/"/g, '') || 'https://mdmcv4-backend-production-b615.up.railway.app/api/v1',
   
   // Timeout pour les requêtes (10 secondes)
   TIMEOUT: 10000,
@@ -32,13 +32,12 @@ if (ENV_CONFIG[currentEnv]) {
   Object.assign(API_CONFIG, ENV_CONFIG[currentEnv]);
 }
 
-// Debug en développement
-if (currentEnv === 'development') {
-  console.log('🔍 API Config:', {
-    Environment: currentEnv,
-    Base_URL: API_CONFIG.BASE_URL,
-    Frontend_URL: window.location.origin
-  });
-}
+// Debug pour toujours voir la config
+console.log('🔍 API Config:', {
+  Environment: currentEnv,
+  Base_URL: API_CONFIG.BASE_URL,
+  VITE_API_URL: import.meta.env.VITE_API_URL,
+  Frontend_URL: window.location.origin
+});
 
 export default API_CONFIG;
