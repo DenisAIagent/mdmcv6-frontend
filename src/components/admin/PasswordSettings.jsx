@@ -18,6 +18,7 @@ import {
   Security
 } from '@mui/icons-material';
 import apiService from '../../services/api.service';
+import API_CONFIG from '../../config/api.config';
 
 const PasswordSettings = () => {
   const [formData, setFormData] = useState({
@@ -140,10 +141,9 @@ const PasswordSettings = () => {
     setMessage('');
 
     try {
-      // Appel à l'API pour changer le mot de passe
-      const apiUrl = import.meta.env.VITE_API_URL?.replace(/"/g, '') || 'https://mdmcv4-backend-production-b615.up.railway.app/api/v1';
-      console.log('🔗 API URL:', apiUrl);
-      const response = await fetch(`${apiUrl}/auth/updatepassword`, {
+      // Appel à l'API pour changer le mot de passe - utilise la même config que api.service
+      console.log('🔗 Password Change API URL:', API_CONFIG.BASE_URL);
+      const response = await fetch(`${API_CONFIG.BASE_URL}/auth/updatepassword`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
