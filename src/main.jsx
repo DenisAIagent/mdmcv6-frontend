@@ -41,8 +41,7 @@
 
     // Préchargement des fonts Google
     preloadFont('https://fonts.gstatic.com/s/poppins/v20/pxiEyp8kv8JHgFVrJJfecnFHGPc.woff2');
-    preloadFont('https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmM
-  EVuLyfAZ9hiJ-Ek-_EeA.woff2');
+    preloadFont('https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyf.woff2');
 
     // Préchargement d'images critiques
     const preloadImage = (url) => {

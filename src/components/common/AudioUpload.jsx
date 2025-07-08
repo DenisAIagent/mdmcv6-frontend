@@ -3,7 +3,7 @@
  * Upload MP3 30 secondes max pour le bouton play
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -28,8 +28,18 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [audioInfo, setAudioInfo] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
   const fileInputRef = useRef(null);
   const audioRef = useRef(null);
+
+  // Nettoyage lors du démontage
+  useEffect(() => {
+    return () => {
+      if (audioInfo?.url) {
+        URL.revokeObjectURL(audioInfo.url);
+      }
+    };
+  }, [audioInfo?.url]);
 
   // Validation du fichier audio
   const validateAudioFile = (file) => {
@@ -85,17 +95,23 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
     // Gestion de l'authentification comme dans api.service.js
     const headers = {};
     
-    // Si BYPASS_AUTH est activé, utiliser le token de développement
+    // Toujours vérifier le token en premier
+    const token = localStorage.getItem('token');
+    
+    // Si BYPASS_AUTH est activé ET qu'il n'y a pas de token, utiliser le token de développement
     const bypassAuth = import.meta.env.VITE_BYPASS_AUTH === 'true';
-    if (bypassAuth) {
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+      console.log('🔓 Upload Audio: Token utilisateur trouvé');
+    } else if (bypassAuth) {
       headers['Authorization'] = 'Bearer dev-bypass-token';
       console.log('🔓 Upload Audio: Bypass auth activé');
     } else {
-      const token = localStorage.getItem('token');
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
+      throw new Error('Vous devez être connecté pour uploader un fichier audio');
     }
+    
+    console.log('🔗 Upload Audio URL:', `${API_CONFIG.BASE_URL}/upload/audio`);
+    console.log('🔐 Upload Audio Headers:', headers);
     
     const response = await fetch(`${API_CONFIG.BASE_URL}/upload/audio`, {
       method: 'POST',
@@ -103,12 +119,21 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
       body: formData
     });
 
+    console.log('📥 Upload Audio Response Status:', response.status);
+    
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Erreur lors de l\'upload');
+      let errorMessage = `Erreur HTTP ${response.status}`;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } catch (e) {
+        console.error('Impossible de parser la réponse d\'erreur:', e);
+      }
+      throw new Error(errorMessage);
     }
 
     const result = await response.json();
+    console.log('✅ Upload Audio Success:', result);
     return result.data;
   };
 
@@ -120,6 +145,7 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
     try {
       setIsUploading(true);
       setUploadProgress(0);
+      setUploadError(null);
 
       // Validation
       validateAudioFile(file);
@@ -151,9 +177,9 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
     } catch (error) {
       console.error('Erreur upload audio:', error);
       // Afficher l'erreur à l'utilisateur
+      setUploadError(error.message);
       setAudioInfo(null);
       onChange(null);
-      // TODO: Vous pouvez ajouter un state pour les erreurs si nécessaire
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
@@ -299,9 +325,9 @@ const AudioUpload = ({ value, onChange, error, helperText }) => {
       )}
 
       {/* Erreur */}
-      {error && (
+      {(error || uploadError) && (
         <Alert severity="error" sx={{ mt: 1 }}>
-          {error}
+          {uploadError || error}
         </Alert>
       )}
     </Box>
