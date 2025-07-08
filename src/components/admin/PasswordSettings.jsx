@@ -141,7 +141,9 @@ const PasswordSettings = () => {
 
     try {
       // Appel à l'API pour changer le mot de passe
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://mdmcv4-backend-production-b615.up.railway.app/api/v1'}/auth/updatepassword`, {
+      const apiUrl = import.meta.env.VITE_API_URL?.replace(/"/g, '') || 'https://mdmcv4-backend-production-b615.up.railway.app/api/v1';
+      console.log('🔗 API URL:', apiUrl);
+      const response = await fetch(`${apiUrl}/auth/updatepassword`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -153,9 +155,13 @@ const PasswordSettings = () => {
         })
       });
 
+      console.log('🔍 Response status:', response.status);
+      console.log('🔍 Response ok:', response.ok);
+      
       const data = await response.json();
+      console.log('🔍 Response data:', data);
 
-      if (data.success) {
+      if (response.ok && data.success) {
         setMessage('Mot de passe modifié avec succès !');
         setFormData({
           currentPassword: '',
@@ -163,11 +169,11 @@ const PasswordSettings = () => {
           confirmPassword: ''
         });
       } else {
-        setMessage(data.error || 'Erreur lors du changement de mot de passe');
+        setMessage(data.error || data.message || `Erreur ${response.status}: ${response.statusText}`);
       }
     } catch (error) {
-      console.error('Erreur:', error);
-      setMessage('Erreur de connexion. Veuillez réessayer.');
+      console.error('🔥 Erreur complète:', error);
+      setMessage(`Erreur de connexion: ${error.message}`);
     } finally {
       setLoading(false);
     }
