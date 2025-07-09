@@ -23,22 +23,55 @@ function SmartlinkListPage() {
     try {
       const response = await apiService.smartlinks.getAll(); 
       
-      const smartlinksWithId = (response.data || []).map(sl => ({
-        ...sl,
-        id: sl._id || sl.id || `temp-${Date.now()}-${Math.random()}`,
-        artistName: sl.artistId?.name || 'Artiste inconnu',
-        viewCount: sl.viewCount || 0,
-        platformClickCount: sl.platformClickCount || 0,
-        trackTitle: sl.trackTitle || 'Titre inconnu',
-        slug: sl.slug || '',
-        isPublished: sl.isPublished || false,
-        createdAt: sl.createdAt || new Date().toISOString(),
-        coverImageUrl: sl.coverImageUrl || null,
-        // Sécurisation pour éviter les erreurs de propriétés manquantes
-        artistId: sl.artistId || { name: 'Artiste inconnu', slug: '' }
-      }));
+      const smartlinksWithId = (response.data || []).map((sl, index) => {
+        try {
+          return {
+            // Propriétés essentielles pour DataGrid
+            id: sl._id || sl.id || `temp-${Date.now()}-${index}`,
+            
+            // Propriétés d'affichage
+            trackTitle: String(sl.trackTitle || 'Titre inconnu'),
+            artistName: String(sl.artistId?.name || 'Artiste inconnu'),
+            viewCount: Number(sl.viewCount || 0),
+            platformClickCount: Number(sl.platformClickCount || 0),
+            isPublished: Boolean(sl.isPublished || false),
+            
+            // Propriétés de métadonnées
+            slug: String(sl.slug || ''),
+            createdAt: sl.createdAt || new Date().toISOString(),
+            coverImageUrl: sl.coverImageUrl || null,
+            
+            // Propriétés d'objet sécurisées
+            artistId: sl.artistId ? {
+              name: String(sl.artistId.name || 'Artiste inconnu'),
+              slug: String(sl.artistId.slug || '')
+            } : { name: 'Artiste inconnu', slug: '' }
+          };
+        } catch (error) {
+          console.error('🔍 Error processing SmartLink:', error, sl);
+          return {
+            id: `error-${Date.now()}-${index}`,
+            trackTitle: 'Erreur de données',
+            artistName: 'Inconnu',
+            viewCount: 0,
+            platformClickCount: 0,
+            isPublished: false,
+            slug: '',
+            createdAt: new Date().toISOString(),
+            coverImageUrl: null,
+            artistId: { name: 'Inconnu', slug: '' }
+          };
+        }
+      });
       console.log('🔍 SmartLinks loaded:', smartlinksWithId);
-      setSmartlinks(smartlinksWithId);
+      console.log('🔍 First SmartLink sample:', smartlinksWithId[0]);
+      console.log('🔍 SmartLinks keys:', smartlinksWithId.map(sl => Object.keys(sl)));
+      
+      // Vérification supplémentaire pour éviter les erreurs
+      const validSmartlinks = smartlinksWithId.filter(sl => sl && sl.id);
+      console.log('🔍 Valid SmartLinks count:', validSmartlinks.length);
+      
+      setSmartlinks(validSmartlinks);
     } catch (err) {
       console.error("SmartlinkListPage - Failed to fetch SmartLinks:", err);
       
@@ -292,33 +325,42 @@ function SmartlinkListPage() {
       </Box>
       
       <Box sx={{ height: 600, width: '100%' }}>
-        <DataGrid
-          rows={smartlinks || []}
-          columns={columns}
-          loading={loading}
-          pageSizeOptions={[10, 25, 50]}
-          initialState={{
-            pagination: { paginationModel: { pageSize: 10 } },
-            sorting: { sortModel: [{ field: 'createdAt', sort: 'desc' }] },
-          }}
-          density="standard"
-          autoHeight={false}
-          checkboxSelection
-          rowSelectionModel={selectedIds || []}
-          onRowSelectionModelChange={(newSelection) => {
-            console.log('🔍 Selection changed:', newSelection);
-            setSelectedIds(newSelection || []);
-          }}
-          getRowId={(row) => row.id || row._id || `fallback-${Math.random()}`}
-          sx={{
-            '& .MuiDataGrid-cell:focus': {
-              outline: 'none',
-            },
-            '& .MuiDataGrid-row:hover': {
-              backgroundColor: 'rgba(0, 0, 0, 0.04)',
-            },
-          }}
-        />
+        {smartlinks && smartlinks.length > 0 ? (
+          <DataGrid
+            rows={smartlinks}
+            columns={columns}
+            loading={loading}
+            pageSizeOptions={[10, 25, 50]}
+            initialState={{
+              pagination: { paginationModel: { pageSize: 10 } },
+              sorting: { sortModel: [{ field: 'createdAt', sort: 'desc' }] },
+            }}
+            density="standard"
+            autoHeight={false}
+            checkboxSelection
+            rowSelectionModel={selectedIds || []}
+            onRowSelectionModelChange={(newSelection) => {
+              console.log('🔍 Selection changed:', newSelection);
+              setSelectedIds(newSelection || []);
+            }}
+            getRowId={(row) => row.id || row._id || `fallback-${Math.random()}`}
+            disableRowSelectionOnClick
+            sx={{
+              '& .MuiDataGrid-cell:focus': {
+                outline: 'none',
+              },
+              '& .MuiDataGrid-row:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.04)',
+              },
+            }}
+          />
+        ) : (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <Typography variant="h6" color="text.secondary">
+              {loading ? 'Chargement...' : 'Aucun SmartLink trouvé'}
+            </Typography>
+          </Box>
+        )}
       </Box>
 
       {/* Dialog de confirmation de suppression */}
