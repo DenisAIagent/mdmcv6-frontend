@@ -1,8 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { Box, Container, Grid, Typography, Button, Paper } from '@mui/material';
+import { Box, Container, Grid, Typography, Button, Paper, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { DataGrid } from '@mui/x-data-grid';
 import { toast } from 'react-toastify';
 import apiService from '@/services/api.service';
@@ -12,6 +13,9 @@ function SmartlinkListPage() {
   const [smartlinks, setSmartlinks] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
+  const [selectedIds, setSelectedIds] = React.useState([]);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = React.useState(false);
+  const [deleteTarget, setDeleteTarget] = React.useState(null); // { type: 'single'|'multiple', id?, ids?, title? }
 
   const fetchSmartlinks = React.useCallback(async () => {
     setLoading(true);
@@ -71,22 +75,51 @@ function SmartlinkListPage() {
     window.open(publicUrl, '_blank');
   };
 
-  const handleDelete = async (id, title) => {
-    if (window.confirm(`Êtes-vous sûr de vouloir supprimer le SmartLink "${title}" ? Cette action est irréversible.`)) {
-      try {
-        setLoading(true); 
-        await apiService.smartlinks.deleteById(id);
-        toast.success(`SmartLink "${title}" supprimé avec succès.`);
-        fetchSmartlinks();
-      } catch (err) {
-        console.error("SmartlinkListPage - Failed to delete SmartLink:", err);
-        const errorMsg = err.message || err.data?.error || 'Erreur lors de la suppression du SmartLink.';
-        setError(errorMsg);
-        toast.error(errorMsg);
-      } finally {
-        setLoading(false);
-      }
+  const handleDelete = (id, title) => {
+    setDeleteTarget({ type: 'single', id, title });
+    setConfirmDeleteOpen(true);
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedIds.length === 0) {
+      toast.warning('Aucun SmartLink sélectionné');
+      return;
     }
+    setDeleteTarget({ type: 'multiple', ids: selectedIds });
+    setConfirmDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      setLoading(true);
+      setConfirmDeleteOpen(false);
+      
+      if (deleteTarget.type === 'single') {
+        await apiService.smartlinks.deleteById(deleteTarget.id);
+        toast.success(`SmartLink "${deleteTarget.title}" supprimé avec succès.`);
+      } else {
+        // Suppression multiple
+        const deletePromises = deleteTarget.ids.map(id => apiService.smartlinks.deleteById(id));
+        await Promise.all(deletePromises);
+        toast.success(`${deleteTarget.ids.length} SmartLink(s) supprimé(s) avec succès.`);
+        setSelectedIds([]); // Réinitialiser la sélection
+      }
+      
+      fetchSmartlinks();
+    } catch (err) {
+      console.error("SmartlinkListPage - Failed to delete SmartLink(s):", err);
+      const errorMsg = err.message || err.data?.error || 'Erreur lors de la suppression.';
+      setError(errorMsg);
+      toast.error(errorMsg);
+    } finally {
+      setLoading(false);
+      setDeleteTarget(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setConfirmDeleteOpen(false);
+    setDeleteTarget(null);
   };
 
   const handleAnalyticsClick = (id) => {
@@ -220,21 +253,34 @@ function SmartlinkListPage() {
         <Typography variant="h5" component="h2" sx={{ fontWeight: 'bold' }}> 
           Gestion des SmartLinks
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={handleCreateClick}
-          sx={{ 
-            fontWeight: 'bold',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-            '&:hover': {
-              boxShadow: '0 6px 8px rgba(0,0,0,0.15)',
-            }
-          }}
-        >
-          Nouveau SmartLink
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          {selectedIds.length > 0 && (
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<DeleteIcon />}
+              onClick={handleBulkDelete}
+              sx={{ fontWeight: 'bold' }}
+            >
+              Supprimer ({selectedIds.length})
+            </Button>
+          )}
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={handleCreateClick}
+            sx={{ 
+              fontWeight: 'bold',
+              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+              '&:hover': {
+                boxShadow: '0 6px 8px rgba(0,0,0,0.15)',
+              }
+            }}
+          >
+            Nouveau SmartLink
+          </Button>
+        </Box>
       </Box>
       
       <Box sx={{ height: 600, width: '100%' }}>
@@ -249,6 +295,11 @@ function SmartlinkListPage() {
           }}
           density="standard"
           autoHeight={false}
+          checkboxSelection
+          rowSelectionModel={selectedIds}
+          onRowSelectionModelChange={(newSelection) => {
+            setSelectedIds(newSelection);
+          }}
           sx={{
             '& .MuiDataGrid-cell:focus': {
               outline: 'none',
@@ -259,6 +310,34 @@ function SmartlinkListPage() {
           }}
         />
       </Box>
+
+      {/* Dialog de confirmation de suppression */}
+      <Dialog
+        open={confirmDeleteOpen}
+        onClose={handleCancelDelete}
+        aria-labelledby="confirm-delete-dialog"
+      >
+        <DialogTitle id="confirm-delete-dialog">
+          Confirmer la suppression
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {deleteTarget?.type === 'single' ? (
+              `Êtes-vous sûr de vouloir supprimer le SmartLink "${deleteTarget.title}" ? Cette action est irréversible.`
+            ) : (
+              `Êtes-vous sûr de vouloir supprimer les ${deleteTarget?.ids?.length || 0} SmartLink(s) sélectionné(s) ? Cette action est irréversible.`
+            )}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelDelete} color="primary">
+            Annuler
+          </Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained">
+            Supprimer
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
     </>
   );
