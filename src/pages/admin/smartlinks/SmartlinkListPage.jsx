@@ -25,11 +25,19 @@ function SmartlinkListPage() {
       
       const smartlinksWithId = (response.data || []).map(sl => ({
         ...sl,
-        id: sl._id,
+        id: sl._id || sl.id || `temp-${Date.now()}-${Math.random()}`,
         artistName: sl.artistId?.name || 'Artiste inconnu',
         viewCount: sl.viewCount || 0,
         platformClickCount: sl.platformClickCount || 0,
+        trackTitle: sl.trackTitle || 'Titre inconnu',
+        slug: sl.slug || '',
+        isPublished: sl.isPublished || false,
+        createdAt: sl.createdAt || new Date().toISOString(),
+        coverImageUrl: sl.coverImageUrl || null,
+        // Sécurisation pour éviter les erreurs de propriétés manquantes
+        artistId: sl.artistId || { name: 'Artiste inconnu', slug: '' }
       }));
+      console.log('🔍 SmartLinks loaded:', smartlinksWithId);
       setSmartlinks(smartlinksWithId);
     } catch (err) {
       console.error("SmartlinkListPage - Failed to fetch SmartLinks:", err);
@@ -285,7 +293,7 @@ function SmartlinkListPage() {
       
       <Box sx={{ height: 600, width: '100%' }}>
         <DataGrid
-          rows={smartlinks}
+          rows={smartlinks || []}
           columns={columns}
           loading={loading}
           pageSizeOptions={[10, 25, 50]}
@@ -296,10 +304,12 @@ function SmartlinkListPage() {
           density="standard"
           autoHeight={false}
           checkboxSelection
-          rowSelectionModel={selectedIds}
+          rowSelectionModel={selectedIds || []}
           onRowSelectionModelChange={(newSelection) => {
-            setSelectedIds(newSelection);
+            console.log('🔍 Selection changed:', newSelection);
+            setSelectedIds(newSelection || []);
           }}
+          getRowId={(row) => row.id || row._id || `fallback-${Math.random()}`}
           sx={{
             '& .MuiDataGrid-cell:focus': {
               outline: 'none',
