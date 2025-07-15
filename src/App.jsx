@@ -57,6 +57,7 @@ import AllReviews from './components/pages/AllReviews';
 import ArtistPage from './pages/public/ArtistPage';
 import SmartLinkPageNew from './pages/public/SmartLinkPageNew';
 import SmartLinkPageClean from './pages/public/SmartLinkPageClean';
+import SmartLinkSSR from './pages/public/SmartLinkSSR';
 
 // Pages de ressources légales
 import FAQ from './pages/public/resources/FAQ';
@@ -284,6 +285,7 @@ function App() {
         <Route path="/artists/:slug" element={<ArtistPage />} />
         <Route path="/s/:slug" element={<SmartLinkPageNew />} />
         <Route path="/smartlinks/:artistSlug/:trackSlug" element={<SmartLinkPageClean />} />
+        <Route path="/smartlinks-ssr/:artistSlug/:trackSlug" element={<SmartLinkSSR />} />
         <Route path="/smartlinks-old/:artistSlug/:trackSlug" element={<SmartLinkPageNew />} />
         
         {/* Routes des pages de ressources légales - SEO optimisées */}

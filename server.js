@@ -12,9 +12,9 @@ app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
-// Route spéciale pour SmartLinks - SANS REDIRECTION comme Linkfire
-// 🧪 VERSION TEST : Utilise des trackingIds factices pour contourner l'authentification API
-app.get("/smartlinks/:artistSlug/:trackSlug", async (req, res) => {
+// 🎯 ROUTE SMARTLINKS UNIFIÉE - Architecture pour analytics fonctionnels
+// Cette route gère l'injection SSR des analytics ET sert le contenu React
+app.get('/smartlinks/:artistSlug/:trackSlug', async (req, res) => {
   const { artistSlug, trackSlug } = req.params;
   
   try {
@@ -22,24 +22,14 @@ app.get("/smartlinks/:artistSlug/:trackSlug", async (req, res) => {
     const htmlPath = path.join(__dirname, "dist/index.html");
     let html = fs.readFileSync(htmlPath, "utf8");
     
-    // 🧪 SOLUTION TEMPORAIRE : Codes tracking factices pour test
-    // Une fois l'authentification résolue, ce code sera remplacé par l'appel API
-    let trackingIds = {
-      ga4Id: "G-TEST123456",
-      gtmId: "GTM-TEST123",
-      metaPixelId: "123456789012345",
-      tiktokPixelId: "C4A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5"
-    };
-
-    console.log("🧪 TEST - Utilisation codes tracking factices:", trackingIds);
-
-    // CODE ORIGINAL (désactivé temporairement) :
-    /*
+    // 🎯 ÉTAPE 1 : Récupérer les trackingIds depuis l'API
+    let trackingIds = {};
     try {
       const https = require("https");
       const http = require("http");
       
-      const apiUrl = `https://api.mdmcmusicads.com/api/v1/smartlinks/${artistSlug}/${trackSlug}`;
+      const apiUrl = `https://api.mdmcmusicads.com/api/v1/smartlinks/public/${artistSlug}/${trackSlug}`;
+      console.log('🔍 Tentative récupération API:', apiUrl);
       
       const response = await new Promise((resolve, reject) => {
         const protocol = apiUrl.startsWith("https") ? https : http;
@@ -54,18 +44,27 @@ app.get("/smartlinks/:artistSlug/:trackSlug", async (req, res) => {
             }
           });
         });
-        req.on("error", reject);
-        req.setTimeout(5000, () => reject(new Error("Timeout")));
+        req.on('error', reject);
+        req.setTimeout(8000, () => reject(new Error('Timeout')));
       });
       
       if (response.success && response.data.smartLink?.trackingIds) {
         trackingIds = response.data.smartLink.trackingIds;
-        console.log("🎯 SSR - Injection codes tracking:", trackingIds);
+        console.log('🎯 SSR - Codes tracking récupérés:', trackingIds);
+      } else {
+        console.warn('⚠️ Pas de trackingIds dans la réponse API');
       }
     } catch (apiError) {
-      console.error("❌ Erreur API pour codes tracking:", apiError);
+      console.error('❌ Erreur API, utilisation codes de fallback:', apiError.message);
+      // 🧪 FALLBACK : Codes tracking de test si API échoue
+      trackingIds = {
+        ga4Id: 'G-TEST123456',
+        gtmId: 'GTM-TEST123',
+        metaPixelId: '123456789012345',
+        tiktokPixelId: 'C4A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5'
+      };
+      console.log('🧪 Utilisation codes de fallback:', trackingIds);
     }
-    */
     
     // Injecter les scripts analytics (même sans redirection)
     if (trackingIds.ga4Id && trackingIds.ga4Id.trim()) {
@@ -146,26 +145,38 @@ src="https://www.facebook.com/tr?id=${trackingIds.metaPixelId}&ev=PageView&noscr
       html = html.replace("</head>", tiktokScript + "</head>");
     }
     
-    // SOLUTION LINKFIRE : Pas de redirection, forcer React à charger la route directement
+    // 🎯 ÉTAPE 3 : Script pour charger React avec les analytics persistants
     const smartlinkScript = `
 <script>
-  // Forcer React à charger la route SmartLink SANS redirection
-  window.addEventListener("DOMContentLoaded", function() {
-    console.log("🎯 SmartLink SSR: Analytics intégrés, chargement React...");
+  // 🎯 ARCHITECTURE UNIFIÉE - Analytics persistent, React gère l'UI
+  window.addEventListener('DOMContentLoaded', function() {
+    console.log('🎯 SmartLink SSR: Analytics intégrés de façon permanente');
     
-    // Ajouter les paramètres SmartLink au window pour React
+    // Données disponibles pour React
     window.SMARTLINK_SSR_DATA = {
-      artistSlug: "${artistSlug}",
-      trackSlug: "${trackSlug}",
-      analyticsLoaded: true
+      artistSlug: '${artistSlug}',
+      trackSlug: '${trackSlug}',
+      analyticsLoaded: true,
+      trackingIds: {
+        ga4Id: '${trackingIds.ga4Id || ''}',
+        gtmId: '${trackingIds.gtmId || ''}',
+        metaPixelId: '${trackingIds.metaPixelId || ''}',
+        tiktokPixelId: '${trackingIds.tiktokPixelId || ''}'
+      }
     };
     
-    // Forcer React à afficher la route SmartLink
-    if (window.location.hash === "") {
-      window.location.hash = "#/smartlinks/${artistSlug}/${trackSlug}";
+    // Forcer React à charger la route SmartLink SSR
+    if (window.location.hash === '') {
+      window.location.hash = '#/smartlinks-ssr/${artistSlug}/${trackSlug}';
     }
     
-    console.log("🎯 SmartLink route set:", window.location.hash);
+    console.log('🎯 SmartLink SSR route activée:', window.location.hash);
+    console.log('🎯 Analytics status:', {
+      ga4: !!window.gtag,
+      gtm: !!window.dataLayer,
+      meta: !!window.fbq,
+      tiktok: !!window.ttq
+    });
   });
 </script>`;
     
