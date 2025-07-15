@@ -195,7 +195,20 @@ const SmartLinkPageClean = () => {
           setSmartLinkData(response.data);
           
           // 🎯 INJECTION CÔTÉ CLIENT des analytics pour HashRouter
-          await injectAnalyticsScripts(response.data.smartLink?.trackingIds);
+          let trackingIds = response.data.smartLink?.trackingIds;
+          
+          // 🧪 FALLBACK : Si pas de trackingIds, utiliser des codes de test
+          if (!trackingIds || Object.keys(trackingIds).length === 0) {
+            console.warn("⚠️ Pas de trackingIds dans les données, utilisation codes de test");
+            trackingIds = {
+              ga4Id: 'G-TEST123456',
+              gtmId: 'GTM-TEST123',
+              metaPixelId: '123456789012345',
+              tiktokPixelId: 'C4A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5'
+            };
+          }
+          
+          await injectAnalyticsScripts(trackingIds);
           
           // 🌐 Mettre à jour les métadonnées sociales
           setTimeout(() => {
