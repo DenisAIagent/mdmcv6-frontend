@@ -19,13 +19,29 @@ function SmartlinkListPage() {
     try {
       const response = await apiService.smartlinks.getAll(); 
       
-      const smartlinksWithId = (response.data || []).map(sl => ({
-        ...sl,
-        id: sl._id,
-        artistName: sl.artistId?.name || 'Artiste inconnu',
-        viewCount: sl.viewCount || 0,
-        platformClickCount: sl.platformClickCount || 0,
-      }));
+      // Add robust validation for API response
+      if (!response || !response.data || !Array.isArray(response.data)) {
+        console.warn('Invalid API response structure:', response);
+        setSmartlinks([]);
+        return;
+      }
+      
+      const smartlinksWithId = response.data.map(sl => {
+        // Add validation for each smartlink object
+        if (!sl || typeof sl !== 'object') {
+          console.warn('Invalid smartlink object:', sl);
+          return null;
+        }
+        
+        return {
+          ...sl,
+          id: sl._id || `temp-${Date.now()}-${Math.random()}`,
+          artistName: sl.artistId?.name || 'Artiste inconnu',
+          viewCount: sl.viewCount || 0,
+          platformClickCount: sl.platformClickCount || 0,
+        };
+      }).filter(Boolean); // Remove null entries
+      
       setSmartlinks(smartlinksWithId);
     } catch (err) {
       console.error("SmartlinkListPage - Failed to fetch SmartLinks:", err);
@@ -239,16 +255,26 @@ function SmartlinkListPage() {
       
       <Box sx={{ height: 600, width: '100%' }}>
         <DataGrid
-          rows={smartlinks}
+          rows={Array.isArray(smartlinks) ? smartlinks : []}
           columns={columns}
           loading={loading}
           pageSizeOptions={[10, 25, 50]}
           initialState={{
-            pagination: { paginationModel: { pageSize: 10 } },
+            pagination: { 
+              paginationModel: { 
+                pageSize: 10,
+                page: 0 
+              } 
+            },
             sorting: { sortModel: [{ field: 'createdAt', sort: 'desc' }] },
           }}
+          paginationMode="client"
           density="standard"
           autoHeight={false}
+          onError={(error) => {
+            console.error('DataGrid error:', error);
+            setError('Erreur d\'affichage des données');
+          }}
           sx={{
             '& .MuiDataGrid-cell:focus': {
               outline: 'none',
