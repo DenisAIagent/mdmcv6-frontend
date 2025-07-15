@@ -12,6 +12,90 @@ import { usePlatformOrder, usePlatformOrderAnalytics } from "../../hooks/usePlat
 import { useURLGeneration, useClickTracking, useUTMParams, useSocialMetadata } from "../../hooks/useURLGeneration";
 import "./SmartLinkPageClean.css";
 
+// 🎯 Fonction d'injection des analytics côté client
+const injectAnalyticsScripts = async (trackingIds) => {
+  if (!trackingIds) {
+    console.warn("🎯 Pas de trackingIds fournis");
+    return;
+  }
+  
+  console.log("🎯 Injection analytics côté client:", trackingIds);
+  
+  // 🎯 Google Analytics 4
+  if (trackingIds.ga4Id && trackingIds.ga4Id.trim()) {
+    if (!window.gtag) {
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${trackingIds.ga4Id}`;
+      document.head.appendChild(script);
+      
+      await new Promise(resolve => {
+        script.onload = () => {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){window.dataLayer.push(arguments);}
+          window.gtag = gtag;
+          gtag('js', new Date());
+          gtag('config', trackingIds.ga4Id, {
+            page_title: document.title,
+            page_location: window.location.href,
+            custom_parameter: 'smartlink_client_injection'
+          });
+          console.log("🎯 GA4 injecté côté client:", trackingIds.ga4Id);
+          resolve();
+        };
+      });
+    }
+  }
+  
+  // 🎯 Google Tag Manager
+  if (trackingIds.gtmId && trackingIds.gtmId.trim()) {
+    if (!window.dataLayer) {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        'gtm.start': new Date().getTime(),
+        event: 'gtm.js'
+      });
+      
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtm.js?id=${trackingIds.gtmId}`;
+      document.head.appendChild(script);
+      
+      console.log("🎯 GTM injecté côté client:", trackingIds.gtmId);
+    }
+  }
+  
+  // 🎯 Meta Pixel
+  if (trackingIds.metaPixelId && trackingIds.metaPixelId.trim()) {
+    if (!window.fbq) {
+      !function(f,b,e,v,n,t,s) {
+        if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)
+      }(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      
+      window.fbq('init', trackingIds.metaPixelId);
+      window.fbq('track', 'PageView');
+      console.log("🎯 Meta Pixel injecté côté client:", trackingIds.metaPixelId);
+    }
+  }
+  
+  // 🎯 TikTok Pixel
+  if (trackingIds.tiktokPixelId && trackingIds.tiktokPixelId.trim()) {
+    if (!window.ttq) {
+      !function (w, d, t) {
+        w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
+        ttq.load(trackingIds.tiktokPixelId);
+        ttq.page();
+        console.log("🎯 TikTok Pixel injecté côté client:", trackingIds.tiktokPixelId);
+      }(window, document, 'ttq');
+    }
+  }
+};
+
 // Import des icônes des plateformes
 import {
   SiSpotify,
@@ -110,8 +194,8 @@ const SmartLinkPageClean = () => {
           
           setSmartLinkData(response.data);
           
-          // 🎯 Les codes tracking sont maintenant injectés côté serveur (SSR)
-          // Plus besoin de les charger ici
+          // 🎯 INJECTION CÔTÉ CLIENT des analytics pour HashRouter
+          await injectAnalyticsScripts(response.data.smartLink?.trackingIds);
           
           // 🌐 Mettre à jour les métadonnées sociales
           setTimeout(() => {
@@ -285,6 +369,51 @@ const SmartLinkPageClean = () => {
     // 📊 Tracking de l'ordre des plateformes
     const platformPosition = availablePlatforms.findIndex(p => p.platform === platform.platform) + 1;
     trackPlatformClick(platform.platform, platformPosition);
+    
+    // 🎯 Tracking analytics injectés côté client
+    if (window.gtag) {
+      window.gtag('event', 'platform_click', {
+        event_category: 'smartlink',
+        event_label: platform.platform,
+        smartlink_artist: artistSlug,
+        smartlink_track: trackSlug,
+        platform_position: platformPosition,
+        custom_parameter: 'smartlink_client_tracking'
+      });
+      console.log("🎯 GA4 tracking: platform_click", platform.platform);
+    }
+    
+    if (window.dataLayer) {
+      window.dataLayer.push({
+        event: 'smartlink_platform_click',
+        platform: platform.platform,
+        artist: artistSlug,
+        track: trackSlug,
+        position: platformPosition,
+        order_source: orderSource,
+        ab_test_variant: abTestVariant
+      });
+      console.log("🎯 GTM tracking: smartlink_platform_click", platform.platform);
+    }
+    
+    if (window.fbq) {
+      window.fbq('track', 'Lead', {
+        content_name: `${artistSlug} - ${trackSlug}`,
+        content_category: 'Music',
+        platform: platform.platform,
+        value: platformPosition
+      });
+      console.log("🎯 Meta Pixel tracking: Lead", platform.platform);
+    }
+    
+    if (window.ttq) {
+      window.ttq.track('ClickButton', {
+        content_name: `${artistSlug} - ${trackSlug}`,
+        platform: platform.platform,
+        button_text: platform.platform
+      });
+      console.log("🎯 TikTok Pixel tracking: ClickButton", platform.platform);
+    }
     
     // 🔗 Tracking avancé avec URLs et UTM
     const currentUrl = window.location.href;
