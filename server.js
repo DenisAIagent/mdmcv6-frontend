@@ -13,7 +13,8 @@ app.get('/health', (req, res) => {
 });
 
 // Route spéciale pour SmartLinks - SANS REDIRECTION comme Linkfire
-app.get('/smartlinks/:artistSlug/:trackSlug', async (req, res) => {
+app.get("/smartlinks/:artistSlug/:trackSlug", async (req, res) => {
+  // 🧪 VERSION TEST : Utilise des trackingIds factices pour contourner l'authentification API
   const { artistSlug, trackSlug } = req.params;
   
   try {
@@ -21,8 +22,19 @@ app.get('/smartlinks/:artistSlug/:trackSlug', async (req, res) => {
     const htmlPath = path.join(__dirname, 'dist/index.html');
     let html = fs.readFileSync(htmlPath, 'utf8');
     
-    // Récupérer les codes tracking depuis l'API
-    let trackingIds = {};
+    // 🧪 SOLUTION TEMPORAIRE : Codes tracking factices pour test
+    // Une fois l'authentification résolue, ce code sera remplacé par l'appel API
+    let trackingIds = {
+      ga4Id: 'G-TEST123456',
+      gtmId: 'GTM-TEST123',
+      metaPixelId: '123456789012345',
+      tiktokPixelId: 'C4A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5'
+    };
+
+    console.log('🧪 TEST - Utilisation codes tracking factices:', trackingIds);
+
+    // CODE ORIGINAL (désactivé temporairement) :
+    /*
     try {
       const https = require('https');
       const http = require('http');
@@ -53,6 +65,7 @@ app.get('/smartlinks/:artistSlug/:trackSlug', async (req, res) => {
     } catch (apiError) {
       console.error('❌ Erreur API pour codes tracking:', apiError);
     }
+    */
     
     // Injecter les scripts analytics (même sans redirection)
     if (trackingIds.ga4Id && trackingIds.ga4Id.trim()) {
