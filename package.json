@@ -3,7 +3,6 @@
   "private": true,
   "proxy": "https://api.mdmcmusicads.com",
   "version": "2.0.5",
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "rm -rf dist && rm -f dist/index.html && vite build",
