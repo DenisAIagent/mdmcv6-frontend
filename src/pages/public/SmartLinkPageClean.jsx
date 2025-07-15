@@ -110,38 +110,8 @@ const SmartLinkPageClean = () => {
           
           setSmartLinkData(response.data);
           
-          // 🎯 Codes de tracking Google Analytics et Tag Manager
-          if (response.data.smartLink?.trackingIds) {
-            const trackingIds = response.data.smartLink.trackingIds;
-            
-            // Google Analytics 4
-            if (trackingIds.ga4Id) {
-              const script = document.createElement('script');
-              script.innerHTML = `
-                gtag('config', '${trackingIds.ga4Id}', {
-                  page_title: document.title,
-                  page_location: window.location.href
-                });
-              `;
-              document.head.appendChild(script);
-              console.log('✅ GA4 SmartLink:', trackingIds.ga4Id);
-            }
-            
-            // Google Tag Manager
-            if (trackingIds.gtmId) {
-              const script = document.createElement('script');
-              script.innerHTML = `
-                window.dataLayer = window.dataLayer || [];
-                window.dataLayer.push({
-                  'event': 'smartlink_view',
-                  'smartlink_artist': '${artistSlug}',
-                  'smartlink_track': '${trackSlug}'
-                });
-              `;
-              document.head.appendChild(script);
-              console.log('✅ GTM SmartLink:', trackingIds.gtmId);
-            }
-          }
+          // 🎯 Les codes tracking sont maintenant injectés côté serveur (SSR)
+          // Plus besoin de les charger ici
           
           // 🌐 Mettre à jour les métadonnées sociales
           setTimeout(() => {
