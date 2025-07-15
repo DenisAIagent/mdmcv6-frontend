@@ -137,6 +137,13 @@ const PasswordSettings = () => {
       return;
     }
 
+    // Vérifier que l'utilisateur est connecté
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setMessage('Vous devez être connecté pour changer votre mot de passe');
+      return;
+    }
+
     setLoading(true);
     setMessage('');
 
@@ -147,7 +154,7 @@ const PasswordSettings = () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || 'dev-bypass-token'}`
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify({
           currentPassword: formData.currentPassword,

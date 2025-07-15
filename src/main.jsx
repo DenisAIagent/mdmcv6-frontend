@@ -40,7 +40,7 @@ const preloadCriticalResources = () => {
 
   // Préchargement des fonts Google
   preloadFont('https://fonts.gstatic.com/s/poppins/v20/pxiEyp8kv8JHgFVrJJfecnFHGPc.woff2');
-  preloadFont('https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2');
+  preloadFont('https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyf.woff2');
 
   // Préchargement d'images critiques
   const preloadImage = (url) => {
@@ -117,7 +117,7 @@ const initOptimizations = () => {
   
   prefetchDNS('//fonts.googleapis.com');
   prefetchDNS('//fonts.gstatic.com');
-  prefetchDNS('//mdmcv4-backend-production-b615.up.railway.app');
+  prefetchDNS('//api.mdmcmusicads.com');
   
   // Lazy loading native pour les images
   if ('loading' in HTMLImageElement.prototype) {
