@@ -1,2 +1,2 @@
-Force deployment trigger Jul 15 2025 19:15:00 WEST - Architecture SmartLinks unifiée pour analytics
+Force deployment trigger Jul 15 2025 19:45:00 WEST - Analytics injection côté client pour HashRouter
 
