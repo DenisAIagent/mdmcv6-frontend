@@ -1,2 +1,2 @@
-Force deployment trigger Jul 15 2025 19:00:00 WEST - Test analytics avec trackingIds factices
+Force deployment trigger Jul 15 2025 19:15:00 WEST - Architecture SmartLinks unifiée pour analytics
 
