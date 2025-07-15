@@ -36,9 +36,29 @@ function ArtistListPage() {
             console.log("Fetching artists from API...");
             const response = await apiService.getAllArtists(); // Appel API
             console.log("API response for artists:", response);
+            
+            // Add robust validation for API response
+            if (!response || !response.data || !Array.isArray(response.data)) {
+                console.warn('Invalid API response structure:', response);
+                setArtists([]);
+                return;
+            }
+            
             if (response.success) {
                 // DataGrid a besoin d'un champ 'id'. On le crée à partir de '_id'.
-                const artistsWithId = (response.data || []).map(artist => ({ ...artist, id: artist._id }));
+                const artistsWithId = response.data.map(artist => {
+                    // Add validation for each artist object
+                    if (!artist || typeof artist !== 'object') {
+                        console.warn('Invalid artist object:', artist);
+                        return null;
+                    }
+                    
+                    return { 
+                        ...artist, 
+                        id: artist._id || `temp-${Date.now()}-${Math.random()}` 
+                    };
+                }).filter(Boolean); // Remove null entries
+                
                 setArtists(artistsWithId);
             } else {
                 setError(response.error || 'Erreur inconnue lors du chargement.');
@@ -157,15 +177,23 @@ function ArtistListPage() {
             {/* Ajustez la hauteur selon vos besoins */}
             <Box sx={{ height: 'calc(100vh - 200px)', width: '100%' }}>
                 <DataGrid
-                    rows={artists}
+                    rows={Array.isArray(artists) ? artists : []}
                     columns={columns}
                     loading={loading}
                     pageSizeOptions={[10, 25, 50, 100]}
                     initialState={{
                         pagination: {
-                            paginationModel: { pageSize: 10 },
+                            paginationModel: { 
+                                pageSize: 10,
+                                page: 0 
+                            },
                          },
                      }}
+                    paginationMode="client"
+                    onError={(error) => {
+                        console.error('DataGrid error:', error);
+                        setError('Erreur d\'affichage des données');
+                    }}
                 />
             </Box>
         </Paper>
