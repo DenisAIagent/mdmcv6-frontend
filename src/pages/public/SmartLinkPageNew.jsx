@@ -78,6 +78,11 @@ const SmartLinkPageNew = () => {
         setError(null);
         console.log("🔗 Chargement SmartLink:", { artistSlug, trackSlug });
         
+        // Vérification de sécurité pour apiService
+        if (!apiService || !apiService.smartlinks || typeof apiService.smartlinks.getBySlugs !== 'function') {
+          throw new Error('Service SmartLinks non initialisé');
+        }
+
         const response = await apiService.smartlinks.getBySlugs(artistSlug, trackSlug);
         
         if (response && response.success && response.data) {

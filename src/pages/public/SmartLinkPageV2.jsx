@@ -366,6 +366,11 @@ const SmartLinkPageV2 = () => {
         setLoading(true);
         setError(null);
         
+        // Vérification de sécurité pour apiService
+        if (!apiService || !apiService.smartlinks || typeof apiService.smartlinks.getBySlugs !== 'function') {
+          throw new Error('Service SmartLinks non initialisé');
+        }
+
         const response = await apiService.smartlinks.getBySlugs(artistSlug, trackSlug);
         
         if (response?.success && response?.data) {
