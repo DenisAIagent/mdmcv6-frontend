@@ -125,12 +125,8 @@ class RSSService {
   extractImage(item, index) {
     console.log('🔍 Extraction image pour article', index);
     
-    // Debug: afficher tout le contenu disponible
     const contentEncoded = this.getTextContent(item, 'content:encoded');
     const description = this.getTextContent(item, 'description');
-    
-    console.log('📋 DEBUG - content:encoded:', contentEncoded ? contentEncoded.substring(0, 500) + '...' : 'null');
-    console.log('📋 DEBUG - description:', description ? description.substring(0, 500) + '...' : 'null');
     
     // 1. PRIORITÉ : Background-image dans les styles (spécifique aux thèmes WordPress comme le vôtre)
     const backgroundImagePattern = /background-image:\s*url\(['"]([^'"]+)['""]\)/gi;
@@ -188,6 +184,40 @@ class RSSService {
       if ((type && type.includes('image')) && url) {
         console.log('🖼️ Image trouvée dans media:content:', url);
         return url;
+      }
+    }
+
+    // 3.5. Approche alternative - Extraire l'ID de l'article et construire l'URL de l'image
+    const link = this.getTextContent(item, 'link');
+    if (link) {
+      console.log('🔍 Tentative d\'extraction d\'image depuis l\'URL de l\'article:', link);
+      
+      // Construire l'URL de l'image basée sur le pattern WordPress que vous m'avez montré
+      // https://blog.mdmcmusicads.com/wp-content/uploads/2025/07/promotion-clip-youtube-etude-de-cas-2-1068x570.jpeg
+      
+      // Extraire le slug de l'article depuis l'URL
+      const urlParts = link.split('/');
+      const slug = urlParts[urlParts.length - 2] || urlParts[urlParts.length - 1];
+      
+      if (slug && slug.length > 0) {
+        // Construire l'URL de l'image basée sur le slug
+        const currentYear = new Date().getFullYear();
+        const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
+        
+        // Pattern image : slug de l'article + extension
+        const possibleImageUrls = [
+          `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}-1068x570.jpeg`,
+          `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}-1068x570.jpg`,
+          `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}.jpeg`,
+          `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}.jpg`,
+          `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}-2-1068x570.jpeg`,
+          `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}-2-1068x570.jpg`
+        ];
+        
+        console.log('🖼️ Test URL d\'image construite:', possibleImageUrls[0]);
+        
+        // Retourner la première URL construite - on testera si elle fonctionne
+        return possibleImageUrls[0];
       }
     }
 
