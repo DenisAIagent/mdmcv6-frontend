@@ -1,34 +1,67 @@
 import React, { useState, useEffect } from 'react';
 import '../../assets/styles/articles.css';
 
-// Configuration du blog Railway
+// Configuration du blog MDMC
 const BLOG_CONFIG = {
-  BASE_URL: 'https://blog-wp-production.up.railway.app',
-  RSS_URL: 'https://blog-wp-production.up.railway.app/feed/',
+  BASE_URL: 'https://blog.mdmcmusicads.com',
+  RSS_URL: 'https://blog.mdmcmusicads.com/feed/',
   CORS_PROXY: 'https://api.allorigins.win/raw?url=',
-  TIMEOUT: 15000
+  TIMEOUT: 15000,
+  // Utiliser le proxy CORS par défaut à cause des restrictions CSP
+  USE_CORS_PROXY: true
 };
 
 // Service RSS intégré
 class RSSService {
   async getLatestArticles(limit = 3) {
     try {
-      console.log('🚂 RSS: Récupération depuis Railway...', BLOG_CONFIG.BASE_URL);
+      console.log('📰 RSS: Récupération depuis blog MDMC...', BLOG_CONFIG.BASE_URL);
       
-      const proxyUrl = `${BLOG_CONFIG.CORS_PROXY}${encodeURIComponent(BLOG_CONFIG.RSS_URL)}`;
+      let response;
       
-      const response = await fetch(proxyUrl, {
-        method: 'GET',
-        headers: { 'Accept': 'application/xml, application/rss+xml, text/xml' },
-        signal: AbortSignal.timeout(BLOG_CONFIG.TIMEOUT)
-      });
+      if (BLOG_CONFIG.USE_CORS_PROXY) {
+        // Utiliser le proxy CORS directement
+        console.log('🔄 RSS: Utilisation du proxy CORS...');
+        const proxyUrl = `${BLOG_CONFIG.CORS_PROXY}${encodeURIComponent(BLOG_CONFIG.RSS_URL)}`;
+        response = await fetch(proxyUrl, {
+          method: 'GET',
+          headers: { 'Accept': 'application/xml, application/rss+xml, text/xml' },
+          signal: AbortSignal.timeout(BLOG_CONFIG.TIMEOUT)
+        });
+      } else {
+        // Essayer d'abord l'accès direct (avec CORS)
+        try {
+          console.log('🎯 RSS: Tentative accès direct (CORS)...');
+          response = await fetch(BLOG_CONFIG.RSS_URL, {
+            method: 'GET',
+            headers: { 'Accept': 'application/xml, application/rss+xml, text/xml' },
+            signal: AbortSignal.timeout(BLOG_CONFIG.TIMEOUT)
+          });
+          
+          if (response.ok) {
+            console.log('✅ RSS: Accès direct réussi !');
+          } else {
+            throw new Error(`Accès direct échoué: ${response.status}`);
+          }
+        } catch (directError) {
+          console.warn('⚠️ RSS: Accès direct échoué, utilisation du proxy...', directError.message);
+          
+          // Fallback vers le proxy CORS
+          const proxyUrl = `${BLOG_CONFIG.CORS_PROXY}${encodeURIComponent(BLOG_CONFIG.RSS_URL)}`;
+          response = await fetch(proxyUrl, {
+            method: 'GET',
+            headers: { 'Accept': 'application/xml, application/rss+xml, text/xml' },
+            signal: AbortSignal.timeout(BLOG_CONFIG.TIMEOUT)
+          });
+        }
+      }
 
       if (!response.ok) {
         throw new Error(`Erreur HTTP: ${response.status}`);
       }
 
       const xmlText = await response.text();
-      console.log('✅ RSS: Flux récupéré depuis Railway');
+      console.log('✅ RSS: Flux récupéré depuis blog MDMC');
 
       if (xmlText.includes('<html') || xmlText.includes('<!DOCTYPE')) {
         throw new Error('Réponse HTML au lieu de XML');
@@ -58,7 +91,7 @@ class RSSService {
       };
 
     } catch (error) {
-      console.error('❌ RSS: Erreur Railway', error);
+      console.error('❌ RSS: Erreur blog MDMC', error);
       return {
         success: false,
         error: error.message,
@@ -90,31 +123,123 @@ class RSSService {
   }
 
   extractImage(item, index) {
-    // 1. Contenu encodé
+    console.log('🔍 Extraction image pour article', index);
+    
+    // 1. Enclosure (WordPress RSS standard pour les images attachées)
+    const enclosures = Array.from(item.querySelectorAll('enclosure'));
+    for (const enclosure of enclosures) {
+      const type = enclosure.getAttribute('type');
+      const url = enclosure.getAttribute('url');
+      if (type && type.startsWith('image/') && url) {
+        console.log('🖼️ Image trouvée dans enclosure:', url);
+        return url;
+      }
+    }
+
+    // 2. Media namespace (WordPress media RSS)
+    const mediaContents = Array.from(item.querySelectorAll('media\\:content, media\\:thumbnail'));
+    for (const mediaContent of mediaContents) {
+      const type = mediaContent.getAttribute('type') || mediaContent.getAttribute('medium');
+      const url = mediaContent.getAttribute('url');
+      if ((type && type.includes('image')) && url) {
+        console.log('🖼️ Image trouvée dans media:content:', url);
+        return url;
+      }
+    }
+
+    // 3. WordPress featured image via GUID
+    const guid = this.getTextContent(item, 'guid');
+    if (guid && guid.includes('attachment_id=')) {
+      console.log('🖼️ Image GUID WordPress trouvée:', guid);
+      return guid;
+    }
+
+    // 4. Contenu encodé (priorité aux images WordPress)
     const contentEncoded = this.getTextContent(item, 'content:encoded');
     if (contentEncoded) {
-      const imgMatch = contentEncoded.match(/<img[^>]+src=["']([^"']+)["'][^>]*>/i);
-      if (imgMatch && imgMatch[1]) {
-        return imgMatch[1];
+      console.log('🔍 Analyse du content:encoded pour images...');
+      
+      // Chercher plusieurs types d'images, priorité aux images WordPress
+      const imgPatterns = [
+        // WordPress uploads avec domaine
+        /<img[^>]+src=["']([^"']*blog\.mdmcmusicads\.com[^"']*\.(?:jpg|jpeg|png|webp|gif)[^"']*)["'][^>]*>/i,
+        // WordPress wp-content généralement
+        /<img[^>]+src=["']([^"']*wp-content[^"']*\.(?:jpg|jpeg|png|webp|gif)[^"']*)["'][^>]*>/i,
+        // Images avec extensions spécifiques
+        /<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp|gif))["'][^>]*>/i,
+        // Toute image en dernier recours
+        /<img[^>]+src=["']([^"']+)["'][^>]*>/i
+      ];
+      
+      for (const pattern of imgPatterns) {
+        const imgMatch = contentEncoded.match(pattern);
+        if (imgMatch && imgMatch[1]) {
+          const imageUrl = imgMatch[1];
+          // Filtrer les images indésirables
+          if (!imageUrl.includes('emoji') && 
+              !imageUrl.includes('gravatar') && 
+              !imageUrl.includes('avatar') &&
+              !imageUrl.includes('data:image') &&
+              imageUrl.length > 20) {
+            console.log('🖼️ Image trouvée dans content:encoded:', imageUrl);
+            return imageUrl;
+          }
+        }
       }
     }
 
-    // 2. Description
+    // 5. Description (même logique que content:encoded)
     const description = this.getTextContent(item, 'description');
     if (description) {
-      const imgMatch = description.match(/<img[^>]+src=["']([^"']+)["'][^>]*>/i);
-      if (imgMatch && imgMatch[1]) {
-        return imgMatch[1];
+      console.log('🔍 Analyse de la description pour images...');
+      
+      const imgPatterns = [
+        /<img[^>]+src=["']([^"']*blog\.mdmcmusicads\.com[^"']*\.(?:jpg|jpeg|png|webp|gif)[^"']*)["'][^>]*>/i,
+        /<img[^>]+src=["']([^"']*wp-content[^"']*\.(?:jpg|jpeg|png|webp|gif)[^"']*)["'][^>]*>/i,
+        /<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp|gif))["'][^>]*>/i,
+        /<img[^>]+src=["']([^"']+)["'][^>]*>/i
+      ];
+      
+      for (const pattern of imgPatterns) {
+        const imgMatch = description.match(pattern);
+        if (imgMatch && imgMatch[1]) {
+          const imageUrl = imgMatch[1];
+          if (!imageUrl.includes('emoji') && 
+              !imageUrl.includes('gravatar') && 
+              !imageUrl.includes('avatar') &&
+              !imageUrl.includes('data:image') &&
+              imageUrl.length > 20) {
+            console.log('🖼️ Image trouvée dans description:', imageUrl);
+            return imageUrl;
+          }
+        }
       }
     }
 
-    // 3. Fallback thématique
+    // 6. Chercher dans tous les éléments de l'item
+    const allText = item.textContent || item.innerHTML || '';
+    const urlPattern = /https?:\/\/[^\s]+\.(?:jpg|jpeg|png|webp|gif)(?:\?[^\s]*)?/gi;
+    const urls = allText.match(urlPattern);
+    if (urls && urls.length > 0) {
+      for (const url of urls) {
+        if (!url.includes('emoji') && !url.includes('gravatar') && !url.includes('avatar')) {
+          console.log('🖼️ Image trouvée par pattern URL:', url);
+          return url;
+        }
+      }
+    }
+
+    // 7. Fallback thématique MDMC
     const fallbackImages = [
-      'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=250&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=400&h=250&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=250&fit=crop&q=80', // Music marketing
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop&q=80', // Analytics  
+      'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=400&h=250&fit=crop&q=80', // Technology
+      'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=250&fit=crop&q=80', // Music production
+      'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=400&h=250&fit=crop&q=80', // Digital marketing
+      'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=250&fit=crop&q=80'  // Social media
     ];
     
+    console.log('🖼️ Utilisation image fallback pour article', index);
     return fallbackImages[index % fallbackImages.length];
   }
 
@@ -202,15 +327,48 @@ const Articles = () => {
       if (response.success && response.data.length > 0) {
         setArticles(response.data);
         setRetryCount(0);
-        console.log('✅ Articles: Chargés depuis Railway avec succès');
+        console.log('✅ Articles: Chargés depuis blog MDMC avec succès');
       } else {
         throw new Error(response.error || 'Aucun article trouvé');
       }
       
     } catch (err) {
-      console.error('❌ Articles: Erreur Railway', err);
+      console.error('❌ Articles: Erreur blog MDMC', err);
       setError(err.message);
-      setArticles([]); // PAS de fallbacks
+      
+      // Articles de fallback en cas d'échec complet
+      const fallbackArticles = [
+        {
+          id: 'fallback-1',
+          title: 'Stratégies de Marketing Musical Digital',
+          excerpt: 'Découvrez les dernières tendances et stratégies pour promouvoir votre musique en ligne efficacement...',
+          link: BLOG_CONFIG.BASE_URL,
+          image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=250&fit=crop&q=80',
+          date: new Date().toLocaleDateString('fr-FR'),
+          author: 'MDMC Team'
+        },
+        {
+          id: 'fallback-2',
+          title: 'Optimisation des Campagnes Publicitaires',
+          excerpt: 'Apprenez à maximiser votre ROI avec des campagnes publicitaires ciblées et efficaces...',
+          link: BLOG_CONFIG.BASE_URL,
+          image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop&q=80',
+          date: new Date().toLocaleDateString('fr-FR'),
+          author: 'MDMC Team'
+        },
+        {
+          id: 'fallback-3',
+          title: 'Analyse de Performance et Métriques',
+          excerpt: 'Comprenez les métriques importantes pour mesurer le succès de vos campagnes musicales...',
+          link: BLOG_CONFIG.BASE_URL,
+          image: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=400&h=250&fit=crop&q=80',
+          date: new Date().toLocaleDateString('fr-FR'),
+          author: 'MDMC Team'
+        }
+      ];
+      
+      setArticles(fallbackArticles);
+      console.log('🔄 Articles de fallback chargés');
     } finally {
       setLoading(false);
     }
@@ -232,11 +390,11 @@ const Articles = () => {
         <div className="articles-container">
           <div className="articles-header">
             <h2>Derniers articles</h2>
-            <p>Récupération depuis le blog Railway...</p>
+            <p>Récupération depuis le blog MDMC...</p>
           </div>
           <div className="articles-loading">
             <div className="loading-spinner"></div>
-            <p>🚂 Connexion à Railway en cours...</p>
+            <p>📰 Connexion au blog en cours...</p>
           </div>
         </div>
       </section>
@@ -253,8 +411,8 @@ const Articles = () => {
           </div>
           
           <div className="articles-error">
-            <div className="error-icon">🚂</div>
-            <h3>Problème de connexion au blog Railway</h3>
+            <div className="error-icon">📰</div>
+            <h3>Problème de connexion au blog</h3>
             <p>Impossible de récupérer les articles depuis notre blog WordPress.</p>
             <p className="error-details">
               <strong>Source:</strong> {BLOG_CONFIG.BASE_URL}<br/>
@@ -276,13 +434,13 @@ const Articles = () => {
                 rel="noopener noreferrer"
                 className="blog-link-button"
               >
-                🚂 Consulter le blog directement
+                📰 Consulter le blog directement
               </a>
             </div>
             
             {retryCount >= 3 && (
               <div className="retry-limit-message">
-                <p>Limite de tentatives atteinte. Le blog Railway pourrait être temporairement indisponible.</p>
+                <p>Limite de tentatives atteinte. Le blog pourrait être temporairement indisponible.</p>
                 <button 
                   onClick={() => window.location.reload()} 
                   className="reload-page-button"
@@ -331,7 +489,7 @@ const Articles = () => {
                 />
                 
                 <div className="article-source-badge">
-                  Railway
+                  Blog MDMC
                 </div>
               </div>
               
