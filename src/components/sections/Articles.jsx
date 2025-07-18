@@ -413,40 +413,7 @@ const Articles = () => {
     } catch (err) {
       console.error('❌ Articles: Erreur blog MDMC', err);
       setError(err.message);
-      
-      // Articles de fallback en cas d'échec complet
-      const fallbackArticles = [
-        {
-          id: 'fallback-1',
-          title: 'Stratégies de Marketing Musical Digital',
-          excerpt: 'Découvrez les dernières tendances et stratégies pour promouvoir votre musique en ligne efficacement...',
-          link: BLOG_CONFIG.BASE_URL,
-          image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=250&fit=crop&q=80',
-          date: new Date().toLocaleDateString('fr-FR'),
-          author: 'MDMC Team'
-        },
-        {
-          id: 'fallback-2',
-          title: 'Optimisation des Campagnes Publicitaires',
-          excerpt: 'Apprenez à maximiser votre ROI avec des campagnes publicitaires ciblées et efficaces...',
-          link: BLOG_CONFIG.BASE_URL,
-          image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop&q=80',
-          date: new Date().toLocaleDateString('fr-FR'),
-          author: 'MDMC Team'
-        },
-        {
-          id: 'fallback-3',
-          title: 'Analyse de Performance et Métriques',
-          excerpt: 'Comprenez les métriques importantes pour mesurer le succès de vos campagnes musicales...',
-          link: BLOG_CONFIG.BASE_URL,
-          image: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=400&h=250&fit=crop&q=80',
-          date: new Date().toLocaleDateString('fr-FR'),
-          author: 'MDMC Team'
-        }
-      ];
-      
-      setArticles(fallbackArticles);
-      console.log('🔄 Articles de fallback chargés');
+      setArticles([]); // Pas d'articles fallback - on laisse vide
     } finally {
       setLoading(false);
     }
