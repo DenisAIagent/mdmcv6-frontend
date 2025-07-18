@@ -102,6 +102,10 @@ const AdminLogin = () => {
         <div className="admin-login-footer">
           {/* Lien pour retourner à la page d'accueil publique */}
           <a href="/">{t('footer.nav_home', "Retour à l'accueil")}</a>
+          {/* Lien pour le mot de passe oublié */}
+          <a href="/admin/forgot-password" className="forgot-password-link">
+            {t('admin.forgot_password', "Mot de passe oublié ?")}
+          </a>
         </div>
       </div>
     </div>

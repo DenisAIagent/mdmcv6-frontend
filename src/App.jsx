@@ -54,10 +54,6 @@ import Articles from './components/sections/Articles';
 import Reviews from './components/sections/Reviews';
 import Contact from './components/sections/Contact';
 import AllReviews from './components/pages/AllReviews';
-import ArtistPage from './pages/public/ArtistPage';
-import SmartLinkPageNew from './pages/public/SmartLinkPageNew';
-import SmartLinkPageClean from './pages/public/SmartLinkPageClean';
-import SmartLinkSSR from './pages/public/SmartLinkSSR';
 
 // Pages de ressources légales
 import FAQ from './pages/public/resources/FAQ';
@@ -70,23 +66,21 @@ import TestPage from './pages/public/resources/TestPage';
 import TestContentValidation from './pages/public/resources/TestContentValidation';
 
 import AdminLogin from './components/admin/AdminLogin';
+import ForgotPasswordForm from './components/admin/ForgotPasswordForm';
+import ResetPasswordForm from './components/admin/ResetPasswordForm';
 import AdminPanel from './components/admin/AdminPanel';
 import ArtistListPage from './pages/admin/artists/ArtistListPage';
 import ArtistCreatePage from './pages/admin/artists/ArtistCreatePage';
 import ArtistEditPage from './pages/admin/artists/ArtistEditPage';
-import SmartlinkListPage from './pages/admin/smartlinks/SmartlinkListPage';
-import SmartlinkCreatePage from './pages/admin/smartlinks/SmartlinkCreatePage';
-import SmartlinkEditPage from './pages/admin/smartlinks/SmartlinkEditPage';
-import SmartlinkAnalyticsPage from './pages/admin/smartlinks/SmartlinkAnalyticsPage';
+import SmartLinkListPage from './pages/admin/smartlinks/SmartLinkListPage';
+import SmartLinkCreatePage from './pages/admin/smartlinks/SmartLinkCreatePage';
+import SmartLinkAnalyticsPage from './pages/admin/smartlinks/SmartLinkAnalyticsPage';
 import LandingPageGenerator from './components/admin/LandingPageGenerator';
 import WordPressConnector from './components/admin/WordPressConnector';
 import WordPressSync from './components/admin/WordPressSync';
 import ReviewManager from './components/admin/ReviewManager';
 import CampaignStatsShowcase from './components/landing/common/CampaignStatsShowcase';
-import TestSmartLinkIntegration from './test-smartlink-integration';
 import PlatformOrderManager from './components/admin/PlatformOrderManager';
-import URLManager from './components/admin/URLManager';
-import MediaPlayerTest from './components/admin/MediaPlayerTest';
 import AdminSettingsPage from './pages/admin/AdminSettingsPage';
 
 const drawerWidth = 240;
@@ -183,9 +177,6 @@ const AdminLayout = () => {
     { label: 'Avis Clients', path: '/admin/reviews', icon: <PeopleIcon /> },
     { label: 'Statistiques', path: '/admin/stats', icon: <DashboardIcon /> },
     { label: '🎛️ Ordre Plateformes', path: '/admin/platform-order', icon: <LinkIcon /> },
-    { label: '🔗 URLs & Tracking', path: '/admin/urls', icon: <LinkIcon /> },
-    { label: '🧪 Test SmartLink', path: '/admin/test-smartlink', icon: <LinkIcon /> },
-    { label: '🎧 Test Media Player', path: '/admin/test-media', icon: <LinkIcon /> },
   ];
 
   const drawer = (
@@ -282,11 +273,6 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage openSimulator={openSimulator} />} />
         <Route path="/all-reviews" element={<AllReviews />} />
-        <Route path="/artists/:slug" element={<ArtistPage />} />
-        <Route path="/s/:slug" element={<SmartLinkPageNew />} />
-        <Route path="/smartlinks/:artistSlug/:trackSlug" element={<SmartLinkPageClean />} />
-        <Route path="/smartlinks-ssr/:artistSlug/:trackSlug" element={<SmartLinkSSR />} />
-        <Route path="/smartlinks-old/:artistSlug/:trackSlug" element={<SmartLinkPageNew />} />
         
         {/* Routes des pages de ressources légales - SEO optimisées */}
         <Route path="/test" element={<TestPage />} />
@@ -299,6 +285,8 @@ function App() {
         <Route path="/ressources/cookies" element={<Cookies />} />
         
         <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/forgot-password" element={<ForgotPasswordForm />} />
+        <Route path="/admin/reset-password/:token" element={<ResetPasswordForm />} />
         <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminPanel />} />
@@ -308,20 +296,16 @@ function App() {
             <Route path="edit/:slug" element={<ArtistEditPage />} />
           </Route>
           <Route path="smartlinks" element={<Outlet />}>
-            <Route index element={<SmartlinkListPage />} />
-            <Route path="new" element={<SmartlinkCreatePage />} />
-            <Route path="edit/:smartlinkId" element={<SmartlinkEditPage />} />
-            <Route path="analytics/:id" element={<SmartlinkAnalyticsPage />} />
+            <Route index element={<SmartLinkListPage />} />
+            <Route path="create" element={<SmartLinkCreatePage />} />
+            <Route path=":id/analytics" element={<SmartLinkAnalyticsPage />} />
           </Route>
           <Route path="landing-pages" element={<LandingPageGenerator />} />
           <Route path="wordpress" element={<Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}><WordPressConnector /><WordPressSync /></Box>} />
           <Route path="reviews" element={<ReviewManager />} />
           <Route path="stats" element={<CampaignStatsShowcase />} />
           <Route path="platform-order" element={<PlatformOrderManager />} />
-          <Route path="urls" element={<URLManager />} />
           <Route path="settings" element={<AdminSettingsPage />} />
-          <Route path="test-smartlink" element={<TestSmartLinkIntegration />} />
-          <Route path="test-media" element={<MediaPlayerTest />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
