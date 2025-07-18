@@ -125,12 +125,18 @@ class RSSService {
   extractImage(item, index) {
     console.log('🔍 Extraction image pour article', index);
     
+    // Debug: afficher tout le contenu disponible
+    const contentEncoded = this.getTextContent(item, 'content:encoded');
+    const description = this.getTextContent(item, 'description');
+    
+    console.log('📋 DEBUG - content:encoded:', contentEncoded ? contentEncoded.substring(0, 500) + '...' : 'null');
+    console.log('📋 DEBUG - description:', description ? description.substring(0, 500) + '...' : 'null');
+    
     // 1. PRIORITÉ : Background-image dans les styles (spécifique aux thèmes WordPress comme le vôtre)
     const backgroundImagePattern = /background-image:\s*url\(['"]([^'"]+)['""]\)/gi;
     let match;
     
     // Chercher dans content:encoded en premier
-    const contentEncoded = this.getTextContent(item, 'content:encoded');
     if (contentEncoded) {
       console.log('🔍 Recherche background-image dans content:encoded (PRIORITÉ)...');
       while ((match = backgroundImagePattern.exec(contentEncoded)) !== null) {
@@ -147,7 +153,6 @@ class RSSService {
     }
     
     // Chercher dans description
-    const description = this.getTextContent(item, 'description');
     if (description) {
       console.log('🔍 Recherche background-image dans description (PRIORITÉ)...');
       backgroundImagePattern.lastIndex = 0; // Reset regex
