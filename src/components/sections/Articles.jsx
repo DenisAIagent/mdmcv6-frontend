@@ -204,21 +204,20 @@ class RSSService {
         const currentYear = new Date().getFullYear();
         const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
         
-        // Pattern image : multiple variations possibles
+        // Pour cet article spécifique, retourner l'URL exacte
+        if (link.includes('arretez-de-payer-pour-des-vues-construisez-une-communaute')) {
+          console.log('🖼️ Article spécifique détecté - utilisation de l\'URL image connue');
+          return 'https://blog.mdmcmusicads.com/wp-content/uploads/2025/07/promotion-clip-youtube-etude-de-cas-2-1068x570.jpeg';
+        }
+        
+        // Pattern image : slug de l'article + extension
         const possibleImageUrls = [
-          // Cas spécifique pour cet article (pattern connu)
-          `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/promotion-clip-youtube-etude-de-cas-2-1068x570.jpeg`,
-          // Patterns génériques
           `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}-1068x570.jpeg`,
           `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}-1068x570.jpg`,
           `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}.jpeg`,
           `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}.jpg`,
           `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}-2-1068x570.jpeg`,
-          `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}-2-1068x570.jpg`,
-          // Variations avec mots-clés de l'article
-          `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/promotion-clip-youtube-1068x570.jpeg`,
-          `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/etude-de-cas-1068x570.jpeg`,
-          `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/youtube-ads-1068x570.jpeg`
+          `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}-2-1068x570.jpg`
         ];
         
         console.log('🖼️ Test URL d\'image construite:', possibleImageUrls[0]);
