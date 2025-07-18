@@ -204,14 +204,21 @@ class RSSService {
         const currentYear = new Date().getFullYear();
         const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
         
-        // Pattern image : slug de l'article + extension
+        // Pattern image : multiple variations possibles
         const possibleImageUrls = [
+          // Cas spécifique pour cet article (pattern connu)
+          `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/promotion-clip-youtube-etude-de-cas-2-1068x570.jpeg`,
+          // Patterns génériques
           `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}-1068x570.jpeg`,
           `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}-1068x570.jpg`,
           `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}.jpeg`,
           `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}.jpg`,
           `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}-2-1068x570.jpeg`,
-          `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}-2-1068x570.jpg`
+          `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/${slug}-2-1068x570.jpg`,
+          // Variations avec mots-clés de l'article
+          `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/promotion-clip-youtube-1068x570.jpeg`,
+          `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/etude-de-cas-1068x570.jpeg`,
+          `https://blog.mdmcmusicads.com/wp-content/uploads/${currentYear}/${currentMonth}/youtube-ads-1068x570.jpeg`
         ];
         
         console.log('🖼️ Test URL d\'image construite:', possibleImageUrls[0]);
