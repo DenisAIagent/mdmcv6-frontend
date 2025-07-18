@@ -30,11 +30,11 @@ class ApiService {
         ...options.headers
       };
 
-      // Si BYPASS_AUTH est activé, ajouter un token de développement
+      // SÉCURITÉ: Bypass auth supprimé pour la production
       const bypassAuth = import.meta.env.VITE_BYPASS_AUTH === 'true';
-      if (bypassAuth) {
+      if (bypassAuth && import.meta.env.MODE === 'development') {
         headers['Authorization'] = 'Bearer dev-bypass-token';
-        console.log('🔓 API Request: Bypass auth activé');
+        console.log('🔓 API Request: Bypass auth activé en développement uniquement');
       }
 
       const config = {
@@ -183,11 +183,15 @@ class ApiService {
     }
   };
 
-  // SERVICE SMARTLINKS 
+
+  // SERVICE SMARTLINKS
   smartlinks = {
-    getAll: async () => {
-      console.log('🔗 SmartLinks: Récupération liste...');
-      return await this.request('/smartlinks');
+    // Gestion des SmartLinks
+    getAll: async (params = {}) => {
+      console.log('🔗 SmartLinks: Récupération liste...', params);
+      const queryString = new URLSearchParams(params).toString();
+      const endpoint = `/smartlinks${queryString ? `?${queryString}` : ''}`;
+      return await this.request(endpoint);
     },
 
     create: async (smartlinkData) => {
@@ -211,15 +215,40 @@ class ApiService {
       return await this.request(`/smartlinks/${id}`);
     },
 
-    getBySlugs: async (artistSlug, trackSlug) => {
-      console.log('🔗 SmartLinks: Récupération par slugs...', { artistSlug, trackSlug });
-      return await this.request(`/smartlinks/public/${artistSlug}/${trackSlug}`);
-    },
-
     deleteById: async (id) => {
       console.log('🔗 SmartLinks: Suppression...', id);
       return await this.request(`/smartlinks/${id}`, {
         method: 'DELETE'
+      });
+    },
+
+    publish: async (id) => {
+      console.log('🔗 SmartLinks: Publication...', id);
+      return await this.request(`/smartlinks/${id}/publish`, {
+        method: 'PUT'
+      });
+    },
+
+    unpublish: async (id) => {
+      console.log('🔗 SmartLinks: Dépublication...', id);
+      return await this.request(`/smartlinks/${id}/unpublish`, {
+        method: 'PUT'
+      });
+    },
+
+    getAnalytics: async (id, params = {}) => {
+      console.log('🔗 SmartLinks: Analytics...', { id, params });
+      const queryString = new URLSearchParams(params).toString();
+      const endpoint = `/smartlinks/${id}/analytics${queryString ? `?${queryString}` : ''}`;
+      return await this.request(endpoint);
+    },
+
+    // APIs externes
+    searchTrack: async (query) => {
+      console.log('🔍 SmartLinks: Recherche track...', query);
+      return await this.request('/smartlinks/search', {
+        method: 'POST',
+        body: JSON.stringify({ query })
       });
     },
 
@@ -228,6 +257,14 @@ class ApiService {
       return await this.request('/smartlinks/fetch-platform-links', {
         method: 'POST',
         body: JSON.stringify({ sourceUrl })
+      });
+    },
+
+    extractColors: async (imageUrl) => {
+      console.log('🎨 SmartLinks: Extraction couleurs...', imageUrl);
+      return await this.request('/smartlinks/extract-colors', {
+        method: 'POST',
+        body: JSON.stringify({ imageUrl })
       });
     }
   };
@@ -314,11 +351,6 @@ class ApiService {
       return await this.request(`/analytics/global${query ? `?${query}` : ''}`);
     },
 
-    getSmartLinkStats: async (id, params = {}) => {
-      console.log('📊 Analytics: Récupération statistiques SmartLink...', id);
-      const query = new URLSearchParams(params).toString();
-      return await this.request(`/analytics/smartlink/${id}${query ? `?${query}` : ''}`);
-    },
 
     getArtistStats: async (id, params = {}) => {
       console.log('📊 Analytics: Récupération statistiques artiste...', id);

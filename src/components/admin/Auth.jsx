@@ -72,8 +72,9 @@ const Auth = ({ onLogin }) => {
       // Simuler une requête d'authentification
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Dans une version réelle, cela ferait une requête à une API d'authentification
-      if (username === 'admin' && password === 'mdmc2025') {
+      // SÉCURITÉ: Authentification supprimée - utiliser uniquement AdminLogin.jsx
+      // Rediriger vers le système d'authentification principal
+      throw new Error('Authentification non autorisée. Utilisez le système principal.');
         // Générer un token (simulé)
         const token = 'simulated_jwt_token_' + Math.random().toString(36).substring(2);
         
