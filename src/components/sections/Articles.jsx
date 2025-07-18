@@ -125,7 +125,46 @@ class RSSService {
   extractImage(item, index) {
     console.log('🔍 Extraction image pour article', index);
     
-    // 1. Enclosure (WordPress RSS standard pour les images attachées)
+    // 1. PRIORITÉ : Background-image dans les styles (spécifique aux thèmes WordPress comme le vôtre)
+    const backgroundImagePattern = /background-image:\s*url\(['"]([^'"]+)['""]\)/gi;
+    let match;
+    
+    // Chercher dans content:encoded en premier
+    const contentEncoded = this.getTextContent(item, 'content:encoded');
+    if (contentEncoded) {
+      console.log('🔍 Recherche background-image dans content:encoded (PRIORITÉ)...');
+      while ((match = backgroundImagePattern.exec(contentEncoded)) !== null) {
+        const imageUrl = match[1];
+        if (imageUrl && imageUrl.includes('.') && 
+            !imageUrl.includes('emoji') && 
+            !imageUrl.includes('gravatar') && 
+            !imageUrl.includes('avatar') &&
+            imageUrl.length > 20) {
+          console.log('🖼️ Image trouvée dans background-image (content:encoded):', imageUrl);
+          return imageUrl;
+        }
+      }
+    }
+    
+    // Chercher dans description
+    const description = this.getTextContent(item, 'description');
+    if (description) {
+      console.log('🔍 Recherche background-image dans description (PRIORITÉ)...');
+      backgroundImagePattern.lastIndex = 0; // Reset regex
+      while ((match = backgroundImagePattern.exec(description)) !== null) {
+        const imageUrl = match[1];
+        if (imageUrl && imageUrl.includes('.') && 
+            !imageUrl.includes('emoji') && 
+            !imageUrl.includes('gravatar') && 
+            !imageUrl.includes('avatar') &&
+            imageUrl.length > 20) {
+          console.log('🖼️ Image trouvée dans background-image (description):', imageUrl);
+          return imageUrl;
+        }
+      }
+    }
+    
+    // 2. Enclosure (WordPress RSS standard pour les images attachées)
     const enclosures = Array.from(item.querySelectorAll('enclosure'));
     for (const enclosure of enclosures) {
       const type = enclosure.getAttribute('type');
@@ -136,7 +175,7 @@ class RSSService {
       }
     }
 
-    // 2. Media namespace (WordPress media RSS)
+    // 3. Media namespace (WordPress media RSS)
     const mediaContents = Array.from(item.querySelectorAll('media\\:content, media\\:thumbnail'));
     for (const mediaContent of mediaContents) {
       const type = mediaContent.getAttribute('type') || mediaContent.getAttribute('medium');
@@ -147,15 +186,14 @@ class RSSService {
       }
     }
 
-    // 3. WordPress featured image via GUID
+    // 4. WordPress featured image via GUID
     const guid = this.getTextContent(item, 'guid');
     if (guid && guid.includes('attachment_id=')) {
       console.log('🖼️ Image GUID WordPress trouvée:', guid);
       return guid;
     }
 
-    // 4. Contenu encodé (priorité aux images WordPress)
-    const contentEncoded = this.getTextContent(item, 'content:encoded');
+    // 5. Contenu encodé (balises img classiques)
     if (contentEncoded) {
       console.log('🔍 Analyse du content:encoded pour images...');
       
@@ -188,8 +226,7 @@ class RSSService {
       }
     }
 
-    // 5. Description (même logique que content:encoded)
-    const description = this.getTextContent(item, 'description');
+    // 6. Description (même logique que content:encoded)
     if (description) {
       console.log('🔍 Analyse de la description pour images...');
       
@@ -216,7 +253,7 @@ class RSSService {
       }
     }
 
-    // 6. Chercher dans tous les éléments de l'item
+    // 7. Chercher dans tous les éléments de l'item
     const allText = item.textContent || item.innerHTML || '';
     const urlPattern = /https?:\/\/[^\s]+\.(?:jpg|jpeg|png|webp|gif)(?:\?[^\s]*)?/gi;
     const urls = allText.match(urlPattern);
@@ -229,7 +266,7 @@ class RSSService {
       }
     }
 
-    // 7. Fallback thématique MDMC
+    // 8. Fallback thématique MDMC
     const fallbackImages = [
       'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=250&fit=crop&q=80', // Music marketing
       'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop&q=80', // Analytics  
