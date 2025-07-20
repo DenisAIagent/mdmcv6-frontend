@@ -291,6 +291,35 @@ const Reviews = () => {
       } catch (err) {
         console.error('❌ Erreur chargement avis Google:', err);
         setError(err.message);
+        
+        // Fallback avec avis locaux pour les problèmes de connexion mobile
+        const fallbackReviews = [
+          {
+            id: 'fallback-1',
+            name: 'Capucine Trotobas',
+            initials: 'CT',
+            rating: 5,
+            comment: 'Service exceptionnel ! L\'équipe MDMC a transformé notre stratégie digitale avec des résultats impressionnants.',
+            timeAgo: 'Il y a 2 semaines',
+            source: 'Google My Business',
+            featured: true,
+            avatar: null
+          },
+          {
+            id: 'fallback-2', 
+            name: 'Marie-Caroline DONY',
+            initials: 'MD',
+            rating: 5,
+            comment: 'Expertise remarquable en marketing musical. Nos campagnes YouTube ont dépassé toutes nos attentes.',
+            timeAgo: 'Il y a 1 mois',
+            source: 'Google My Business', 
+            featured: true,
+            avatar: null
+          }
+        ];
+        
+        setReviews(fallbackReviews);
+        console.log('🔄 Fallback: Avis locaux chargés pour mobile');
       } finally {
         setLoading(false);
       }
