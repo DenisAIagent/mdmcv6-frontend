@@ -243,14 +243,6 @@ const AdminPanel = () => {
 
   const [statsData, setStatsData] = useState([
     {
-      title: 'Total SmartLinks',
-      value: 0,
-      change: '+0%',
-      changeType: 'positive',
-      icon: <LinkIcon />,
-      color: theme.palette.primary.main,
-    },
-    {
       title: 'Artistes Actifs',
       value: 0,
       change: '+0%',
@@ -283,13 +275,6 @@ const AdminPanel = () => {
       icon: <Add />,
       color: theme.palette.primary.main,
       onClick: () => safeNavigate('/admin/artists/new'),
-    },
-    {
-      title: 'Créer SmartLink',
-      description: 'Générer un nouveau lien intelligent',
-      icon: <LinkIcon />,
-      color: theme.palette.secondary.main,
-      onClick: () => safeNavigate('/admin/smartlinks/new'),
     },
     {
       title: 'Analytics',
@@ -327,14 +312,6 @@ const AdminPanel = () => {
         
         // Mettre à jour les statistiques
         setStatsData([
-          {
-            title: 'Total SmartLinks',
-            value: stats.totalSmartLinks.value,
-            change: stats.totalSmartLinks.change,
-            changeType: stats.totalSmartLinks.changeType,
-            icon: <LinkIcon />,
-            color: theme.palette.primary.main,
-          },
           {
             title: 'Artistes Actifs',
             value: stats.activeArtists.value,
@@ -388,7 +365,7 @@ const AdminPanel = () => {
       setRecentActivities([
         {
           title: 'Aucune activité récente',
-          subtitle: 'Les données seront disponibles une fois que vous aurez créé des SmartLinks',
+          subtitle: 'Les données seront disponibles une fois que vous aurez créé du contenu',
           time: 'Maintenant',
           avatar: <MusicNote />,
           color: theme.palette.primary.main,
@@ -616,17 +593,6 @@ const AdminPanel = () => {
                     sx={{ justifyContent: 'flex-start', py: 1.5 }}
                   >
                     Gérer les Artistes
-                  </Button>
-                </Grid>
-                <Grid item xs={6} sm={3}>
-                  <Button
-                    fullWidth
-                    variant="text"
-                    startIcon={<LinkIcon />}
-                    onClick={() => safeNavigate('/admin/smartlinks')}
-                    sx={{ justifyContent: 'flex-start', py: 1.5 }}
-                  >
-                    SmartLinks
                   </Button>
                 </Grid>
                 <Grid item xs={6} sm={3}>

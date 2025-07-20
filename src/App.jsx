@@ -72,7 +72,7 @@ import AdminPanel from './components/admin/AdminPanel';
 import ArtistListPage from './pages/admin/artists/ArtistListPage';
 import ArtistCreatePage from './pages/admin/artists/ArtistCreatePage';
 import ArtistEditPage from './pages/admin/artists/ArtistEditPage';
-import SmartLinkListPage from './pages/admin/smartlinks/SmartLinkListPage';
+import SmartLinkListPage from './pages/admin/smartlinks/SmartLinkListPage.jsx';
 import SmartLinkCreatePage from './pages/admin/smartlinks/SmartLinkCreatePage';
 import SmartLinkAnalyticsPage from './pages/admin/smartlinks/SmartLinkAnalyticsPage';
 import LandingPageGenerator from './components/admin/LandingPageGenerator';

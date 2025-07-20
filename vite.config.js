@@ -22,7 +22,13 @@ export default defineConfig({
     port: 3000,
     host: "localhost",
     // Support des routes SPA avec fallback
-    proxy: {},
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5001',
+        changeOrigin: true,
+        secure: false
+      }
+    },
     cors: true,
     open: true
   },

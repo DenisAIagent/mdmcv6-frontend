@@ -1,8 +1,8 @@
 // src/config/api.config.js
 
 const API_CONFIG = {
-  // URL du backend - Production avec custom domain
-  BASE_URL: 'https://api.mdmcmusicads.com/api/v1',
+  // URL du backend - Utilise VITE_API_URL en priorité, sinon URL par défaut
+  BASE_URL: import.meta.env.VITE_API_URL || 'https://api.mdmcmusicads.com/api/v1',
   
   // Timeout pour les requêtes (10 secondes)
   TIMEOUT: 10000,
@@ -16,7 +16,7 @@ const API_CONFIG = {
   WITH_CREDENTIALS: true,
 };
 
-// Configuration pour différents environnements
+// Configuration pour différents environnements (fallback)
 const ENV_CONFIG = {
   development: {
     BASE_URL: 'http://localhost:5001/api/v1',
@@ -26,9 +26,9 @@ const ENV_CONFIG = {
   }
 };
 
-// Détecter l'environnement et ajuster la config
+// Détecter l'environnement et ajuster la config seulement si VITE_API_URL n'est pas défini
 const currentEnv = import.meta.env.MODE || 'production';
-if (ENV_CONFIG[currentEnv]) {
+if (!import.meta.env.VITE_API_URL && ENV_CONFIG[currentEnv]) {
   Object.assign(API_CONFIG, ENV_CONFIG[currentEnv]);
 }
 

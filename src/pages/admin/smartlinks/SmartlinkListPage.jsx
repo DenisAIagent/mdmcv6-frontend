@@ -1,293 +1,488 @@
-import React from 'react';
+// frontend/src/pages/admin/smartlinks/SmartLinkListPage.jsx
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
-import { Box, Container, Grid, Typography, Button, Paper } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import { DataGrid } from '@mui/x-data-grid';
+import {
+  Box,
+  Typography,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  IconButton,
+  Menu,
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  InputAdornment,
+  CircularProgress,
+  Avatar,
+  Stack,
+  Tooltip,
+  Card,
+  CardContent,
+  Grid
+} from '@mui/material';
+import {
+  Add as AddIcon,
+  MoreVert as MoreIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Analytics as AnalyticsIcon,
+  Visibility as ViewIcon,
+  Link as LinkIcon,
+  Search as SearchIcon,
+  FilterList as FilterIcon,
+  Refresh as RefreshIcon,
+  Launch as LaunchIcon
+} from '@mui/icons-material';
 import { toast } from 'react-toastify';
-import apiService from '@/services/api.service';
+import apiService from '../../../services/api.service';
 
-function SmartlinkListPage() {
+const SmartLinkListPage = () => {
   const navigate = useNavigate();
-  const [smartlinks, setSmartlinks] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState(null);
+  
+  // États
+  const [smartlinks, setSmartlinks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedSmartlink, setSelectedSmartlink] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [stats, setStats] = useState({
+    total: 0,
+    published: 0,
+    draft: 0,
+    totalViews: 0,
+    totalClicks: 0
+  });
 
-  const fetchSmartlinks = React.useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  // Charger les SmartLinks
+  const loadSmartlinks = async () => {
     try {
-      const response = await apiService.smartlinks.getAll(); 
+      setLoading(true);
+      console.log('🔄 Chargement des SmartLinks...');
       
-      // Add robust validation for API response
-      if (!response || !response.data || !Array.isArray(response.data)) {
-        console.warn('Invalid API response structure:', response);
-        setSmartlinks([]);
-        return;
-      }
+      const response = await apiService.smartlinks.getAll();
+      console.log('✅ SmartLinks chargés:', response);
       
-      const smartlinksWithId = response.data.map(sl => {
-        // Add validation for each smartlink object
-        if (!sl || typeof sl !== 'object') {
-          console.warn('Invalid smartlink object:', sl);
-          return null;
-        }
-        
-        return {
-          ...sl,
-          id: sl._id || `temp-${Date.now()}-${Math.random()}`,
-          artistName: sl.artistId?.name || 'Artiste inconnu',
-          viewCount: sl.viewCount || 0,
-          platformClickCount: sl.platformClickCount || 0,
-        };
-      }).filter(Boolean); // Remove null entries
+      const smartlinksData = response.data || response || [];
+      setSmartlinks(smartlinksData);
       
-      setSmartlinks(smartlinksWithId);
-    } catch (err) {
-      console.error("SmartlinkListPage - Failed to fetch SmartLinks:", err);
+      // Calculer les statistiques
+      const totalViews = smartlinksData.reduce((sum, sl) => sum + (sl.totalViews || 0), 0);
+      const totalClicks = smartlinksData.reduce((sum, sl) => sum + (sl.totalClicks || 0), 0);
+      const published = smartlinksData.filter(sl => sl.status === 'published').length;
+      const draft = smartlinksData.filter(sl => sl.status === 'draft').length;
       
-      // Gestion spécifique de l'erreur d'authentification
-      if (err.message?.includes('401') || err.message?.includes('Non autorisé')) {
-        const errorMsg = 'Authentification requise. Veuillez vous connecter en tant qu\'administrateur.';
-        setError(errorMsg);
-        toast.error(errorMsg);
-        // Redirection vers login après un délai
-        setTimeout(() => {
-          window.location.href = '/#/admin/login';
-        }, 2000);
-      } else {
-        const errorMsg = err.message || err.data?.error || 'Erreur serveur lors du chargement des SmartLinks.';
-        setError(errorMsg);
-        toast.error(errorMsg);
-      }
-      setSmartlinks([]);
+      setStats({
+        total: smartlinksData.length,
+        published,
+        draft,
+        totalViews,
+        totalClicks
+      });
+      
+    } catch (error) {
+      console.error('❌ Erreur chargement SmartLinks:', error);
+      toast.error('Erreur lors du chargement des SmartLinks');
     } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    loadSmartlinks();
   }, []);
 
-  React.useEffect(() => {
-    fetchSmartlinks();
-  }, [fetchSmartlinks]);
+  // Filtrer les SmartLinks
+  const filteredSmartlinks = smartlinks.filter(smartlink => {
+    const matchesSearch = 
+      smartlink.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      smartlink.artist.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'all' || smartlink.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
 
-  const handleEditClick = (id) => {
-    navigate(`/admin/smartlinks/edit/${id}`);
+  // Gérer le menu contextuel
+  const handleMenuOpen = (event, smartlink) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedSmartlink(smartlink);
   };
 
-  const handleCreateClick = () => {
-    navigate('/admin/smartlinks/new');
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedSmartlink(null);
   };
 
-  const handleViewPublicLink = (artistSlug, trackSlug) => {
-    if (!artistSlug || !trackSlug) {
-      toast.error("Slugs manquants, impossible d'ouvrir le lien.");
-      return;
+  // Actions
+  const handleEdit = (smartlink) => {
+    navigate(`/admin/smartlinks/edit/${smartlink._id}`);
+    handleMenuClose();
+  };
+
+  const handleViewAnalytics = (smartlink) => {
+    navigate(`/admin/smartlinks/${smartlink._id}/analytics`);
+    handleMenuClose();
+  };
+
+  const handleViewPublic = (smartlink) => {
+    if (smartlink.status === 'published') {
+      window.open(smartlink.publicUrl, '_blank');
+    } else {
+      toast.warning('Ce SmartLink doit être publié pour être visible');
     }
-    const publicUrl = `/#/smartlinks/${artistSlug}/${trackSlug}`; 
-    window.open(publicUrl, '_blank');
+    handleMenuClose();
   };
 
-  const handleDelete = async (id, title) => {
-    if (window.confirm(`Êtes-vous sûr de vouloir supprimer le SmartLink "${title}" ? Cette action est irréversible.`)) {
-      try {
-        setLoading(true); 
-        await apiService.smartlinks.deleteById(id);
-        toast.success(`SmartLink "${title}" supprimé avec succès.`);
-        fetchSmartlinks();
-      } catch (err) {
-        console.error("SmartlinkListPage - Failed to delete SmartLink:", err);
-        const errorMsg = err.message || err.data?.error || 'Erreur lors de la suppression du SmartLink.';
-        setError(errorMsg);
-        toast.error(errorMsg);
-      } finally {
-        setLoading(false);
+  const handleDelete = async (smartlink) => {
+    setSelectedSmartlink(smartlink);
+    setDeleteDialogOpen(true);
+    handleMenuClose();
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedSmartlink) return;
+    
+    try {
+      setDeletingId(selectedSmartlink._id);
+      await apiService.smartlinks.deleteById(selectedSmartlink._id);
+      
+      toast.success('SmartLink supprimé avec succès');
+      loadSmartlinks();
+      setDeleteDialogOpen(false);
+      setSelectedSmartlink(null);
+    } catch (error) {
+      console.error('❌ Erreur suppression:', error);
+      toast.error('Erreur lors de la suppression');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleToggleStatus = async (smartlink) => {
+    try {
+      const newStatus = smartlink.status === 'published' ? 'draft' : 'published';
+      
+      if (newStatus === 'published') {
+        await apiService.smartlinks.publish(smartlink._id);
+        toast.success('SmartLink publié avec succès');
+      } else {
+        await apiService.smartlinks.unpublish(smartlink._id);
+        toast.success('SmartLink dépublié avec succès');
       }
+      
+      loadSmartlinks();
+    } catch (error) {
+      console.error('❌ Erreur changement statut:', error);
+      toast.error('Erreur lors du changement de statut');
     }
+    handleMenuClose();
   };
 
-  const handleAnalyticsClick = (id) => {
-    navigate(`/admin/smartlinks/analytics/${id}`);
-  };
-  
-  const columns = [
-    {
-      field: 'coverImageUrl', 
-      headerName: 'Pochette', 
-      width: 80,
-      renderCell: (params) => params.value ? 
-        (<img src={params.value} alt={params.row.trackTitle} style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }} />) : 
-        <Box sx={{width: 40, height: 40, backgroundColor: 'grey.200', borderRadius: 1}} />,
-      sortable: false, 
-      filterable: false,
-    },
-    { field: 'trackTitle', headerName: 'Titre', flex: 1, minWidth: 150 },
-    { field: 'artistName', headerName: 'Artiste', flex: 0.8, minWidth: 120 },
-    {
-      field: 'isPublished', 
-      headerName: 'Statut', 
-      width: 120,
-      renderCell: (params) => (
-        <div style={{ 
-          backgroundColor: params.value ? '#4caf50' : '#9e9e9e', 
-          color: 'white',
-          padding: '4px 8px',
-          borderRadius: '4px',
-          fontSize: '0.75rem'
-        }}>
-          {params.value ? 'Publié' : 'Brouillon'}
-        </div>
-      ),
-    },
-    { field: 'viewCount', headerName: 'Vues', type: 'number', width: 100, align: 'center', headerAlign: 'center' },
-    { field: 'platformClickCount', headerName: 'Clics', type: 'number', width: 100, align: 'center', headerAlign: 'center' },
-    {
-      field: 'createdAt', 
-      headerName: 'Créé le', 
-      width: 120,
-      valueGetter: (params) => params.value && new Date(params.value),
-      renderCell: (params) => params.value && new Date(params.value).toLocaleDateString('fr-FR'),
-    },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 280,
-      renderCell: (params) => (
-        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-          <Button 
-            variant="outlined" 
-            size="small" 
-            onClick={() => handleViewPublicLink(params.row.artistId?.slug, params.row.slug)}
-            disabled={!params.row.isPublished || !params.row.artistId?.slug || !params.row.slug}
-            sx={{ minWidth: 'auto', px: 1 }}
-          >
-            Voir
-          </Button>
-          <Button 
-            variant="outlined" 
-            color="primary" 
-            size="small" 
-            onClick={() => handleEditClick(params.row.id)}
-            sx={{ minWidth: 'auto', px: 1 }}
-          >
-            Éditer
-          </Button>
-          <Button 
-            variant="outlined" 
-            color="info" 
-            size="small" 
-            onClick={() => handleAnalyticsClick(params.row.id)}
-            sx={{ minWidth: 'auto', px: 1 }}
-          >
-            Analytics
-          </Button>
-          <Button 
-            variant="outlined" 
-            color="error" 
-            size="small" 
-            onClick={() => handleDelete(params.row.id, params.row.trackTitle)}
-            sx={{ minWidth: 'auto', px: 1 }}
-          >
-            Suppr.
-          </Button>
-        </Box>
-      ),
-    },
-  ];
+  // Composant Status Chip
+  const StatusChip = ({ status }) => {
+    const getStatusConfig = (status) => {
+      switch (status) {
+        case 'published':
+          return { label: 'Publié', color: 'success' };
+        case 'draft':
+          return { label: 'Brouillon', color: 'warning' };
+        case 'archived':
+          return { label: 'Archivé', color: 'default' };
+        default:
+          return { label: status, color: 'default' };
+      }
+    };
 
-  if (loading && smartlinks.length === 0) {
+    const config = getStatusConfig(status);
+    return <Chip label={config.label} color={config.color} size="small" />;
+  };
+
+  if (loading) {
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', py: 5, minHeight: 400 }}>
-        <div style={{ width: 40, height: 40, border: '4px solid #f3f3f3', borderTop: '4px solid #3498db', borderRadius: '50%', animation: 'spin 2s linear infinite' }}></div>
-        <Typography sx={{ mt: 2 }} variant="h6">Chargement des SmartLinks...</Typography>
-        <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
+        <CircularProgress />
       </Box>
     );
   }
 
   return (
-    <>
-      <Helmet>
-        <meta name="robots" content="noindex,nofollow,noarchive,nosnippet" />
-        <meta name="googlebot" content="noindex,nofollow" />
-        <title>Gestion SmartLinks - Admin MDMC</title>
-      </Helmet>
-      <Paper sx={{ p: { xs: 1, sm: 2, md: 3 }, width: '100%', overflow: 'hidden', borderRadius: "8px", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}>
-      {error && !loading && (
-        <div style={{ 
-          backgroundColor: '#f44336', 
-          color: 'white', 
-          padding: '12px 16px', 
-          marginBottom: '16px',
-          borderRadius: '4px',
-          display: 'flex',
-          justifyContent: 'space-between'
-        }}>
-          <span>{error}</span>
-          <span style={{ cursor: 'pointer' }} onClick={() => setError(null)}>×</span>
-        </div>
-      )}
-      
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 1 }}>
-        <Typography variant="h5" component="h2" sx={{ fontWeight: 'bold' }}> 
-          Gestion des SmartLinks
+    <Box sx={{ p: 3 }}>
+      {/* Header */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4" component="h1" fontWeight="bold">
+          SmartLinks
         </Typography>
         <Button
           variant="contained"
-          color="primary"
           startIcon={<AddIcon />}
-          onClick={handleCreateClick}
-          sx={{ 
-            fontWeight: 'bold',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-            '&:hover': {
-              boxShadow: '0 6px 8px rgba(0,0,0,0.15)',
-            }
-          }}
+          onClick={() => navigate('/admin/smartlinks/create')}
+          sx={{ px: 3 }}
         >
           Nouveau SmartLink
         </Button>
       </Box>
-      
-      <Box sx={{ height: 600, width: '100%' }}>
-        <DataGrid
-          rows={Array.isArray(smartlinks) ? smartlinks : []}
-          columns={columns}
-          loading={loading}
-          pageSizeOptions={[10, 25, 50]}
-          initialState={{
-            pagination: { 
-              paginationModel: { 
-                pageSize: 10,
-                page: 0 
-              } 
-            },
-            sorting: { sortModel: [{ field: 'createdAt', sort: 'desc' }] },
-          }}
-          paginationMode="client"
-          density="standard"
-          autoHeight={false}
-          onError={(error) => {
-            console.error('DataGrid error:', error);
-            setError('Erreur d\'affichage des données');
-          }}
-          sx={{
-            '& .MuiDataGrid-cell:focus': {
-              outline: 'none',
-            },
-            '& .MuiDataGrid-row:hover': {
-              backgroundColor: 'rgba(0, 0, 0, 0.04)',
-            },
-          }}
-        />
-      </Box>
-    </Paper>
-    </>
-  );
-}
 
-export default SmartlinkListPage;
+      {/* Statistiques */}
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" color="primary">
+                {stats.total}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Total SmartLinks
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" color="success.main">
+                {stats.published}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Publiés
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" color="info.main">
+                {stats.totalViews.toLocaleString()}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Vues totales
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" color="warning.main">
+                {stats.totalClicks.toLocaleString()}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Clics totaux
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Filtres */}
+      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+        <TextField
+          size="small"
+          placeholder="Rechercher..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            )
+          }}
+          sx={{ minWidth: 250 }}
+        />
+        
+        <TextField
+          select
+          size="small"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          sx={{ minWidth: 150 }}
+        >
+          <MenuItem value="all">Tous les statuts</MenuItem>
+          <MenuItem value="published">Publié</MenuItem>
+          <MenuItem value="draft">Brouillon</MenuItem>
+          <MenuItem value="archived">Archivé</MenuItem>
+        </TextField>
+        
+        <Button
+          variant="outlined"
+          startIcon={<RefreshIcon />}
+          onClick={loadSmartlinks}
+        >
+          Actualiser
+        </Button>
+      </Box>
+
+      {/* Table */}
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>SmartLink</TableCell>
+              <TableCell>Statut</TableCell>
+              <TableCell align="center">Vues</TableCell>
+              <TableCell align="center">Clics</TableCell>
+              <TableCell align="center">Taux</TableCell>
+              <TableCell>Créé le</TableCell>
+              <TableCell align="center">Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredSmartlinks.map((smartlink) => (
+              <TableRow key={smartlink._id} hover>
+                <TableCell>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Avatar
+                      src={smartlink.artwork}
+                      alt={smartlink.title}
+                      sx={{ width: 50, height: 50 }}
+                    />
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight="medium">
+                        {smartlink.title}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {smartlink.artist}
+                      </Typography>
+                      {smartlink.subtitle && (
+                        <Typography variant="caption" color="text.secondary">
+                          {smartlink.subtitle}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+                </TableCell>
+                
+                <TableCell>
+                  <StatusChip status={smartlink.status} />
+                </TableCell>
+                
+                <TableCell align="center">
+                  {(smartlink.totalViews || 0).toLocaleString()}
+                </TableCell>
+                
+                <TableCell align="center">
+                  {(smartlink.totalClicks || 0).toLocaleString()}
+                </TableCell>
+                
+                <TableCell align="center">
+                  {smartlink.conversionRate ? `${smartlink.conversionRate}%` : '0%'}
+                </TableCell>
+                
+                <TableCell>
+                  {new Date(smartlink.createdAt).toLocaleDateString('fr-FR')}
+                </TableCell>
+                
+                <TableCell align="center">
+                  <IconButton
+                    onClick={(e) => handleMenuOpen(e, smartlink)}
+                    size="small"
+                  >
+                    <MoreIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {/* Message si aucun résultat */}
+      {filteredSmartlinks.length === 0 && (
+        <Box sx={{ textAlign: 'center', py: 8 }}>
+          <Typography variant="h6" color="text.secondary">
+            Aucun SmartLink trouvé
+          </Typography>
+          <Button
+            variant="outlined"
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/admin/smartlinks/create')}
+            sx={{ mt: 2 }}
+          >
+            Créer votre premier SmartLink
+          </Button>
+        </Box>
+      )}
+
+      {/* Menu contextuel */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
+        <MenuItem onClick={() => handleEdit(selectedSmartlink)}>
+          <EditIcon sx={{ mr: 1 }} />
+          Modifier
+        </MenuItem>
+        
+        <MenuItem onClick={() => handleViewAnalytics(selectedSmartlink)}>
+          <AnalyticsIcon sx={{ mr: 1 }} />
+          Statistiques
+        </MenuItem>
+        
+        <MenuItem onClick={() => handleViewPublic(selectedSmartlink)}>
+          <LaunchIcon sx={{ mr: 1 }} />
+          Voir public
+        </MenuItem>
+        
+        <MenuItem onClick={() => handleToggleStatus(selectedSmartlink)}>
+          <ViewIcon sx={{ mr: 1 }} />
+          {selectedSmartlink?.status === 'published' ? 'Dépublier' : 'Publier'}
+        </MenuItem>
+        
+        <MenuItem 
+          onClick={() => handleDelete(selectedSmartlink)}
+          sx={{ color: 'error.main' }}
+        >
+          <DeleteIcon sx={{ mr: 1 }} />
+          Supprimer
+        </MenuItem>
+      </Menu>
+
+      {/* Dialog de suppression */}
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>Confirmer la suppression</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Êtes-vous sûr de vouloir supprimer le SmartLink "{selectedSmartlink?.title}" ?
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            Cette action est irréversible et supprimera également toutes les statistiques associées.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>
+            Annuler
+          </Button>
+          <Button
+            onClick={confirmDelete}
+            color="error"
+            variant="contained"
+            disabled={deletingId === selectedSmartlink?._id}
+          >
+            {deletingId === selectedSmartlink?._id ? (
+              <CircularProgress size={16} />
+            ) : (
+              'Supprimer'
+            )}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+};
+
+export default SmartLinkListPage;

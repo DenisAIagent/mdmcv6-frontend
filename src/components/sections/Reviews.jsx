@@ -34,8 +34,8 @@ import {
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Import du service Airtable
-import airtableService from '../../services/airtableReviews.service';
+// Import du service Featurable pour Google My Business
+import featurableService from '../../services/featurable.service';
 
 // Composant pour une carte d'avis individuelle
 const ReviewCard = ({ review, index, delay = 0 }) => {
@@ -260,15 +260,15 @@ const Reviews = () => {
   
   const reviewsPerPage = 6;
 
-  // Test de connexion Airtable au montage
+  // Test de connexion Featurable au montage
   useEffect(() => {
-    const testAirtableConnection = async () => {
-      const result = await airtableService.testConnection();
+    const testFeaturableConnection = async () => {
+      const result = await featurableService.testConnection();
       setConnectionTest(result);
-      console.log('🔧 Test connexion Airtable:', result);
+      console.log('🔧 Test connexion Featurable:', result);
     };
 
-    testAirtableConnection();
+    testFeaturableConnection();
   }, []);
 
   // Chargement des avis
@@ -278,18 +278,18 @@ const Reviews = () => {
       setError(null);
 
       try {
-        console.log('📊 Chargement des avis clients...');
-        const reviewsData = await airtableService.getApprovedReviews();
+        console.log('📊 Chargement des avis Google My Business...');
+        const reviewsData = await featurableService.getReviews();
         
         if (reviewsData && reviewsData.length > 0) {
           setReviews(reviewsData);
-          console.log('✅ Avis chargés:', { count: reviewsData.length });
+          console.log('✅ Avis Google chargés:', { count: reviewsData.length });
         } else {
-          console.log('ℹ️ Aucun avis trouvé');
+          console.log('ℹ️ Aucun avis Google trouvé');
           setReviews([]);
         }
       } catch (err) {
-        console.error('❌ Erreur chargement avis:', err);
+        console.error('❌ Erreur chargement avis Google:', err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -317,9 +317,15 @@ const Reviews = () => {
   const handleRefresh = async () => {
     const loadReviews = async () => {
       setLoading(true);
-      const reviewsData = await airtableService.getApprovedReviews();
-      setReviews(reviewsData || []);
-      setLoading(false);
+      try {
+        const reviewsData = await featurableService.getReviews();
+        setReviews(reviewsData || []);
+        setError(null);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
     };
     loadReviews();
   };
@@ -405,7 +411,7 @@ const Reviews = () => {
               </Button>
             }
           >
-            Problème de connexion avec Airtable. Les avis seront bientôt disponibles.
+            Problème de connexion avec Google My Business. Les avis seront bientôt disponibles.
             {connectionTest && !connectionTest.success && (
               <Typography variant="caption" display="block" sx={{ mt: 1 }}>
                 Statut: {connectionTest.error || 'Configuration en cours'}

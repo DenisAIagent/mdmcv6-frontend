@@ -215,6 +215,11 @@ class ApiService {
       return await this.request(`/smartlinks/${id}`);
     },
 
+    getBySlugs: async (artistSlug, trackSlug) => {
+      console.log('🔗 SmartLinks: Récupération par slugs...', { artistSlug, trackSlug });
+      return await this.request(`/smartlinks/public/${artistSlug}/${trackSlug}`);
+    },
+
     deleteById: async (id) => {
       console.log('🔗 SmartLinks: Suppression...', id);
       return await this.request(`/smartlinks/${id}`, {

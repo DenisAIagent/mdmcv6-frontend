@@ -1,7 +1,7 @@
 // src/components/admin/AdminLogin.jsx
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import apiService from '../../services/api.service'; // Assure-toi que ce chemin est correct
 import '../../assets/styles/admin-login.css'; // Garde ton chemin de style s'il existe et est utilisé
 
@@ -62,7 +62,18 @@ const AdminLogin = () => {
           <p>{t('admin.login_subtitle', 'Accédez à votre panneau de contrôle.')}</p>
         </div>
 
-        {error && <div className="admin-login-error" style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
+        {error && (
+          <div className="admin-login-error" style={{ color: 'red', marginBottom: '1rem' }}>
+            <p>{error}</p>
+            {error.includes('401') && (
+              <p style={{ marginTop: '0.5rem', fontSize: '0.9rem' }}>
+                <Link to="/admin/forgot-password" className="forgot-password-link">
+                  → Réinitialiser votre mot de passe
+                </Link>
+              </p>
+            )}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="admin-login-form">
           <div className="form-group">
@@ -101,11 +112,11 @@ const AdminLogin = () => {
 
         <div className="admin-login-footer">
           {/* Lien pour retourner à la page d'accueil publique */}
-          <a href="/">{t('footer.nav_home', "Retour à l'accueil")}</a>
+          <Link to="/">{t('footer.nav_home', "Retour à l'accueil")}</Link>
           {/* Lien pour le mot de passe oublié */}
-          <a href="/admin/forgot-password" className="forgot-password-link">
+          <Link to="/admin/forgot-password" className="forgot-password-link">
             {t('admin.forgot_password', "Mot de passe oublié ?")}
-          </a>
+          </Link>
         </div>
       </div>
     </div>
