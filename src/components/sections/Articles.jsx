@@ -240,7 +240,7 @@ const Articles = () => {
     } catch (err) {
       console.error('❌ Articles: Erreur blog MDMC', err);
       setError(err.message);
-      setArticles([]); // Pas d'articles fallback - on laisse vide
+      setArticles([]); // Pas d'articles fallback - liste vide uniquement
     } finally {
       setLoading(false);
     }
