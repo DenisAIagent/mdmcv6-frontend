@@ -571,5 +571,11 @@ export default {
     "contact_title": "¿Preguntas sobre las cookies?",
     "contact_text": "Para cualquier pregunta sobre nuestro uso de cookies.",
     "contact_button": "Contáctenos"
+  },
+  "cookies": {
+    "message": "Utilizamos cookies para mejorar su experiencia en nuestro sitio. Al continuar navegando, acepta nuestro uso de cookies.",
+    "decline": "Rechazar",
+    "settings": "Personalizar",
+    "accept": "Aceptar todas las cookies"
   }
 }

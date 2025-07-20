@@ -604,6 +604,12 @@ export default {
     "contact_text": "Pour toute question concernant notre utilisation des cookies.",
     "contact_button": "Nous contacter"
   },
+  "cookies": {
+    "message": "Nous utilisons des cookies pour améliorer votre expérience sur notre site. En continuant votre navigation, vous acceptez notre utilisation des cookies.",
+    "decline": "Refuser",
+    "settings": "Personnaliser",
+    "accept": "Accepter tous les cookies"
+  },
   "common": {
     "submit": "Envoyer",
     "submitting": "Envoi en cours...",

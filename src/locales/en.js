@@ -572,6 +572,12 @@ export default {
     "contact_text": "For any question about our use of cookies.",
     "contact_button": "Contact us"
   },
+  "cookies": {
+    "message": "We use cookies to improve your experience on our site. By continuing your navigation, you accept our use of cookies.",
+    "decline": "Decline",
+    "settings": "Customize",
+    "accept": "Accept all cookies"
+  },
   "common": {
     "cancel": "Cancel",
     "submit": "Submit",
