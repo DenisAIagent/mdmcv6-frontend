@@ -4,8 +4,10 @@ import '../../assets/styles/articles.css';
 // Configuration du blog MDMC
 const BLOG_CONFIG = {
   BASE_URL: 'https://blog.mdmcmusicads.com',
-  // Utiliser la route wordpress existante
-  API_PROXY_URL: '/api/wordpress/blog/articles',
+  // Utiliser l'URL complète du backend en production, proxy local en dev
+  API_PROXY_URL: import.meta.env.VITE_API_URL 
+    ? `${import.meta.env.VITE_API_URL}/wordpress/blog/articles`
+    : 'https://api.mdmcmusicads.com/api/wordpress/blog/articles',
   TIMEOUT: 15000,
   USE_BACKEND_PROXY: true
 };
