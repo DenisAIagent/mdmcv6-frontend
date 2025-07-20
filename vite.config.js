@@ -2,6 +2,7 @@ import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
 import path from "path"
 
+// Force rebuild timestamp: 2025-07-08T12:35:00Z
 export default defineConfig({
   plugins: [react()],
   
@@ -21,7 +22,13 @@ export default defineConfig({
     port: 3000,
     host: "localhost",
     // Support des routes SPA avec fallback
-    proxy: {},
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5001',
+        changeOrigin: true,
+        secure: false
+      }
+    },
     cors: true,
     open: true
   },
