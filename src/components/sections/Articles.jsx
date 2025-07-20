@@ -110,41 +110,65 @@ class RSSService {
   }
 
   extractImage(item, index) {
-    console.log('🔍 Extraction image pour article', index);
+    console.log('🔍 Extraction image de couverture pour article', index);
     
-    // 1. Contenu encodé WordPress
-    const contentEncoded = this.getTextContent(item, 'content:encoded');
-    if (contentEncoded) {
-      const imgMatch = contentEncoded.match(/<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp|gif))[^>]*>/i);
-      if (imgMatch && imgMatch[1]) {
-        console.log('🖼️ Image trouvée dans content:encoded:', imgMatch[1]);
-        return imgMatch[1];
+    // 1. PRIORITÉ: Image de couverture WordPress (Featured Image)
+    // Chercher dans media:content (WordPress RSS media)
+    const mediaContents = Array.from(item.querySelectorAll('media\\:content, media\\:thumbnail'));
+    for (const mediaContent of mediaContents) {
+      const url = mediaContent.getAttribute('url');
+      const medium = mediaContent.getAttribute('medium');
+      if (url && (medium === 'image' || url.match(/\.(jpg|jpeg|png|webp|gif)$/i))) {
+        console.log('🖼️ Image de couverture trouvée dans media:content:', url);
+        return url;
       }
     }
 
-    // 2. Description
+    // 2. Enclosure (WordPress RSS Featured Image)
+    const enclosures = Array.from(item.querySelectorAll('enclosure'));
+    for (const enclosure of enclosures) {
+      const type = enclosure.getAttribute('type');
+      const url = enclosure.getAttribute('url');
+      if (type && type.startsWith('image/') && url) {
+        console.log('🖼️ Image de couverture trouvée dans enclosure:', url);
+        return url;
+      }
+    }
+
+    // 3. WordPress Featured Image dans content:encoded (première image)
+    const contentEncoded = this.getTextContent(item, 'content:encoded');
+    if (contentEncoded) {
+      // Chercher spécifiquement les images WordPress avec classes featured ou wp-image
+      const patterns = [
+        // Image WordPress avec classe wp-image ou featured
+        /<img[^>]*class="[^"]*(?:wp-image|featured|attachment)[^"]*"[^>]+src=["']([^"']+)[^>]*>/i,
+        // Image avec wp-content (WordPress uploads)
+        /<img[^>]+src=["']([^"']*wp-content[^"']*\.(jpg|jpeg|png|webp|gif))[^>]*>/i,
+        // Première image trouvée
+        /<img[^>]+src=["']([^"']+\.(jpg|jpeg|png|webp|gif))[^>]*>/i
+      ];
+      
+      for (const pattern of patterns) {
+        const imgMatch = contentEncoded.match(pattern);
+        if (imgMatch && imgMatch[1]) {
+          console.log('🖼️ Image trouvée dans content:encoded:', imgMatch[1]);
+          return imgMatch[1];
+        }
+      }
+    }
+
+    // 4. Description (dernière chance)
     const description = this.getTextContent(item, 'description');
     if (description) {
-      const imgMatch = description.match(/<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp|gif))[^>]*>/i);
+      const imgMatch = description.match(/<img[^>]+src=["']([^"']+\.(jpg|jpeg|png|webp|gif))[^>]*>/i);
       if (imgMatch && imgMatch[1]) {
         console.log('🖼️ Image trouvée dans description:', imgMatch[1]);
         return imgMatch[1];
       }
     }
 
-    // 3. Enclosure (WordPress RSS)
-    const enclosures = Array.from(item.querySelectorAll('enclosure'));
-    for (const enclosure of enclosures) {
-      const type = enclosure.getAttribute('type');
-      const url = enclosure.getAttribute('url');
-      if (type && type.startsWith('image/') && url) {
-        console.log('🖼️ Image trouvée dans enclosure:', url);
-        return url;
-      }
-    }
-
-    console.log('❌ Aucune image trouvée pour l\'article', index);
-    return null; // Pas d'image fallback comme demandé
+    console.log('❌ Aucune image de couverture trouvée pour l\'article', index);
+    return null; // Pas d'image fallback
   }
 
   getTextContent(item, selector) {
