@@ -135,23 +135,26 @@ class RSSService {
       }
     }
 
-    // 3. WordPress Featured Image dans content:encoded (première image)
+    // 3. WordPress Featured Image dans content:encoded (première image - qui est la couverture)
     const contentEncoded = this.getTextContent(item, 'content:encoded');
     if (contentEncoded) {
-      // Chercher spécifiquement les images WordPress avec classes featured ou wp-image
+      // La première image dans content:encoded est toujours l'image de couverture WordPress
+      // Chercher la première balise img avec fetchpriority="high" (image de couverture WordPress)
       const patterns = [
-        // Image WordPress avec classe wp-image ou featured
-        /<img[^>]*class="[^"]*(?:wp-image|featured|attachment)[^"]*"[^>]+src=["']([^"']+)[^>]*>/i,
-        // Image avec wp-content (WordPress uploads)
+        // Image WordPress avec fetchpriority="high" (featured image)
+        /<img[^>]*fetchpriority=["']high["'][^>]+src=["']([^"']+)[^>]*>/i,
+        // Image WordPress avec classe wp-image (première trouvée)
+        /<img[^>]*class="[^"]*wp-image[^"]*"[^>]+src=["']([^"']+)[^>]*>/i,
+        // Image dans wp-content (WordPress uploads) - première trouvée
         /<img[^>]+src=["']([^"']*wp-content[^"']*\.(jpg|jpeg|png|webp|gif))[^>]*>/i,
-        // Première image trouvée
+        // Toute première image dans le contenu
         /<img[^>]+src=["']([^"']+\.(jpg|jpeg|png|webp|gif))[^>]*>/i
       ];
       
       for (const pattern of patterns) {
         const imgMatch = contentEncoded.match(pattern);
         if (imgMatch && imgMatch[1]) {
-          console.log('🖼️ Image trouvée dans content:encoded:', imgMatch[1]);
+          console.log('🖼️ Image de couverture trouvée dans content:encoded:', imgMatch[1]);
           return imgMatch[1];
         }
       }
