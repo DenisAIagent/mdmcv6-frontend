@@ -5,8 +5,12 @@ import '../../assets/styles/articles.css';
 const BLOG_CONFIG = {
   BASE_URL: 'https://blog.mdmcmusicads.com',
   RSS_URL: 'https://blog.mdmcmusicads.com/feed/',
-  // Proxy CORS simple et fiable
-  CORS_PROXY: 'https://api.allorigins.win/raw?url=',
+  // Proxys CORS avec fallback pour robustesse
+  CORS_PROXIES: [
+    'https://api.allorigins.win/raw?url=',
+    'https://corsproxy.io/?',
+    'https://api.codetabs.com/v1/proxy?quest='
+  ],
   TIMEOUT: 15000,
   USE_BACKEND_PROXY: false // Utiliser directement le RSS avec proxy CORS
 };
@@ -14,60 +18,72 @@ const BLOG_CONFIG = {
 // Service RSS intégré
 class RSSService {
   async getLatestArticles(limit = 3) {
-    try {
-      console.log('📰 RSS: Récupération directe depuis blog MDMC...', BLOG_CONFIG.RSS_URL);
-      
-      // Utiliser le proxy CORS pour éviter les restrictions
-      const proxyUrl = `${BLOG_CONFIG.CORS_PROXY}${encodeURIComponent(BLOG_CONFIG.RSS_URL)}`;
-      console.log('🔄 RSS: Utilisation du proxy CORS...');
-      
-      const response = await fetch(proxyUrl, {
-        method: 'GET',
-        headers: { 'Accept': 'application/xml, application/rss+xml, text/xml' },
-        signal: AbortSignal.timeout(BLOG_CONFIG.TIMEOUT)
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Erreur proxy CORS: ${response.status}`);
+    console.log('📰 RSS: Récupération directe depuis blog MDMC...', BLOG_CONFIG.RSS_URL);
+    
+    // Essayer chaque proxy CORS jusqu'à ce qu'un fonctionne
+    for (let i = 0; i < BLOG_CONFIG.CORS_PROXIES.length; i++) {
+      const proxy = BLOG_CONFIG.CORS_PROXIES[i];
+      try {
+        console.log(`🔄 RSS: Tentative ${i + 1}/${BLOG_CONFIG.CORS_PROXIES.length} - ${proxy}`);
+        
+        const proxyUrl = `${proxy}${encodeURIComponent(BLOG_CONFIG.RSS_URL)}`;
+        
+        const response = await fetch(proxyUrl, {
+          method: 'GET',
+          headers: { 'Accept': 'application/xml, application/rss+xml, text/xml' },
+          signal: AbortSignal.timeout(BLOG_CONFIG.TIMEOUT)
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Erreur proxy CORS: ${response.status}`);
+        }
+
+        const xmlText = await response.text();
+        console.log(`✅ RSS: Flux récupéré via proxy ${i + 1}`);
+
+        if (xmlText.includes('<html') || xmlText.includes('<!DOCTYPE')) {
+          throw new Error('Réponse HTML au lieu de XML');
+        }
+
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+
+        const parseError = xmlDoc.querySelector('parsererror');
+        if (parseError) {
+          throw new Error('Flux RSS invalide');
+        }
+
+        const items = Array.from(xmlDoc.querySelectorAll('item')).slice(0, limit);
+        
+        if (items.length === 0) {
+          throw new Error('Aucun article trouvé dans le flux RSS');
+        }
+
+        const articles = items.map((item, index) => this.parseRSSItem(item, index));
+        
+        console.log('✅ RSS: Articles parsés avec succès', { count: articles.length, proxy: i + 1 });
+        
+        return {
+          success: true,
+          data: articles
+        };
+
+      } catch (error) {
+        console.warn(`⚠️ RSS: Proxy ${i + 1} échoué:`, error.message);
+        
+        // Si c'est le dernier proxy, on retourne l'erreur
+        if (i === BLOG_CONFIG.CORS_PROXIES.length - 1) {
+          console.error('❌ RSS: Tous les proxys ont échoué');
+          return {
+            success: false,
+            error: `Tous les proxys CORS ont échoué. Dernière erreur: ${error.message}`,
+            data: []
+          };
+        }
+        
+        // Sinon, on continue avec le proxy suivant
+        continue;
       }
-
-      const xmlText = await response.text();
-      console.log('✅ RSS: Flux récupéré depuis blog MDMC');
-
-      if (xmlText.includes('<html') || xmlText.includes('<!DOCTYPE')) {
-        throw new Error('Réponse HTML au lieu de XML');
-      }
-
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-
-      const parseError = xmlDoc.querySelector('parsererror');
-      if (parseError) {
-        throw new Error('Flux RSS invalide');
-      }
-
-      const items = Array.from(xmlDoc.querySelectorAll('item')).slice(0, limit);
-      
-      if (items.length === 0) {
-        throw new Error('Aucun article trouvé dans le flux RSS');
-      }
-
-      const articles = items.map((item, index) => this.parseRSSItem(item, index));
-      
-      console.log('✅ RSS: Articles parsés avec succès', { count: articles.length });
-      
-      return {
-        success: true,
-        data: articles
-      };
-
-    } catch (error) {
-      console.error('❌ RSS: Erreur blog MDMC', error);
-      return {
-        success: false,
-        error: error.message,
-        data: []
-      };
     }
   }
 
