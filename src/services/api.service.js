@@ -251,8 +251,9 @@ class ApiService {
       // URL du webhook n8n Railway
       const n8nWebhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://n8n-production-de00.up.railway.app/webhook-test/music-simulator-lead';
       
-      // Formatage des données pour le workflow n8n
+      // Formatage des données pour le workflow n8n (avec inscription Brevo + email notification)
       const n8nPayload = {
+        // Données principales
         artist_name: simulatorData.artistName,
         email: simulatorData.email,
         budget: parseInt(simulatorData.budget),
@@ -265,7 +266,25 @@ class ApiService {
         source: 'simulator_web',
         timestamp: new Date().toISOString(),
         platform: simulatorData.platform,
-        name: simulatorData.artistName
+        name: simulatorData.artistName,
+        
+        // Actions à déclencher dans n8n
+        actions: {
+          brevo_newsletter: true,  // Inscrire dans la newsletter Brevo
+          email_notification: true, // Envoyer email de notification à Denis
+          lead_source: 'simulateur_web' // Source du lead pour suivi
+        },
+        
+        // Données enrichies pour Brevo
+        brevo_attributes: {
+          PRENOM: simulatorData.artistName,
+          BUDGET_ESTIME: parseInt(simulatorData.budget),
+          PLATEFORME_INTERESSE: simulatorData.platform,
+          ZONE_CIBLE: simulatorData.country,
+          TYPE_CAMPAGNE: simulatorData.campaignType,
+          VUES_ESTIMEES: simulatorData.views,
+          SOURCE_INSCRIPTION: 'Simulateur MDMC'
+        }
       };
 
       console.log('📤 Simulator: Payload n8n:', n8nPayload);
