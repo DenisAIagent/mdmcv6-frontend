@@ -1,5 +1,6 @@
 import { useState, forwardRef, useImperativeHandle, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import emailjs from '@emailjs/browser';
 import apiService from '../../services/api.service';
 import '../../assets/styles/simulator.css';
 
@@ -247,37 +248,96 @@ const Simulator = forwardRef((props, ref) => {
 
   const submitResults = async (views, cpv, reach) => {
     try {
-      // 🚀 Envoi direct vers n8n
-      const webhookData = {
-        artist_name: formData.artistName,
-        email: formData.email,
-        budget: parseInt(formData.budget),
-        target_zone: formData.platform,
-        zone_cible: formData.country,
-        campaign_type: formData.campaignType,
-        views: views,
-        cpv: cpv,
-        reach: reach
-      };
-
-      console.log('🚀 Envoi vers n8n:', webhookData);
-
-      const response = await fetch('https://n8n-production-de00.up.railway.app/webhook/music-simulator-lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(webhookData)
+      // Configuration EmailJS depuis les variables d'environnement
+      const emailJSServiceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+      const emailJSTemplateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+      const emailJSPublicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+      const simulatorMethod = import.meta.env.VITE_SIMULATOR_METHOD || 'emailjs';
+      const n8nWebhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://n8n-production-de00.up.railway.app/webhook/music-simulator-lead';
+      
+      console.log('📧 Configuration EmailJS:', {
+        serviceId: emailJSServiceId ? 'Configuré' : 'Manquant',
+        templateId: emailJSTemplateId ? 'Configuré' : 'Manquant',
+        publicKey: emailJSPublicKey ? 'Configuré' : 'Manquant',
+        method: simulatorMethod
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      
+      let emailSent = false;
+      
+      // Tentative d'envoi avec EmailJS (méthode principale)
+      if (simulatorMethod === 'emailjs' && emailJSServiceId && emailJSTemplateId && emailJSPublicKey) {
+        try {
+          console.log('📧 Tentative d\'envoi avec EmailJS...');
+          
+          const templateParams = {
+            artist_name: formData.artistName,
+            email: formData.email,
+            budget: parseInt(formData.budget),
+            platform: formData.platform,
+            country: formData.country,
+            campaign_type: formData.campaignType,
+            views: views,
+            cpv: cpv,
+            reach: reach,
+            message: `Simulation effectuée pour ${formData.artistName}:\n- Plateforme: ${formData.platform}\n- Budget: ${formData.budget}$\n- Zone: ${formData.country}\n- Type: ${formData.campaignType}\n- Vues estimées: ${views}\n- CPV: ${cpv}\n- Portée: ${reach}`
+          };
+          
+          const result = await emailjs.send(
+            emailJSServiceId,
+            emailJSTemplateId,
+            templateParams,
+            emailJSPublicKey
+          );
+          
+          console.log('✅ Email envoyé avec succès via EmailJS:', result);
+          emailSent = true;
+          
+        } catch (emailError) {
+          console.warn('⚠️ Échec EmailJS, tentative de fallback vers n8n:', emailError);
+        }
+      } else {
+        console.log('⏭️ EmailJS non configuré ou méthode différente, utilisation de n8n');
       }
-
-      const result = await response.json();
-      console.log('✅ Lead envoyé vers n8n avec succès:', result);
-
+      
+      // Fallback vers n8n si EmailJS a échoué ou n'est pas configuré
+      if (!emailSent) {
+        try {
+          console.log('🚀 Tentative d\'envoi vers n8n (fallback)...');
+          
+          const webhookData = {
+            artist_name: formData.artistName,
+            email: formData.email,
+            budget: parseInt(formData.budget),
+            target_zone: formData.platform,
+            zone_cible: formData.country,
+            campaign_type: formData.campaignType,
+            views: views,
+            cpv: cpv,
+            reach: reach
+          };
+          
+          const response = await fetch(n8nWebhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(webhookData)
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const result = await response.json();
+          console.log('✅ Lead envoyé vers n8n avec succès (fallback):', result);
+          
+        } catch (n8nError) {
+          console.error('❌ Erreur lors de l\'envoi vers n8n (fallback):', n8nError);
+          // L'utilisateur voit quand même les résultats même si tous les envois échouent
+        }
+      }
+      
     } catch (error) {
-      console.error('❌ Erreur envoi vers n8n:', error);
-      // L'utilisateur voit quand même les résultats même si l'envoi échoue
+      console.error('❌ Erreur générale dans submitResults:', error);
+      // L'utilisateur voit quand même les résultats
     } finally {
       if (isMountedRef.current) {
         setSubmitting(false);
