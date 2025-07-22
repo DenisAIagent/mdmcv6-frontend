@@ -360,7 +360,7 @@ const Articles = () => {
       <div className="articles-container">
         <div className="articles-header">
           <h2>Derniers articles</h2>
-          <p>Découvrez nos insights et stratégies pour booster votre business</p>
+          <p>Découvrez nos insights et stratégies</p>
           
           {/* Indicateur articles */}
           <div className="rss-indicator">
