@@ -1,36 +1,41 @@
+# Robots.txt pour MDMC Music Ads
 User-agent: *
 Allow: /
+Allow: /smartlinks/
+Allow: /ressources/
+Allow: /services/
 
-# Bloquer les fichiers sensibles
-Disallow: /api/
-Disallow: /.env
+# Bloquer toutes les pages d'administration
 Disallow: /admin/
+Disallow: /#/admin/
+Disallow: /api/
+
+# Bloquer les fichiers techniques
+Disallow: /debug/
+Disallow: /test/
+Disallow: /.env
+Disallow: /config/
 Disallow: /private/
+
+# Bloquer les paramètres de tracking pour optimiser le crawl budget
 Disallow: /*?*utm_*
 Disallow: /*?*fbclid*
 Disallow: /*?*gclid*
-
-# Pages importantes pour le SEO musical
-Allow: /services/
-Allow: /ressources/
-Allow: /articles/
-Allow: /simulateur
-Allow: /smartlinks/
 
 # Optimisation crawl budget
 Crawl-delay: 1
 
 # Sitemap
-Sitemap: https://www.mdmcmusicads.com/sitemap.xml
+Sitemap: https://mdmcmusicads.com/sitemap.xml
 
-# Spécifique aux moteurs de recherche musicaux
+# Spécifique aux moteurs de recherche
 User-agent: Googlebot
 Allow: /
 
 User-agent: Bingbot  
 Allow: /
 
-# Bloquer les scrapers agressifs
+# Bloquer les scrapers agressifs pour préserver les performances
 User-agent: SemrushBot
 Disallow: /
 
