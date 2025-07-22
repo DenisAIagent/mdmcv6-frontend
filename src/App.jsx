@@ -46,6 +46,7 @@ import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Simulator from './components/features/Simulator';
 import CookieBanner from './components/features/CookieBanner';
+import SEOHead from './components/common/SEOHead';
 
 import Hero from './components/sections/Hero';
 import Services from './components/sections/Services';
@@ -67,6 +68,11 @@ import ConditionsGenerales from './pages/public/resources/ConditionsGenerales';
 import Cookies from './pages/public/resources/Cookies';
 import TestPage from './pages/public/resources/TestPage';
 import TestContentValidation from './pages/public/resources/TestContentValidation';
+
+// Pages services SEO-optimisées
+import YouTubeAdsMusique from './pages/services/YouTubeAdsMusique';
+import MetaAdsArtistes from './pages/services/MetaAdsArtistes';
+import TikTokPromotionMusicale from './pages/services/TikTokPromotionMusicale';
 
 import AdminLogin from './components/admin/AdminLogin';
 import AdminPanel from './components/admin/AdminPanel';
@@ -241,6 +247,13 @@ const HomePage = ({ openSimulator }) => {
   useEffect(() => { console.log("HomePage rendu"); }, []);
   return (
     <>
+      <SEOHead 
+        title="Marketing Musical Professionnel | MDMC Music Ads - Agence Promotion Artistes"
+        description="Agence marketing musical spécialisée YouTube, Meta, TikTok. Boostez vos streams, augmentez votre audience et découvrez de nouveaux fans avec nos experts en promotion d'artistes."
+        keywords="marketing musical, promotion artiste, publicité YouTube musique, campagne Meta musique, TikTok musical, augmenter streams Spotify, marketing digital label, promotion streaming, publicité artiste émergent"
+        url="https://www.mdmcmusicads.com"
+        canonicalUrl="https://www.mdmcmusicads.com/"
+      />
       <Header />
       <main>
         <Hero openSimulator={openSimulator} />
@@ -285,6 +298,11 @@ function App() {
         <Route path="/s/:slug" element={<SmartLinkPageNew />} />
         <Route path="/smartlinks/:artistSlug/:trackSlug" element={<SmartLinkPageClean />} />
         <Route path="/smartlinks-old/:artistSlug/:trackSlug" element={<SmartLinkPageNew />} />
+        
+        {/* Routes services SEO-optimisées */}
+        <Route path="/services/youtube-ads-musique" element={<YouTubeAdsMusique />} />
+        <Route path="/services/meta-ads-artistes" element={<MetaAdsArtistes />} />
+        <Route path="/services/tiktok-promotion-musicale" element={<TikTokPromotionMusicale />} />
         
         {/* Routes des pages de ressources légales - SEO optimisées */}
         <Route path="/test" element={<TestPage />} />

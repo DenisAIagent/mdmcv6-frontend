@@ -1,10 +1,22 @@
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
+import { compression } from "vite-plugin-compression"
 import path from "path"
 
-// Force rebuild timestamp: 2025-07-08T12:35:00Z
+// Force rebuild timestamp: 2025-07-22T10:00:00Z - SEO Optimizations
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // Compression gzip pour améliorer les performances
+    compression({
+      algorithm: "gzip",
+      ext: ".gz"
+    }),
+    compression({
+      algorithm: "brotliCompress", 
+      ext: ".br"
+    })
+  ],
   
   resolve: {
     alias: {
@@ -15,7 +27,25 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: false,
-    minify: "esbuild"
+    minify: "esbuild",
+    // Code splitting optimisé pour SEO
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Séparer les dépendances pour un meilleur cache
+          vendor: ["react", "react-dom"],
+          router: ["react-router-dom"],
+          ui: ["@mui/material", "@mui/icons-material"],
+          utils: ["lodash", "date-fns"],
+          forms: ["react-hook-form", "@hookform/resolvers"],
+          i18n: ["i18next", "react-i18next"],
+          analytics: ["@emailjs/browser"]
+        }
+      }
+    },
+    // Optimisation des assets
+    assetsDir: "assets",
+    chunkSizeWarningLimit: 1000
   },
   
   server: {
