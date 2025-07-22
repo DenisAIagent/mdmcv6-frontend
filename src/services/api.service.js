@@ -249,7 +249,7 @@ class ApiService {
       console.log('🎯 Simulator: Envoi vers n8n...', simulatorData);
       
       // URL du webhook n8n Railway
-      const n8nWebhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://n8n-production-de00.up.railway.app/webhook-test/music-simulator-lead';
+      const n8nWebhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://n8n-production-de00.up.railway.app/webhook/music-simulator-lead';
       
       // Formatage des données pour le workflow n8n (avec inscription Brevo + email notification)
       const n8nPayload = {

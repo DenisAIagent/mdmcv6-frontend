@@ -1,13 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link, useLocation } from 'react-router-dom';
 // Assurez-vous que le chemin vers le CSS est correct
 import '../../assets/styles/header.css';
 
 const Header = () => {
   const { t } = useTranslation();
+  const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const scrollTimeoutRef = useRef(null);
+  
+  // Détecter si on est sur la page d'accueil ou une page de ressources
+  const isHomePage = location.pathname === '/';
+  const isResourcePage = location.pathname.startsWith('/ressources/');
 
   // Menu items centralisés pour éviter duplication
   const menuItems = [
@@ -74,28 +80,50 @@ const Header = () => {
     <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
       <div className="header-container">
         <div className="logo">
-          <a href="#hero" aria-label="MDMC - Retour à l'accueil">
-            <img 
-              src="/assets/images/logo.png" 
-              alt="MDMC Logo" 
-              onError={handleLogoError}
-            />
-            <span 
-              style={{ display: 'none', fontWeight: 'bold', fontSize: '1.5rem' }}
-              aria-hidden="true"
-            >
-              MDMC
-            </span>
-          </a>
+          {isHomePage ? (
+            <a href="#hero" aria-label="MDMC - Retour à l'accueil">
+              <img 
+                src="/assets/images/logo.png" 
+                alt="MDMC Logo" 
+                onError={handleLogoError}
+              />
+              <span 
+                style={{ display: 'none', fontWeight: 'bold', fontSize: '1.5rem' }}
+                aria-hidden="true"
+              >
+                MDMC
+              </span>
+            </a>
+          ) : (
+            <Link to="/" aria-label="MDMC - Retour à l'accueil">
+              <img 
+                src="/assets/images/logo.png" 
+                alt="MDMC Logo" 
+                onError={handleLogoError}
+              />
+              <span 
+                style={{ display: 'none', fontWeight: 'bold', fontSize: '1.5rem' }}
+                aria-hidden="true"
+              >
+                MDMC
+              </span>
+            </Link>
+          )}
         </div>
 
         <nav className="nav-desktop">
           <ul>
-            {menuItems.map(({ href, key }) => (
-              <li key={key}>
-                <a href={href} onClick={handleNavLinkClick}>{t(key)}</a>
+            {isHomePage ? (
+              menuItems.map(({ href, key }) => (
+                <li key={key}>
+                  <a href={href} onClick={handleNavLinkClick}>{t(key)}</a>
+                </li>
+              ))
+            ) : (
+              <li>
+                <Link to="/" onClick={handleNavLinkClick}>{t('nav.home')}</Link>
               </li>
-            ))}
+            )}
           </ul>
         </nav>
 
@@ -112,11 +140,17 @@ const Header = () => {
 
         <nav className={`nav-mobile ${isMobileMenuOpen ? 'active' : ''}`}>
           <ul>
-            {menuItems.map(({ href, key }) => (
-              <li key={`mobile-${key}`}>
-                <a href={href} onClick={handleNavLinkClick}>{t(key)}</a>
+            {isHomePage ? (
+              menuItems.map(({ href, key }) => (
+                <li key={`mobile-${key}`}>
+                  <a href={href} onClick={handleNavLinkClick}>{t(key)}</a>
+                </li>
+              ))
+            ) : (
+              <li key="mobile-home">
+                <Link to="/" onClick={handleNavLinkClick}>{t('nav.home')}</Link>
               </li>
-            ))}
+            )}
           </ul>
         </nav>
       </div>

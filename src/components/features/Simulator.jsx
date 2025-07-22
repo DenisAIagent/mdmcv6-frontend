@@ -246,17 +246,38 @@ const Simulator = forwardRef((props, ref) => {
   };
 
   const submitResults = async (views, cpv, reach) => {
-    // Pas besoin de setSubmitting(true) ici, déjà fait dans calculateResults
     try {
-      const simulatorData = {
-        artistName: formData.artistName, email: formData.email, platform: formData.platform,
-        campaignType: formData.campaignType, budget: formData.budget, country: formData.country,
-        views, cpv, reach
+      // 🚀 Envoi direct vers n8n
+      const webhookData = {
+        artist_name: formData.artistName,
+        email: formData.email,
+        budget: parseInt(formData.budget),
+        target_zone: formData.platform,
+        zone_cible: formData.country,
+        campaign_type: formData.campaignType,
+        views: views,
+        cpv: cpv,
+        reach: reach
       };
-      await apiService.submitSimulatorResults(simulatorData);
+
+      console.log('🚀 Envoi vers n8n:', webhookData);
+
+      const response = await fetch('https://n8n-production-de00.up.railway.app/webhook/music-simulator-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(webhookData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('✅ Lead envoyé vers n8n avec succès:', result);
+
     } catch (error) {
-      console.error('Erreur lors de la soumission des résultats du simulateur:', error);
-      // Afficher une notification d'erreur à l'utilisateur si nécessaire
+      console.error('❌ Erreur envoi vers n8n:', error);
+      // L'utilisateur voit quand même les résultats même si l'envoi échoue
     } finally {
       if (isMountedRef.current) {
         setSubmitting(false);
