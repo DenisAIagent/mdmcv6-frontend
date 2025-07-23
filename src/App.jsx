@@ -75,6 +75,7 @@ import TestContentValidation from './pages/public/resources/TestContentValidatio
 import YouTubeAdsMusique from './pages/services/YouTubeAdsMusique';
 import MetaAdsArtistes from './pages/services/MetaAdsArtistes';
 import TikTokPromotionMusicale from './pages/services/TikTokPromotionMusicale';
+import SimulateurPage from './pages/SimulateurPage';
 
 import AdminLogin from './components/admin/AdminLogin';
 import AdminPanel from './components/admin/AdminPanel';
@@ -312,6 +313,9 @@ function App() {
         <Route path="/services/youtube-ads-musique" element={<YouTubeAdsMusique />} />
         <Route path="/services/meta-ads-artistes" element={<MetaAdsArtistes />} />
         <Route path="/services/tiktok-promotion-musicale" element={<TikTokPromotionMusicale />} />
+        
+        {/* Page simulateur dédiée */}
+        <Route path="/simulateur" element={<SimulateurPage />} />
         
         {/* Routes des pages de ressources légales - SEO optimisées */}
         <Route path="/test" element={<TestPage />} />
