@@ -17,6 +17,7 @@ import './assets/styles/animations.css';
 
 import apiService from './services/api.service';
 import { updateMetaTags } from './i18n';
+import facebookPixel from './services/facebookPixel.service';
 
 import {
   CircularProgress,
@@ -281,6 +282,10 @@ function App() {
       const ogLocaleValue = i18n.language.replace('-', '_');
       const ogLocaleElement = document.querySelector('meta[property="og:locale"]');
       if (ogLocaleElement) ogLocaleElement.setAttribute('content', ogLocaleValue);
+      
+      // Initialiser Facebook Pixel
+      facebookPixel.init();
+      facebookPixel.pageView();
     } catch (error) {
       console.warn('Failed to update meta tags:', error);
     }

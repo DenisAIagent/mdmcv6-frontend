@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SEOHead from '../../components/common/SEOHead';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
+import facebookPixel from '../../services/facebookPixel.service';
 import '../../assets/styles/service-page.css';
 
 const YouTubeAdsMusique = () => {
+  useEffect(() => {
+    facebookPixel.trackServicePageView('YouTube Ads Musique');
+  }, []);
+
   const serviceSchema = {
     "@context": "https://schema.org",
     "@type": "Service",

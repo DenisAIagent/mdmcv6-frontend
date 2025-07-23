@@ -2,6 +2,7 @@ import { useState, forwardRef, useImperativeHandle, useEffect, useRef } from 're
 import { useTranslation } from 'react-i18next';
 import emailjs from '@emailjs/browser';
 import apiService from '../../services/api.service';
+import facebookPixel from '../../services/facebookPixel.service';
 import '../../assets/styles/simulator.css';
 
 // Liens Calendly pour chaque plateforme
@@ -126,6 +127,7 @@ const Simulator = forwardRef((props, ref) => {
   useImperativeHandle(ref, () => ({
     openSimulator: () => {
       setIsOpen(true);
+      facebookPixel.trackSimulatorStart();
     }
   }));
 
@@ -242,6 +244,14 @@ const Simulator = forwardRef((props, ref) => {
       });
 
       submitResults(viewsFormatted, costRangeFormatted, reachFormatted); // submitResults gère setSubmitting(false)
+      
+      // Tracker la completion du simulateur
+      facebookPixel.trackSimulatorComplete(formData, {
+        views: viewsFormatted,
+        cpv: costRangeFormatted,
+        reach: reachFormatted
+      });
+      
       setCurrentStep(6);
     }
   };
