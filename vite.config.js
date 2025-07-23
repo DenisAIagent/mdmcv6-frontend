@@ -1,6 +1,6 @@
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
-import { compression } from "vite-plugin-compression"
+import viteCompression from "vite-plugin-compression"
 import path from "path"
 
 // Force rebuild timestamp: 2025-07-22T10:00:00Z - SEO Optimizations
@@ -8,11 +8,11 @@ export default defineConfig({
   plugins: [
     react(),
     // Compression gzip pour améliorer les performances
-    compression({
+    viteCompression({
       algorithm: "gzip",
       ext: ".gz"
     }),
-    compression({
+    viteCompression({
       algorithm: "brotliCompress", 
       ext: ".br"
     })
