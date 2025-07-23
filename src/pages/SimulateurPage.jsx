@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import SEOHead from '../components/common/SEOHead';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
-import SimulatorOptimized from '../components/features/SimulatorOptimized';
+import Simulator from '../components/features/Simulator';
 import facebookPixel from '../services/facebookPixel.service';
 import gtm from '../services/googleTagManager.service';
 import '../assets/styles/simulator-page.css';
@@ -404,7 +404,7 @@ const SimulateurPage = () => {
       <Footer />
       
       {/* Simulateur en overlay */}
-      <SimulatorOptimized ref={simulatorRef} />
+      <Simulator ref={simulatorRef} />
     </>
   );
 };
