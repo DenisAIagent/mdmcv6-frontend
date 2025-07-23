@@ -114,7 +114,8 @@ const Simulator = forwardRef((props, ref) => {
   const [results, setResults] = useState({
     views: null,
     cpv: null,
-    reach: null
+    reach: null,
+    subscribers: null
   });
   const [submitting, setSubmitting] = useState(false);
   const isMountedRef = useRef(true);
@@ -138,7 +139,7 @@ const Simulator = forwardRef((props, ref) => {
     setCurrentStep(1);
     setFormData({ platform: '', budget: '', country: '', campaignType: '', artistName: '', email: '' });
     setErrors({});
-    setResults({ views: null, cpv: null, reach: null });
+    setResults({ views: null, cpv: null, reach: null, subscribers: null });
   };
 
   const handleChange = (e) => {
@@ -222,36 +223,43 @@ const Simulator = forwardRef((props, ref) => {
       }
 
       const avgCost = (costData.min + costData.max) / 2;
-      let views, reach;
+      let views, reach, subscribers;
 
       if (costData.unit === "CPV") {
         views = Math.round(budget / avgCost);
         reach = Math.round(views * 2.5);
+        // Calcul abonnés YouTube (coût par abonné entre 0.12€ et 0.49€)
+        const avgSubscriberCost = (0.12 + 0.49) / 2; // 0.305€ en moyenne
+        subscribers = Math.round(budget / avgSubscriberCost);
       } else if (costData.unit === "CPM") {
         const impressions = (budget / avgCost) * 1000;
         views = Math.round(impressions * 0.3);
         reach = Math.round(impressions);
+        subscribers = null; // Pas d'abonnés pour Meta/TikTok
       } else {
-        views = 0; reach = 0;
+        views = 0; reach = 0; subscribers = null;
       }
 
       const viewsFormatted = views.toLocaleString();
       const costRangeFormatted = `${costData.min.toFixed(3)} - ${costData.max.toFixed(3)} $ (${costData.unit})`;
       const reachFormatted = reach.toLocaleString();
+      const subscribersFormatted = subscribers ? subscribers.toLocaleString() : null;
 
       setResults({
         views: viewsFormatted,
         cpv: costRangeFormatted,
-        reach: reachFormatted
+        reach: reachFormatted,
+        subscribers: subscribersFormatted
       });
 
-      submitResults(viewsFormatted, costRangeFormatted, reachFormatted); // submitResults gère setSubmitting(false)
+      submitResults(viewsFormatted, costRangeFormatted, reachFormatted, subscribersFormatted); // submitResults gère setSubmitting(false)
       
       // Tracker la completion du simulateur
       const resultsData = {
         views: viewsFormatted,
         cpv: costRangeFormatted,
-        reach: reachFormatted
+        reach: reachFormatted,
+        subscribers: subscribersFormatted
       };
       
       facebookPixel.trackSimulatorComplete(formData, resultsData);
@@ -261,7 +269,7 @@ const Simulator = forwardRef((props, ref) => {
     }
   };
 
-  const submitResults = async (views, cpv, reach) => {
+  const submitResults = async (views, cpv, reach, subscribers = null) => {
     try {
       // Configuration depuis les variables d'environnement
       const emailJSServiceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
@@ -281,7 +289,8 @@ const Simulator = forwardRef((props, ref) => {
         campaign_type: formData.campaignType,
         views: views,
         cpv: cpv,
-        reach: reach
+        reach: reach,
+        subscribers: subscribers
       };
       
       // Créer les promesses pour les deux envois simultanés
@@ -294,7 +303,7 @@ const Simulator = forwardRef((props, ref) => {
           emailJSTemplateId,
           {
             ...commonData,
-            message: `Simulation effectuée pour ${formData.artistName}:\n- Plateforme: ${formData.platform}\n- Budget: ${formData.budget}$\n- Zone: ${formData.country}\n- Type: ${formData.campaignType}\n- Vues estimées: ${views}\n- CPV: ${cpv}\n- Portée: ${reach}`
+            message: `Simulation effectuée pour ${formData.artistName}:\n- Plateforme: ${formData.platform}\n- Budget: ${formData.budget}$\n- Zone: ${formData.country}\n- Type: ${formData.campaignType}\n- Vues estimées: ${views}\n- CPV: ${cpv}\n- Portée: ${reach}${subscribers ? `\n- Abonnés estimés: ${subscribers}` : ''}`
           },
           emailJSPublicKey
         ).then(result => ({ type: 'emailjs', success: true, result }))
@@ -313,7 +322,8 @@ const Simulator = forwardRef((props, ref) => {
         body: JSON.stringify({
           ...commonData,
           target_zone: commonData.platform,
-          zone_cible: commonData.country
+          zone_cible: commonData.country,
+          subscribers: subscribers
         })
       }).then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -522,6 +532,12 @@ const Simulator = forwardRef((props, ref) => {
                 <span>{t('simulator.results_reach_label')}</span>
                 <span className="result-value" id="result-reach">{results.reach || '--'}</span>
               </div>
+              {formData.platform === 'youtube' && results.subscribers && (
+                <div className="result-item">
+                  <span>{t('simulator.results_subscribers_label', 'Abonnés estimés')}</span>
+                  <span className="result-value" id="result-subscribers">{results.subscribers}</span>
+                </div>
+              )}
               <p className="results-disclaimer">{t('simulator.results_disclaimer')}</p>
             </div>
             <div className="form-buttons">
