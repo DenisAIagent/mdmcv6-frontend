@@ -110,7 +110,7 @@
   align-items: center;
   text-align: center;
   flex: 1;
-  min-width: 200px;
+  min-width: 180px;
 }
 
 .stat-number {
@@ -122,10 +122,12 @@
 }
 
 .stat-label {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
+  line-height: 1.2;
 }
 
 @media (max-width: 768px) {
@@ -150,5 +152,36 @@
 
   .hero-stats {
     justify-content: center; /* Stats centrées sur mobile */
+    gap: 1rem; /* Réduit l'espacement sur mobile */
+  }
+  
+  .stat-item {
+    min-width: 140px; /* Largeur minimum réduite sur mobile */
+  }
+  
+  .stat-number {
+    font-size: 2rem; /* Taille réduite sur mobile */
+  }
+  
+  .stat-label {
+    font-size: 0.75rem; /* Plus petit sur mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-stats {
+    gap: 0.5rem; /* Encore moins d'espace sur très petits écrans */
+  }
+  
+  .stat-item {
+    min-width: 100px; /* Très compact sur petit écran */
+  }
+  
+  .stat-number {
+    font-size: 1.5rem;
+  }
+  
+  .stat-label {
+    font-size: 0.7rem;
   }
 }
