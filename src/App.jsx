@@ -18,6 +18,7 @@ import './assets/styles/animations.css';
 import apiService from './services/api.service';
 import { updateMetaTags } from './i18n';
 import facebookPixel from './services/facebookPixel.service';
+import gtm from './services/googleTagManager.service';
 
 import {
   CircularProgress,
@@ -286,6 +287,9 @@ function App() {
       // Initialiser Facebook Pixel
       facebookPixel.init();
       facebookPixel.pageView();
+      
+      // Initialiser Google Tag Manager
+      gtm.init();
     } catch (error) {
       console.warn('Failed to update meta tags:', error);
     }

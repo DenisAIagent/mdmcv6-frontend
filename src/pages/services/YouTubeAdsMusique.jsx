@@ -4,11 +4,14 @@ import SEOHead from '../../components/common/SEOHead';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import facebookPixel from '../../services/facebookPixel.service';
+import gtm from '../../services/googleTagManager.service';
 import '../../assets/styles/service-page.css';
 
 const YouTubeAdsMusique = () => {
   useEffect(() => {
-    facebookPixel.trackServicePageView('YouTube Ads Musique');
+    const serviceName = 'YouTube Ads Musique';
+    facebookPixel.trackServicePageView(serviceName);
+    gtm.trackServicePageView(serviceName);
   }, []);
 
   const serviceSchema = {

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import emailjs from '@emailjs/browser';
 import apiService from '../../services/api.service';
 import facebookPixel from '../../services/facebookPixel.service';
+import gtm from '../../services/googleTagManager.service';
 import '../../assets/styles/simulator.css';
 
 // Liens Calendly pour chaque plateforme
@@ -128,6 +129,7 @@ const Simulator = forwardRef((props, ref) => {
     openSimulator: () => {
       setIsOpen(true);
       facebookPixel.trackSimulatorStart();
+      gtm.trackSimulatorStart();
     }
   }));
 
@@ -246,11 +248,14 @@ const Simulator = forwardRef((props, ref) => {
       submitResults(viewsFormatted, costRangeFormatted, reachFormatted); // submitResults gère setSubmitting(false)
       
       // Tracker la completion du simulateur
-      facebookPixel.trackSimulatorComplete(formData, {
+      const resultsData = {
         views: viewsFormatted,
         cpv: costRangeFormatted,
         reach: reachFormatted
-      });
+      };
+      
+      facebookPixel.trackSimulatorComplete(formData, resultsData);
+      gtm.trackSimulatorComplete(formData, resultsData);
       
       setCurrentStep(6);
     }
