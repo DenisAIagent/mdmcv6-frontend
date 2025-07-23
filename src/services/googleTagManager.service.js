@@ -1,6 +1,6 @@
 class GoogleTagManagerService {
   constructor() {
-    this.gtmId = 'GTM-PFSK4LJZ';
+    this.gtmIds = ['GTM-PFSK4LJZ', 'GTM-W485T7VB'];
     this.isInitialized = false;
   }
 
@@ -10,7 +10,7 @@ class GoogleTagManagerService {
     // Vérifier que GTM est chargé
     if (window.dataLayer) {
       this.isInitialized = true;
-      console.log('🏷️ Google Tag Manager initialisé:', this.gtmId);
+      console.log('🏷️ Google Tag Manager initialisé avec containers:', this.gtmIds);
     }
   }
 
@@ -23,7 +23,7 @@ class GoogleTagManagerService {
       ...eventData
     });
 
-    console.log('🏷️ GTM Event envoyé:', eventName, eventData);
+    console.log('🏷️ GTM Event envoyé aux 2 containers:', eventName, eventData);
   }
 
   // Events spécifiques MDMC Music Ads
