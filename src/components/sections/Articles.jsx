@@ -356,7 +356,7 @@ const Articles = () => {
 
   // État normal avec articles RSS de Railway
   return (
-    <section className="articles-section">
+    <section id="articles" className="articles-section">
       <div className="articles-container">
         <div className="articles-header">
           <h2>Derniers articles</h2>
