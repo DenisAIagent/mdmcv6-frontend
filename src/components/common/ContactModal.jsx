@@ -143,12 +143,10 @@ const ContactModal = ({ isOpen, onClose, title = "Demander un accompagnement", c
                     required
                   >
                     <option value="">Sélectionnez un sujet</option>
-                    <option value="explication-termes">Explication de termes techniques</option>
-                    <option value="strategie-campagne">Stratégie de campagne</option>
-                    <option value="audit-gratuit">Audit gratuit de mes campagnes</option>
-                    <option value="devis-personnalise">Devis personnalisé</option>
-                    <option value="formation-equipe">Formation de mon équipe</option>
-                    <option value="autre">Autre demande</option>
+                    <option value="devis">Demande de devis</option>
+                    <option value="formation">Demande de formation</option>
+                    <option value="medias">Demande médias</option>
+                    <option value="rgpd">RGPD</option>
                   </select>
                 </div>
 
