@@ -65,9 +65,29 @@ const Header = () => {
     };
   }, [isMobileMenuOpen]);
 
-  // Fermer le menu mobile lors du clic sur un lien
-  const handleNavLinkClick = () => {
+  // Navigation vers les sections avec smooth scroll
+  const scrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId.replace('#', ''));
+    if (element) {
+      const headerHeight = 60; // Hauteur du header fixe
+      const offsetTop = element.offsetTop - headerHeight;
+      
+      window.scrollTo({
+        top: offsetTop,
+        behavior: 'smooth'
+      });
+    }
     setIsMobileMenuOpen(false);
+  };
+
+  // Fermer le menu mobile lors du clic sur un lien
+  const handleNavLinkClick = (e, href) => {
+    if (href && href.startsWith('#')) {
+      e.preventDefault();
+      scrollToSection(href);
+    } else {
+      setIsMobileMenuOpen(false);
+    }
   };
 
   // Gestion fallback logo si image manquante
@@ -116,7 +136,7 @@ const Header = () => {
             {isHomePage ? (
               menuItems.map(({ href, key }) => (
                 <li key={key}>
-                  <a href={href} onClick={handleNavLinkClick}>{t(key)}</a>
+                  <a href={href} onClick={(e) => handleNavLinkClick(e, href)}>{t(key)}</a>
                 </li>
               ))
             ) : (
@@ -143,7 +163,7 @@ const Header = () => {
             {isHomePage ? (
               menuItems.map(({ href, key }) => (
                 <li key={`mobile-${key}`}>
-                  <a href={href} onClick={handleNavLinkClick}>{t(key)}</a>
+                  <a href={href} onClick={(e) => handleNavLinkClick(e, href)}>{t(key)}</a>
                 </li>
               ))
             ) : (
