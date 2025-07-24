@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowForge v2.1 - Plateforme d'Automatisation avec Pipedream</title>
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --primary-blue-dark: #1d4ed8;
+            --secondary-gray: #64748b;
+            --success-green: #059669;
+            --error-red: #dc2626;
+            --warning-orange: #d97706;
+            --bg-light: #f8fafc;
+            --surface-white: #ffffff;
+            --border-gray: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: var(--surface-white);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-healthy {
+            background-color: #dcfce7;
+            color: var(--success-green);
+        }
+
+        .status-degraded {
+            background-color: #fef3c7;
+            color: var(--warning-orange);
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: 2rem;
+            margin: 2rem 0;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .nav-tab {
+            padding: 0.75rem 0;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .nav-tab:hover,
+        .nav-tab.active {
+            color: var(--primary-blue);
+            border-bottom-color: var(--primary-blue);
+        }
+
+        .nav-tab .emoji {
+            margin-right: 0.5rem;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            background: var(--surface-white);
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .section-description {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        /* Integration Cards */
+        .integration-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .integration-category {
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .category-header {
+            padding: 1rem;
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border-gray);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .category-content {
+            padding: 1rem;
+        }
+
+        .integration-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .integration-item:last-child {
+            border-bottom: none;
+        }
+
+        .integration-info h4 {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .integration-info p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .integration-source {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .source-native {
+            background: #dbeafe;
+            color: var(--primary-blue);
+        }
+
+        .source-pipedream {
+            background: #f3e8ff;
+            color: #7c3aed;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-blue-dark);
+        }
+
+        .btn-secondary {
+            background: var(--bg-light);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-gray);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface-white);
+            color: var(--text-primary);
+        }
+
+        .btn-success {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .btn-small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            background: var(--surface-white);
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Loading states */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border-gray);
+            border-radius: 50%;
+            border-top-color: var(--primary-blue);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .integration-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">⚡ FlowForge v2.1</div>
+                <div id="status-badge" class="status-badge status-healthy">
+                    <span class="loading"></span> Initialisation...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <nav class="nav-tabs">
+            <div class="nav-tab active" data-section="overview">
+                <span class="emoji">🏠</span> Vue d'ensemble
+            </div>
+            <div class="nav-tab" data-section="integrations">
+                <span class="emoji">🔗</span> Intégrations
+            </div>
+            <div class="nav-tab" data-section="pipedream">
+                <span class="emoji">⚡</span> Composants Pipedream
+            </div>
+            <div class="nav-tab" data-section="workflows">
+                <span class="emoji">🔄</span> Workflows
+            </div>
+            <div class="nav-tab" data-section="stats">
+                <span class="emoji">📊</span> Statistiques
+            </div>
+        </nav>
+
+        <!-- Vue d'ensemble -->
+        <section id="overview" class="content-section active">
+            <h2 class="section-title">Bienvenue dans FlowForge v2.1</h2>
+            <p class="section-description">
+                FlowForge est maintenant alimenté par l'écosystème <strong>Pipedream</strong> avec accès à plus de 1000 composants d'intégration open source.
+            </p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-integrations">-</div>
+                    <div class="stat-label">Intégrations Disponibles</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="pipedream-components">-</div>
+                    <div class="stat-label">Composants Pipedream</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="active-workflows">-</div>
+                    <div class="stat-label">Workflows Actifs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-executions">-</div>
+                    <div class="stat-label">Exécutions Totales</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <h3 style="margin-bottom: 1rem;">🆕 Nouvelles Fonctionnalités v2.1</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-gray);">
+                        ⚡ <strong>Intégration Pipedream</strong> - Accès à 1000+ composants d'automatisation
+                    </li>
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-gray);">
+                        🔀 <strong>Workflows Complexes</strong> - Support des branches et conditions avancées
+                    </li>
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-gray);">
+                        🎯 <strong>Exécution Hybride</strong> - Composants natifs + Pipedream dans le même workflow
+                    </li>
+                    <li style="padding: 0.5rem 0;">
+                        📊 <strong>Monitoring Avancé</strong> - Suivi détaillé des exécutions et performances
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Intégrations -->
+        <section id="integrations" class="content-section">
+            <h2 class="section-title">Intégrations Disponibles</h2>
+            <p class="section-description">
+                Configurez vos services et connecteurs pour automatiser vos workflows.
+            </p>
+
+            <div class="integration-grid" id="integrations-grid">
+                <div class="empty-state">
+                    <div class="empty-state-icon">⏳</div>
+                    <p>Chargement des intégrations...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Composants Pipedream -->
+        <section id="pipedream" class="content-section">
+            <h2 class="section-title">Composants Pipedream</h2>
+            <p class="section-description">
+                Explorez les composants open source Pipedream disponibles pour vos workflows.
+            </p>
+
+            <div id="pipedream-components-list">
+                <div class="empty-state">
+                    <div class="empty-state-icon">⏳</div>
+                    <p>Chargement des composants Pipedream...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Workflows -->
+        <section id="workflows" class="content-section">
+            <h2 class="section-title">Gestionnaire de Workflows</h2>
+            <p class="section-description">
+                Créez et gérez vos workflows d'automatisation avec les composants Pipedream.
+            </p>
+
+            <div style="margin-bottom: 2rem;">
+                <button class="btn btn-primary" onclick="createTestWorkflow()">
+                    <span>🧪</span> Créer un Workflow de Test
+                </button>
+                <button class="btn btn-secondary" onclick="refreshWorkflows()">
+                    <span>🔄</span> Actualiser
+                </button>
+            </div>
+
+            <div id="workflows-list">
+                <div class="empty-state">
+                    <div class="empty-state-icon">🔄</div>
+                    <p>Aucun workflow configuré</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistiques -->
+        <section id="stats" class="content-section">
+            <h2 class="section-title">Statistiques et Monitoring</h2>
+            <p class="section-description">
+                Surveillez les performances et l'utilisation de votre plateforme FlowForge.
+            </p>
+
+            <div class="stats-grid" id="detailed-stats">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📊</div>
+                    <p>Chargement des statistiques...</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // État global de l'application
+        const app = {
+            currentSection: 'overview',
+            integrations: {},
+            pipedreamComponents: [],
+            stats: {}
+        };
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', async () => {
+            setupNavigation();
+            await checkSystemHealth();
+            await loadData();
+        });
+
+        // Navigation entre les sections
+        function setupNavigation() {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const sectionId = tab.dataset.section;
+                    switchSection(sectionId);
+                });
+            });
+        }
+
+        function switchSection(sectionId) {
+            // Mettre à jour les onglets
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.section === sectionId);
+            });
+
+            // Mettre à jour les sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.toggle('active', section.id === sectionId);
+            });
+
+            app.currentSection = sectionId;
+
+            // Charger les données spécifiques à la section si nécessaire
+            switch (sectionId) {
+                case 'integrations':
+                    loadIntegrations();
+                    break;
+                case 'pipedream':
+                    loadPipedreamComponents();
+                    break;
+                case 'stats':
+                    loadDetailedStats();
+                    break;
+            }
+        }
+
+        // Vérification de l'état du système
+        async function checkSystemHealth() {
+            try {
+                const response = await fetch('/health');
+                const health = await response.json();
+                
+                const statusBadge = document.getElementById('status-badge');
+                statusBadge.innerHTML = `✅ ${health.status.toUpperCase()}`;
+                statusBadge.className = `status-badge status-${health.status}`;
+                
+            } catch (error) {
+                const statusBadge = document.getElementById('status-badge');
+                statusBadge.innerHTML = '❌ ERREUR';
+                statusBadge.className = 'status-badge status-degraded';
+            }
+        }
+
+        // Chargement des données initiales
+        async function loadData() {
+            await Promise.all([
+                loadIntegrations(),
+                loadStats(),
+            ]);
+        }
+
+        // Chargement des intégrations
+        async function loadIntegrations() {
+            try {
+                const response = await fetch('/v1/integrations/available');
+                const data = await response.json();
+                
+                if (data.success) {
+                    app.integrations = data.data;
+                    renderIntegrations();
+                    updateOverviewStats();
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des intégrations:', error);
+                showIntegrationsError();
+            }
+        }
+
+        // Rendu des intégrations
+        function renderIntegrations() {
+            const grid = document.getElementById('integrations-grid');
+            const categories = app.integrations;
+            
+            if (Object.keys(categories).length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📦</div>
+                        <p>Aucune intégration disponible</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = '';
+            
+            Object.entries(categories).forEach(([categoryKey, category]) => {
+                if (category.integrations.length === 0) return;
+                
+                const categoryCard = document.createElement('div');
+                categoryCard.className = 'integration-category';
+                
+                categoryCard.innerHTML = `
+                    <div class="category-header">
+                        <span>${category.icon}</span>
+                        <span>${category.name}</span>
+                        <span style="margin-left: auto; font-size: 0.875rem; color: var(--text-secondary);">
+                            ${category.integrations.length}
+                        </span>
+                    </div>
+                    <div class="category-content">
+                        ${category.integrations.map(integration => `
+                            <div class="integration-item">
+                                <div class="integration-info">
+                                    <h4>${integration.displayName}</h4>
+                                    <p>${integration.description}</p>
+                                </div>
+                                <div>
+                                    <span class="integration-source source-${integration.source}">
+                                        ${integration.source === 'pipedream' ? 'Pipedream' : 'Natif'}
+                                    </span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                grid.appendChild(categoryCard);
+            });
+        }
+
+        // Chargement des composants Pipedream
+        async function loadPipedreamComponents() {
+            const container = document.getElementById('pipedream-components-list');
+            
+            // Extraire les composants Pipedream des intégrations
+            const pipedreamComponents = [];
+            Object.values(app.integrations).forEach(category => {
+                category.integrations.forEach(integration => {
+                    if (integration.source === 'pipedream') {
+                        pipedreamComponents.push(integration);
+                    }
+                });
+            });
+
+            if (pipedreamComponents.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚡</div>
+                        <p>Aucun composant Pipedream disponible</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="integration-grid">
+                    ${pipedreamComponents.map(component => `
+                        <div class="integration-category">
+                            <div class="category-header">
+                                <span>⚡</span>
+                                <span>${component.displayName}</span>
+                                <span style="margin-left: auto;">
+                                    <button class="btn btn-small btn-secondary" onclick="viewComponent('${component.name}')">
+                                        Détails
+                                    </button>
+                                </span>
+                            </div>
+                            <div class="category-content">
+                                <p style="margin-bottom: 1rem;">${component.description}</p>
+                                <div style="display: flex; gap: 1rem; font-size: 0.875rem; color: var(--text-secondary);">
+                                    <span>🎯 Actions: ${component.actionsCount || 0}</span>
+                                    <span>📡 Sources: ${component.sourcesCount || 0}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Chargement des statistiques
+        async function loadStats() {
+            try {
+                const response = await fetch('/v1/workflows/stats', {
+                    headers: { 'X-User-ID': '1' }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    app.stats = data.data;
+                    updateOverviewStats();
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des statistiques:', error);
+            }
+        }
+
+        // Mise à jour des statistiques dans la vue d'ensemble
+        function updateOverviewStats() {
+            // Compter les intégrations totales
+            let totalIntegrations = 0;
+            let pipedreamCount = 0;
+            
+            Object.values(app.integrations).forEach(category => {
+                totalIntegrations += category.integrations.length;
+                pipedreamCount += category.integrations.filter(i => i.source === 'pipedream').length;
+            });
+
+            document.getElementById('total-integrations').textContent = totalIntegrations;
+            document.getElementById('pipedream-components').textContent = pipedreamCount;
+            
+            if (app.stats.workflows) {
+                document.getElementById('active-workflows').textContent = app.stats.workflows.activeExecutions || 0;
+                document.getElementById('total-executions').textContent = app.stats.workflows.totalExecutions || 0;
+            }
+        }
+
+        // Chargement des statistiques détaillées
+        function loadDetailedStats() {
+            const container = document.getElementById('detailed-stats');
+            
+            if (!app.stats.workflows && !app.stats.pipedream) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <p>Statistiques non disponibles</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${app.stats.workflows?.activeExecutions || 0}</div>
+                    <div class="stat-label">Exécutions Actives</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${app.stats.workflows?.historicalExecutions || 0}</div>
+                    <div class="stat-label">Exécutions Historiques</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${app.stats.pipedream?.componentsAvailable || 0}</div>
+                    <div class="stat-label">Composants Pipedream</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${app.stats.pipedream?.initialized ? '✅' : '❌'}</div>
+                    <div class="stat-label">État Pipedream</div>
+                </div>
+            `;
+        }
+
+        // Actions pour les workflows
+        async function createTestWorkflow() {
+            try {
+                const testWorkflow = {
+                    nodes: {
+                        "trigger-1": {
+                            id: "trigger-1",
+                            type: "trigger",
+                            config: {}
+                        },
+                        "pipedream-1": {
+                            id: "pipedream-1",
+                            type: "pipedream",
+                            config: {
+                                componentName: "http",
+                                actionName: "send-http-request",
+                                parameters: {
+                                    url: "https://httpbin.org/get",
+                                    method: "GET"
+                                }
+                            }
+                        }
+                    },
+                    connections: [
+                        {
+                            source: "trigger-1",
+                            target: "pipedream-1"
+                        }
+                    ]
+                };
+
+                const response = await fetch('/v1/workflows/test/execute', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-User-ID': '1'
+                    },
+                    body: JSON.stringify({
+                        nodes: testWorkflow.nodes,
+                        connections: testWorkflow.connections,
+                        triggerData: { test: true }
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`✅ Workflow de test exécuté avec succès!\nID: ${result.data.executionId}\nDurée: ${result.data.duration}ms`);
+                } else {
+                    alert(`❌ Erreur: ${result.error}`);
+                }
+            } catch (error) {
+                alert(`❌ Erreur lors de l'exécution: ${error.message}`);
+            }
+        }
+
+        function refreshWorkflows() {
+            loadStats();
+            alert('🔄 Workflows actualisés');
+        }
+
+        // Actions pour les composants
+        async function viewComponent(componentName) {
+            try {
+                const response = await fetch(`/v1/pipedream/components/${componentName}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const component = data.data;
+                    alert(`📋 Composant: ${component.displayName}\n\n` +
+                          `Description: ${component.description}\n` +
+                          `Version: ${component.version}\n` +
+                          `Actions: ${component.actions?.length || 0}\n` +
+                          `Sources: ${component.sources?.length || 0}`);
+                } else {
+                    alert(`❌ Erreur: ${data.error}`);
+                }
+            } catch (error) {
+                alert(`❌ Erreur: ${error.message}`);
+            }
+        }
+
+        function showIntegrationsError() {
+            const grid = document.getElementById('integrations-grid');
+            grid.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">❌</div>
+                    <p>Erreur lors du chargement des intégrations</p>
+                    <button class="btn btn-secondary" onclick="loadIntegrations()">
+                        Réessayer
+                    </button>
+                </div>
+            `;
+        }
+
+        // Actualisation périodique
+        setInterval(checkSystemHealth, 30000); // Toutes les 30 secondes
+        setInterval(loadStats, 60000); // Toutes les minutes
+    </script>
+</body>
+</html>

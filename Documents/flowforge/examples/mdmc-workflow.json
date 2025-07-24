@@ -1,0 +1,292 @@
+{
+  "name": "MDMC Music Ads - Lead Scoring & Email Automation (FlowForge)",
+  "description": "Migration du workflow n8n vers FlowForge avec support Pipedream",
+  "version": "2.1.0",
+  "type": "multi_branch",
+  "trigger_config": {
+    "type": "webhook",
+    "path": "/webhook/music-simulator-lead",
+    "method": "POST"
+  },
+  "nodes": {
+    "webhook-reception-lead": {
+      "id": "webhook-reception-lead",
+      "type": "trigger",
+      "name": "📥 Réception Lead Simulateur",
+      "config": {
+        "path": "/webhook/music-simulator-lead",
+        "method": "POST",
+        "response": {
+          "statusCode": 200,
+          "body": {
+            "status": "received",
+            "message": "Lead traité avec succès"
+          }
+        }
+      },
+      "position": { "x": 40, "y": 2260 }
+    },
+    "score-calculation": {
+      "id": "score-calculation",
+      "type": "code",
+      "name": "Calcul Score + Platform",
+      "config": {
+        "code": "const leadData = $json.body;\n\nlet score = 0;\nlet budgetScore = 0;\nlet platformScore = 0;\nlet priority = 'low';\nlet reasons = [];\n\n// Budget scoring\nconst budget = parseInt(leadData.budget) || 0;\n\nif (budget < 500) {\n  budgetScore = 0;\n  priority = 'newsletter';\n  reasons.push('Budget <500€');\n} else if (budget >= 5000) {\n  budgetScore = 70;\n  reasons.push('Budget premium (5k+)');\n} else if (budget >= 2000) {\n  budgetScore = 50;\n  reasons.push('Budget élevé (2k-5k)');\n} else if (budget >= 1000) {\n  budgetScore = 35;\n  reasons.push('Budget correct (1k-2k)');\n} else {\n  budgetScore = 15;\n  reasons.push('Budget minimal (500€+)');\n}\n\nscore += budgetScore;\n\n// Platform detection\nconst targetZone = (leadData.target_zone || leadData.zone_cible || '').toLowerCase();\nlet platform = 'general';\nlet expertEmail = 'sales@mdmcmusicads.com';\nlet expertName = 'Denis';\n\nif (targetZone.includes('meta') || targetZone.includes('facebook') || targetZone.includes('instagram')) {\n  platform = 'meta';\n  platformScore = 30;\n  expertEmail = 'marine.harel.lars@gmail.com';\n  expertName = 'Marine';\n  reasons.push('Meta Ads - Marine');\n} else if (targetZone.includes('tiktok')) {\n  platform = 'tiktok';\n  platformScore = 25;\n  expertEmail = 'marine.harel.lars@gmail.com';\n  expertName = 'Marine';\n  reasons.push('TikTok Ads - Marine');\n} else if (targetZone.includes('youtube') || targetZone.includes('google')) {\n  platform = 'youtube';\n  platformScore = 28;\n  expertEmail = 'adpromo.media@gmail.com';\n  expertName = 'Denis';\n  reasons.push('YouTube Ads - Denis');\n} else if (targetZone.includes('spotify')) {\n  platform = 'spotify';\n  platformScore = 22;\n  expertEmail = 'adpromo.media@gmail.com';\n  expertName = 'Denis';\n  reasons.push('Spotify Ads - Denis');\n}\n\nscore += platformScore;\n\n// Priority determination\nif (priority !== 'newsletter') {\n  if (score >= 80) priority = 'critical';\n  else if (score >= 60) priority = 'high';\n  else if (score >= 40) priority = 'medium';\n  else priority = 'low';\n}\n\nreturn {\n  ...leadData,\n  score,\n  budgetScore,\n  platformScore,\n  priority,\n  platform,\n  expertEmail,\n  expertName,\n  reasons: reasons.join(', '),\n  leadId: `MUSIC_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,\n  createdAt: new Date().toISOString(),\n  isProfitable: budget >= 500,\n  estimatedMargin: budget >= 500 ? Math.floor(budget * 0.3) : 0\n};"
+      },
+      "position": { "x": 340, "y": 2260 }
+    },
+    "platform-switch": {
+      "id": "platform-switch",
+      "type": "switch",
+      "name": "Switch PLATEFORME",
+      "config": {
+        "field": "platform",
+        "cases": [
+          { "value": "meta", "name": "Meta" },
+          { "value": "tiktok", "name": "TikTok" },
+          { "value": "youtube", "name": "YouTube" },
+          { "value": "spotify", "name": "Spotify" },
+          { "value": "newsletter", "name": "Newsletter" }
+        ],
+        "defaultCase": { "name": "Newsletter" }
+      },
+      "position": { "x": 640, "y": 2240 }
+    },
+    "meta-priority-switch": {
+      "id": "meta-priority-switch",
+      "type": "switch",
+      "name": "Switch META Priorité",
+      "config": {
+        "field": "priority",
+        "cases": [
+          { "value": "critical", "name": "Urgent" },
+          { "value": "high", "name": "High" },
+          { "value": "medium", "name": "Medium" },
+          { "value": "low", "name": "Low" }
+        ]
+      },
+      "position": { "x": 840, "y": 1360 }
+    },
+    "tiktok-priority-switch": {
+      "id": "tiktok-priority-switch",
+      "type": "switch",
+      "name": "Switch TIKTOK Priorité",  
+      "config": {
+        "field": "priority",
+        "cases": [
+          { "value": "critical", "name": "Urgent" },
+          { "value": "high", "name": "High" },
+          { "value": "medium", "name": "Medium" },
+          { "value": "low", "name": "Low" }
+        ]
+      },
+      "position": { "x": 820, "y": 1880 }
+    },
+    "youtube-priority-switch": {
+      "id": "youtube-priority-switch",
+      "type": "switch",
+      "name": "Switch YOUTUBE Priorité",
+      "config": {
+        "field": "priority",
+        "cases": [
+          { "value": "critical", "name": "Urgent" },
+          { "value": "high", "name": "High" },
+          { "value": "medium", "name": "Medium" },
+          { "value": "low", "name": "Low" }
+        ]
+      },
+      "position": { "x": 820, "y": 2540 }
+    },
+    "spotify-priority-switch": {
+      "id": "spotify-priority-switch",
+      "type": "switch",
+      "name": "Switch SPOTIFY Priorité",
+      "config": {
+        "field": "priority",
+        "cases": [
+          { "value": "critical", "name": "Urgent" },
+          { "value": "high", "name": "High" },
+          { "value": "medium", "name": "Medium" },
+          { "value": "low", "name": "Low" }
+        ]
+      },
+      "position": { "x": 820, "y": 3100 }
+    },
+    "email-meta-urgent": {
+      "id": "email-meta-urgent",
+      "type": "pipedream",
+      "name": "🚨 Email Meta URGENT",
+      "config": {
+        "componentName": "gmail",
+        "actionName": "send-email",
+        "parameters": {
+          "to": "marine.harel.lars@gmail.com",
+          "cc": "sales@mdmcmusicads.com",
+          "subject": "🚨 META URGENT - {{ artist_name || name }} - {{ budget }}€ (Score: {{ score }}/100)",
+          "html": "<div style='font-family: Arial, sans-serif;'>\n<h1 style='background: #1877f2; color: white; padding: 15px; text-align: center; margin: 0;'>🚨 META ADS - LEAD CRITIQUE</h1>\n<h2 style='color: #1877f2; margin: 20px 0;'>Expert Marine</h2>\n<p style='background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;'><strong>⏰ RÉPONSE DANS 1H MAX</strong></p>\n\n<table border='1' style='width: 100%; border-collapse: collapse; margin: 20px 0;'>\n<tr style='background: #f8f9fa;'><td style='padding: 10px;'><strong>🎵 Artiste:</strong></td><td style='padding: 10px;'>{{ artist_name || name }}</td></tr>\n<tr><td style='padding: 10px;'><strong>📧 Email:</strong></td><td style='padding: 10px;'>{{ email }}</td></tr>\n<tr style='background: #f8f9fa;'><td style='padding: 10px;'><strong>💰 Budget:</strong></td><td style='padding: 10px;'>{{ budget }}€</td></tr>\n<tr><td style='padding: 10px;'><strong>🎯 Plateforme:</strong></td><td style='padding: 10px;'>META ADS</td></tr>\n<tr style='background: #f8f9fa;'><td style='padding: 10px;'><strong>⭐ Score:</strong></td><td style='padding: 10px;'><strong style='color: #dc3545;'>{{ score }}/100</strong></td></tr>\n</table>\n\n<div style='background: #e7f3ff; padding: 15px; margin: 20px 0; border-radius: 5px;'>\n<h3 style='margin-top: 0; color: #0056b3;'>📊 Breakdown du scoring:</h3>\n<p>• Budget: {{ budgetScore }} pts + Meta: {{ platformScore }} pts = <strong>{{ score }}/100</strong></p>\n<p>• {{ reasons }}</p>\n<p><strong>💰 Marge estimée:</strong> {{ estimatedMargin }}€</p>\n</div>\n\n<p style='font-size: 12px; color: #666; margin-top: 30px;'>🔗 Lead ID: {{ leadId }}</p>\n</div>"
+        }
+      },
+      "position": { "x": 1140, "y": 1040 }
+    },
+    "email-meta-high": {
+      "id": "email-meta-high",
+      "type": "pipedream",
+      "name": "🔥 Email Meta HIGH",
+      "config": {
+        "componentName": "gmail",
+        "actionName": "send-email",
+        "parameters": {
+          "to": "marine.harel.lars@gmail.com",
+          "cc": "sales@mdmcmusicads.com",
+          "subject": "🔥 META HIGH - {{ artist_name || name }} - {{ budget }}€ (Score: {{ score }}/100)",
+          "html": "<div style='font-family: Arial, sans-serif;'>\n<h1 style='background: #1877f2; color: white; padding: 15px; text-align: center; margin: 0;'>🔥 META ADS - PRIORITAIRE</h1>\n<h2 style='color: #1877f2; margin: 20px 0;'>Expert Marine</h2>\n<p style='background: #d1ecf1; padding: 15px; border-left: 4px solid #bee5eb; margin: 20px 0;'>Score: {{ score }}/100 | Réponse dans 4h</p>\n\n<table border='1' style='width: 100%; border-collapse: collapse; margin: 20px 0;'>\n<tr style='background: #f8f9fa;'><td style='padding: 10px;'>Artiste:</td><td style='padding: 10px;'>{{ artist_name || name }}</td></tr>\n<tr><td style='padding: 10px;'>Email:</td><td style='padding: 10px;'>{{ email }}</td></tr>\n<tr style='background: #f8f9fa;'><td style='padding: 10px;'>Budget:</td><td style='padding: 10px;'>{{ budget }}€</td></tr>\n<tr><td style='padding: 10px;'>Score:</td><td style='padding: 10px;'><strong>{{ score }}/100</strong></td></tr>\n</table>\n\n<p style='background: #f8f9fa; padding: 15px; margin: 20px 0;'>{{ reasons }}</p>\n<p style='font-size: 12px; color: #666;'>Lead ID: {{ leadId }}</p>\n</div>"
+        }
+      },
+      "position": { "x": 1140, "y": 1220 }
+    },
+    "email-newsletter-low-budget": {
+      "id": "email-newsletter-low-budget",
+      "type": "pipedream",
+      "name": "📰 Email Newsletter <500€",
+      "config": {
+        "componentName": "gmail",
+        "actionName": "send-email",
+        "parameters": {
+          "to": "{{ email }}",
+          "subject": "🎵 Merci {{ artist_name || name }} - Ressources gratuites",
+          "html": "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>\n<h2 style='color: #333; margin-bottom: 20px;'>👋 Salut {{ artist_name || name }} !</h2>\n<p style='font-size: 16px; line-height: 1.5;'>Merci d'avoir testé notre simulateur MDMC Music Ads ! 🎯</p>\n\n<div style='background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;'>\n<h3 style='margin-top: 0; color: #856404;'>💡 Information importante</h3>\n<p style='margin-bottom: 10px;'>Avec un budget de <strong>{{ budget }}€</strong>, nous ne sommes pas en mesure de te proposer des solutions actives.</p>\n<p style='margin-bottom: 0;'>Notre seuil minimum est de <strong>500€</strong> pour garantir des résultats mesurables.</p>\n</div>\n\n<h3 style='color: #28a745; margin-top: 30px;'>🎁 Mais on ne t'abandonne pas !</h3>\n<ul style='line-height: 1.8; font-size: 16px;'>\n<li>📖 Guides gratuits</li>\n<li>📱 Instagram: @mdmc.musicads</li>\n<li>🌐 Blog: blog.mdmcmusicads.com</li>\n<li>📬 Newsletter: Tu es inscrit !</li>\n</ul>\n\n<p style='font-size: 16px; margin-top: 30px;'>On sera là quand tu seras prêt ! 💪</p>\n<p style='color: #666; font-size: 14px; margin-top: 30px;'>L'équipe MDMC Music Ads 🎶</p>\n</div>"
+        }
+      },
+      "position": { "x": 820, "y": 2260 }
+    },
+    "brevo-newsletter": {
+      "id": "brevo-newsletter", 
+      "type": "pipedream",
+      "name": "📬 Newsletter Brevo",
+      "config": {
+        "componentName": "http",
+        "actionName": "send-http-request",
+        "parameters": {
+          "url": "https://api.brevo.com/v3/contacts",
+          "method": "POST",
+          "headers": {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "api-key": "{{ BREVO_API_KEY }}"
+          },
+          "data": {
+            "email": "{{ email }}",
+            "attributes": {
+              "FIRSTNAME": "{{ artist_name || name }}",
+              "BUDGET": "{{ budget }}",
+              "PLATFORM": "{{ platform }}",
+              "SCORE": "{{ score }}",
+              "PRIORITY": "{{ priority }}",
+              "LEAD_ID": "{{ leadId }}",
+              "CREATED_AT": "{{ createdAt }}"
+            },
+            "listIds": [1]
+          }
+        }
+      },
+      "position": { "x": 2580, "y": 2140 }
+    },
+    "merge-emails": {
+      "id": "merge-emails",
+      "type": "merge",
+      "name": "Merge Emails",
+      "config": {
+        "strategy": "merge"
+      },
+      "position": { "x": 1780, "y": 1720 }
+    },
+    "merge-final": {
+      "id": "merge-final",
+      "type": "merge", 
+      "name": "Merge Final",
+      "config": {
+        "strategy": "merge"
+      },
+      "position": { "x": 2200, "y": 2140 }
+    }
+  },
+  "connections": [
+    {
+      "source": "webhook-reception-lead",
+      "target": "score-calculation"
+    },
+    {
+      "source": "score-calculation",
+      "target": "platform-switch"
+    },
+    {
+      "source": "score-calculation",
+      "target": "email-newsletter-low-budget",
+      "condition": { "type": "condition", "field": "budget", "operator": "<", "value": 500 }
+    },
+    {
+      "source": "platform-switch",
+      "target": "meta-priority-switch",
+      "condition": { "type": "switch", "value": "meta" }
+    },
+    {
+      "source": "platform-switch",
+      "target": "tiktok-priority-switch",
+      "condition": { "type": "switch", "value": "tiktok" }
+    },
+    {
+      "source": "platform-switch", 
+      "target": "youtube-priority-switch",
+      "condition": { "type": "switch", "value": "youtube" }
+    },
+    {
+      "source": "platform-switch",
+      "target": "spotify-priority-switch",
+      "condition": { "type": "switch", "value": "spotify" }
+    },
+    {
+      "source": "meta-priority-switch",
+      "target": "email-meta-urgent",
+      "condition": { "type": "switch", "value": "critical" }
+    },
+    {
+      "source": "meta-priority-switch",
+      "target": "email-meta-high",
+      "condition": { "type": "switch", "value": "high" }
+    },
+    {
+      "source": "email-meta-urgent",
+      "target": "merge-emails"
+    },
+    {
+      "source": "email-meta-high",
+      "target": "merge-emails"
+    },
+    {
+      "source": "email-newsletter-low-budget",
+      "target": "merge-final"
+    },
+    {
+      "source": "merge-emails",
+      "target": "merge-final"
+    },
+    {
+      "source": "merge-final",
+      "target": "brevo-newsletter"
+    }
+  ],
+  "webhookConfig": {
+    "enabled": true,
+    "path": "/webhook/music-simulator-lead",
+    "method": "POST",
+    "authToken": null,
+    "description": "Réception des leads du simulateur MDMC Music Ads"
+  },
+  "metadata": {
+    "originalWorkflow": "n8n-mdmc-lead-scoring",
+    "migrationDate": "2024-07-24",
+    "migratedBy": "FlowForge Migration Tool",
+    "version": "2.1.0",
+    "tags": ["mdmc", "lead-scoring", "email-automation", "pipedream"]
+  }
+}

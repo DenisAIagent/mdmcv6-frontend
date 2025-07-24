@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git reset:*)",
+      "Bash(mkdir:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(git remote remove:*)",
+      "Bash(git add:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.npmjs.com)"
+    ],
+    "deny": []
+  }
+}
