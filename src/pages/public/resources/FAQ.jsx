@@ -50,16 +50,17 @@ const FAQ = () => {
       category: "Services"
     },
     {
-      question: "Combien coûte une campagne ? Quels sont vos tarifs ?",
+      question: "Combien coûte une campagne ? Comment établissez-vous vos tarifs ?",
       answer: {
-        intro: "Nos tarifs s'adaptent à chaque projet. Voici notre structure tarifaire :",
+        intro: "Nos tarifs sont personnalisés selon chaque projet et s'adaptent à vos objectifs spécifiques :",
         points: [
-          "💰 **Budget minimum** : 500€ de budget média + frais de gestion",
-          "📊 **Frais de gestion** : 20-30% du budget média selon la complexité",
-          "🎯 **Forfaits consulting** : À partir de 150€/heure",
-          "📈 **Packages tout-inclus** : De 1000€ à 5000€/mois selon les besoins"
+          "🎯 **Approche sur-mesure** : Chaque campagne est unique, les tarifs sont adaptés",
+          "📊 **Facteurs considérés** : Complexité, durée, plateformes, objectifs et budget",
+          "💡 **Transparence totale** : Devis détaillé avant tout engagement",
+          "🔍 **Audit gratuit** : Évaluation de vos besoins sans engagement",
+          "⚡ **Flexibilité** : Solutions adaptées aux budgets de tous les artistes"
         ],
-        conclusion: "Utilisez notre simulateur pour obtenir une estimation personnalisée basée sur vos objectifs."
+        conclusion: "Contactez-nous pour un devis personnalisé ou utilisez notre simulateur pour une première estimation."
       },
       category: "Tarifs"
     },
