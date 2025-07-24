@@ -94,7 +94,6 @@ const ContactModal = ({ isOpen, onClose, title = "Demander un accompagnement", c
         <div className="contact-modal-body">
           {submitStatus === 'success' ? (
             <div className="success-message">
-              <div className="success-icon">✅</div>
               <h4>Message envoyé avec succès !</h4>
               <p>Notre équipe vous recontactera rapidement.</p>
             </div>
@@ -165,7 +164,6 @@ const ContactModal = ({ isOpen, onClose, title = "Demander un accompagnement", c
 
                 {submitStatus === 'error' && (
                   <div className="error-message">
-                    <span className="error-icon">⚠️</span>
                     Erreur lors de l'envoi. Veuillez réessayer ou nous contacter directement.
                   </div>
                 )}

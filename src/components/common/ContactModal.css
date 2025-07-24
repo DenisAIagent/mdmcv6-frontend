@@ -103,25 +103,6 @@
   padding: 2rem;
 }
 
-.success-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  animation: bounceIn 0.5s ease-out;
-}
-
-@keyframes bounceIn {
-  0% {
-    transform: scale(0.3);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
 
 .success-message h4 {
   color: var(--color-text);
@@ -192,19 +173,13 @@
 
 /* ===== Messages d'état ===== */
 .error-message {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
   padding: 1rem;
   background: rgba(255, 58, 58, 0.1);
   border: 1px solid rgba(255, 58, 58, 0.3);
   border-radius: 8px;
   color: #ff6b6b;
   font-size: 0.9rem;
-}
-
-.error-icon {
-  font-size: 1.1rem;
+  text-align: center;
 }
 
 /* ===== Actions du formulaire ===== */

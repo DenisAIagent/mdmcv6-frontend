@@ -1,5 +1,5 @@
 /**
- * 📋 Page FAQ - Réponses claires à vos questions fréquentes
+ *  Page FAQ - Réponses claires à vos questions fréquentes
  * Route SEO: /ressources/faq
  */
 
@@ -27,9 +27,9 @@ const FAQ = () => {
       answer: {
         intro: "Nous sommes MDMC Music Ads, une agence indépendante fondée en 2018 par un ancien salarié de Google, également ex-attaché de presse musique en France.",
         points: [
-          "🎯 Une expertise technique pointue en YouTube Ads, Meta, TikTok & tracking",
-          "🎵 Une compréhension fine des enjeux artistiques, culturels et commerciaux",
-          "📈 Une culture du résultat : notoriété, abonnés, vues ciblées, engagement et ventes"
+          " Une expertise technique pointue en YouTube Ads, Meta, TikTok & tracking",
+          " Une compréhension fine des enjeux artistiques, culturels et commerciaux",
+          " Une culture du résultat : notoriété, abonnés, vues ciblées, engagement et ventes"
         ],
         conclusion: "Nous plaçons l'humain, la transparence et l'impact au cœur de chaque collaboration. Chaque campagne est conçue comme un levier de croissance réelle et durable pour les artistes et structures que nous accompagnons."
       },
@@ -40,12 +40,12 @@ const FAQ = () => {
       answer: {
         intro: "Nous offrons une gamme complète de services marketing digital spécialisés pour l'industrie musicale :",
         points: [
-          "🎬 **Campagnes YouTube Ads** : Promotion de clips, augmentation d'abonnés, ciblage précis",
-          "📱 **Meta Ads (Facebook/Instagram)** : Awareness, engagement, conversion streaming",
-          "🎵 **TikTok Promotion** : Viralité, découverte, audience jeune",
-          "📊 **Analytics & Reporting** : Tableaux de bord détaillés, insights stratégiques",
-          "🎯 **Consulting Stratégique** : Audit, recommandations, planification campagnes",
-          "🔗 **SmartLinks** : Pages de destination optimisées pour la conversion"
+          "**Campagnes YouTube Ads** : Promotion de clips, augmentation d'abonnés, ciblage précis",
+          "**Meta Ads (Facebook/Instagram)** : Awareness, engagement, conversion streaming",
+          "**TikTok Promotion** : Viralité, découverte, audience jeune",
+          "**Analytics & Reporting** : Tableaux de bord détaillés, insights stratégiques",
+          "**Consulting Stratégique** : Audit, recommandations, planification campagnes",
+          "**SmartLinks** : Pages de destination optimisées pour la conversion"
         ],
         conclusion: "Chaque service s'adapte à vos objectifs spécifiques et à votre budget."
       },
@@ -56,11 +56,11 @@ const FAQ = () => {
       answer: {
         intro: "Nos tarifs sont personnalisés selon chaque projet et s'adaptent à vos objectifs spécifiques :",
         points: [
-          "🎯 **Approche sur-mesure** : Chaque campagne est unique, les tarifs sont adaptés",
-          "📊 **Facteurs considérés** : Complexité, durée, plateformes, objectifs et budget",
-          "💡 **Transparence totale** : Devis détaillé avant tout engagement",
-          "🔍 **Audit gratuit** : Évaluation de vos besoins sans engagement",
-          "⚡ **Flexibilité** : Solutions adaptées aux budgets de tous les artistes"
+          "**Approche sur-mesure** : Chaque campagne est unique, les tarifs sont adaptés",
+          "**Facteurs considérés** : Complexité, durée, plateformes, objectifs et budget",
+          "**Transparence totale** : Devis détaillé avant tout engagement",
+          "**Audit gratuit** : Évaluation de vos besoins sans engagement",
+          "**Flexibilité** : Solutions adaptées aux budgets de tous les artistes"
         ],
         conclusion: "Contactez-nous pour un devis personnalisé ou utilisez notre simulateur pour une première estimation."
       },
@@ -71,11 +71,11 @@ const FAQ = () => {
       answer: {
         intro: "Transparence totale sur vos performances via les dashboards des plateformes publicitaires :",
         points: [
-          "📊 **Dashboards natifs** : Google Ads, Meta Business Manager, TikTok Ads Manager",
-          "📈 **Rapports hebdomadaires** : Analyse détaillée des performances consolidées",
-          "🎯 **KPIs personnalisés** : Métriques adaptées à vos objectifs musicaux",
-          "📱 **Accès direct aux comptes** : Transparence complète sur vos campagnes",
-          "🔄 **Optimisations continues** : Ajustements basés sur les données des plateformes"
+          "**Dashboards natifs** : Google Ads, Meta Business Manager, TikTok Ads Manager",
+          "**Rapports hebdomadaires** : Analyse détaillée des performances consolidées",
+          "**KPIs personnalisés** : Métriques adaptées à vos objectifs musicaux",
+          "**Accès direct aux comptes** : Transparence complète sur vos campagnes",
+          "**Optimisations continues** : Ajustements basés sur les données des plateformes"
         ],
         conclusion: "Vous gardez le contrôle total avec une visibilité complète sur chaque euro investi via les outils officiels."
       },
@@ -86,12 +86,12 @@ const FAQ = () => {
       answer: {
         intro: "Absolument ! Notre expertise s'adapte à tous les univers musicaux :",
         points: [
-          "🎤 **Hip-Hop/Rap** : Stratégies virales, targeting urbain",
-          "🎸 **Rock/Metal** : Communautés passionnées, événementiel",
-          "🎹 **Électro/House** : Plateformes spécialisées, festival marketing",
-          "🎺 **Jazz/Classique** : Audiences de niche, contenus éducatifs",
-          "🌍 **Musiques du monde** : Ciblage géographique et culturel",
-          "🎵 **Pop/Variété** : Mass market, multi-plateformes"
+          "**Hip-Hop/Rap** : Stratégies virales, targeting urbain",
+          "**Rock/Metal** : Communautés passionnées, événementiel",
+          "**Électro/House** : Plateformes spécialisées, festival marketing",
+          "**Jazz/Classique** : Audiences de niche, contenus éducatifs",
+          "**Musiques du monde** : Ciblage géographique et culturel",
+          "**Pop/Variété** : Mass market, multi-plateformes"
         ],
         conclusion: "Chaque genre musical a ses codes, son audience et ses plateformes privilégiées. Nous maîtrisons ces spécificités."
       },
@@ -102,12 +102,12 @@ const FAQ = () => {
       answer: {
         intro: "Nous ne promettons pas de miracles, mais nous garantissons :",
         points: [
-          "✅ **Méthodologie éprouvée** : 6 ans d'expérience, +500 campagnes",
-          "🔄 **Optimisation continue** : Tests A/B, ajustements quotidiens",
-          "📊 **Transparence totale** : Accès complet aux données et comptes",
-          "🎯 **Ciblage précis** : Audiences qualifiées, pas de trafic générique",
-          "📞 **Support dédié** : Contact direct avec votre chargé de campagne",
-          "💡 **Conseils stratégiques** : Recommandations pour optimiser votre contenu"
+          " **Méthodologie éprouvée** : 6 ans d'expérience, +500 campagnes",
+          " **Optimisation continue** : Tests A/B, ajustements quotidiens",
+          " **Transparence totale** : Accès complet aux données et comptes",
+          " **Ciblage précis** : Audiences qualifiées, pas de trafic générique",
+          " **Support dédié** : Contact direct avec votre chargé de campagne",
+          " **Conseils stratégiques** : Recommandations pour optimiser votre contenu"
         ],
         conclusion: "Les résultats dépendent de la qualité de votre contenu, de votre budget et de votre marché. Nous maximisons votre potentiel."
       },
@@ -118,10 +118,10 @@ const FAQ = () => {
       answer: {
         intro: "Les délais varient selon vos objectifs :",
         points: [
-          "⚡ **Premiers résultats** : 24-48h après lancement",
-          "📈 **Optimisation complète** : 7-14 jours pour stabiliser les performances",
-          "🎯 **Résultats significatifs** : 1-2 mois pour une croissance durable",
-          "📊 **Analyse complète** : 3 mois pour évaluer l'impact global"
+          " **Premiers résultats** : 24-48h après lancement",
+          " **Optimisation complète** : 7-14 jours pour stabiliser les performances",
+          " **Résultats significatifs** : 1-2 mois pour une croissance durable",
+          " **Analyse complète** : 3 mois pour évaluer l'impact global"
         ],
         conclusion: "Patience et constance sont clés dans le marketing musical. Nous optimisons en continu pour accélérer vos résultats."
       },
@@ -132,12 +132,12 @@ const FAQ = () => {
       answer: {
         intro: "Un processus structuré pour votre réussite :",
         points: [
-          "📞 **Audit gratuit** : Analyse de votre situation actuelle (30-45 min)",
-          "📋 **Brief détaillé** : Définition des objectifs, cibles, budget",
-          "🎯 **Stratégie personnalisée** : Plan de campagne adapté à vos besoins",
-          "🚀 **Lancement rapide** : Mise en ligne sous 48-72h",
-          "📊 **Suivi hebdomadaire** : Points réguliers sur les performances",
-          "🔄 **Optimisations** : Ajustements basés sur les résultats"
+          " **Audit gratuit** : Analyse de votre situation actuelle (30-45 min)",
+          " **Brief détaillé** : Définition des objectifs, cibles, budget",
+          " **Stratégie personnalisée** : Plan de campagne adapté à vos besoins",
+          " **Lancement rapide** : Mise en ligne sous 48-72h",
+          " **Suivi hebdomadaire** : Points réguliers sur les performances",
+          " **Optimisations** : Ajustements basés sur les résultats"
         ],
         conclusion: "Vous êtes accompagné(e) à chaque étape avec un contact privilégié."
       },
@@ -148,11 +148,11 @@ const FAQ = () => {
       answer: {
         intro: "Transparence et contrôle total pour vous :",
         points: [
-          "🔑 **Propriété des comptes** : Vos comptes, vos données, vos accès",
-          "👥 **Accès partagé** : Nous travaillons avec vos permissions",
-          "📊 **Visibilité complète** : Vous voyez tout en temps réel",
-          "📋 **Historique préservé** : Toutes vos données restent chez vous",
-          "🚪 **Liberté totale** : Vous pouvez arrêter à tout moment"
+          " **Propriété des comptes** : Vos comptes, vos données, vos accès",
+          " **Accès partagé** : Nous travaillons avec vos permissions",
+          " **Visibilité complète** : Vous voyez tout en temps réel",
+          " **Historique préservé** : Toutes vos données restent chez vous",
+          " **Liberté totale** : Vous pouvez arrêter à tout moment"
         ],
         conclusion: "Vous restez propriétaire de vos actifs digitaux. Nous sommes vos partenaires, pas vos intermédiaires."
       },
@@ -163,11 +163,11 @@ const FAQ = () => {
       answer: {
         intro: "Votre satisfaction est notre priorité :",
         points: [
-          "📞 **Communication ouverte** : Discussion immédiate des problèmes",
-          "🔄 **Plan d'amélioration** : Ajustements stratégiques rapides",
-          "📊 **Analyse détaillée** : Identification des points de blocage",
-          "💡 **Solutions alternatives** : Nouvelles approches si nécessaire",
-          "🤝 **Engagement qualité** : Nous travaillons jusqu'à votre satisfaction"
+          " **Communication ouverte** : Discussion immédiate des problèmes",
+          " **Plan d'amélioration** : Ajustements stratégiques rapides",
+          " **Analyse détaillée** : Identification des points de blocage",
+          " **Solutions alternatives** : Nouvelles approches si nécessaire",
+          " **Engagement qualité** : Nous travaillons jusqu'à votre satisfaction"
         ],
         conclusion: "Notre réputation se construit sur vos succès. Nous trouvons toujours des solutions."
       },
@@ -203,7 +203,7 @@ const FAQ = () => {
           <div className="faq-search-section">
             <div className="faq-search-container">
               <div className="faq-search-box">
-                <span className="search-icon">🔍</span>
+                <span className="search-icon"></span>
                 <input 
                   type="text" 
                   placeholder="Rechercher dans la FAQ..."

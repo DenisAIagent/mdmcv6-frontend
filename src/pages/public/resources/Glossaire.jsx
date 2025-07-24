@@ -130,7 +130,7 @@ const Glossaire = () => {
           <div className="glossaire-controls">
             <div className="glossaire-search-container">
               <div className="glossaire-search-box">
-                <span className="search-icon">🔍</span>
+                <span className="search-icon"></span>
                 <input 
                   type="text" 
                   placeholder="Rechercher un terme..."
@@ -184,7 +184,7 @@ const Glossaire = () => {
               ))
             ) : (
               <div className="glossaire-no-results">
-                <span className="no-results-icon">📚</span>
+                <span className="no-results-icon"></span>
                 <h3>Aucun terme trouvé</h3>
                 <p>Essayez avec d'autres mots-clés ou sélectionnez une autre lettre.</p>
               </div>

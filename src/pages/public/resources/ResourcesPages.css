@@ -80,9 +80,7 @@
 }
 
 .search-icon {
-  padding: 0 1rem;
-  color: var(--color-text-secondary);
-  font-size: 1.2rem;
+  display: none;
 }
 
 .faq-search-input {
@@ -264,9 +262,7 @@
 }
 
 .no-results-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  display: block;
+  display: none;
 }
 
 .faq-no-results h3 {
@@ -479,9 +475,7 @@
 }
 
 .glossaire-no-results .no-results-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  display: block;
+  display: none;
 }
 
 .glossaire-no-results h3 {
