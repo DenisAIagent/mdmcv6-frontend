@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import '../../assets/styles/footer.css';
 
 const Footer = ({ openSimulator }) => {
@@ -98,8 +99,8 @@ const Footer = ({ openSimulator }) => {
                     {t('footer.resources_simulator')}
                   </button>
                 </li>
-                <li><a href="/ressources/faq">{t('footer.resources_faq')}</a></li>
-                <li><a href="/ressources/glossaire">{t('footer.resources_glossary')}</a></li>
+                <li><Link to="/ressources/faq">{t('footer.resources_faq')}</Link></li>
+                <li><Link to="/ressources/glossaire">{t('footer.resources_glossary')}</Link></li>
               </ul>
             </div>
             
