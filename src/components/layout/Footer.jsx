@@ -88,7 +88,7 @@ const Footer = ({ openSimulator }) => {
             <div className="footer-column">
               <h4>{t('footer.resources_title')}</h4>
               <ul>
-                <li><a href="#articles">{t('footer.resources_blog')}</a></li>
+                <li><a href="https://blog.mdmcmusicads.com" target="_blank" rel="noopener noreferrer">{t('footer.resources_blog')}</a></li>
                 <li>
                   <button 
                     type="button" 
