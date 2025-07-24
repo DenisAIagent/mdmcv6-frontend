@@ -8,12 +8,14 @@ import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import Header from '../../../components/layout/Header';
 import Footer from '../../../components/layout/Footer';
+import ContactModal from '../../../components/common/ContactModal';
 import './ResourcesPages.css';
 
 const FAQ = () => {
   const { t } = useTranslation();
   const [activeItem, setActiveItem] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   const toggleItem = (index) => {
     setActiveItem(activeItem === index ? null : index);
@@ -263,15 +265,25 @@ const FAQ = () => {
 
           <div className="resource-cta">
             <h3>{t('faq.cta_title', 'Vous avez d\'autres questions ?')}</h3>
-            <p>{t('faq.cta_text', 'Contactez-nous directement pour obtenir des réponses personnalisées.')}</p>
-            <a href="mailto:contact@mdmcmusicads.com" className="resource-button">
-              {t('faq.cta_button', 'Nous contacter')}
-            </a>
+            <p>{t('faq.cta_text', 'Notre équipe peut vous accompagner et répondre à vos questions spécifiques sur le marketing musical.')}</p>
+            <button 
+              onClick={() => setIsContactModalOpen(true)} 
+              className="resource-button"
+            >
+              {t('faq.cta_button', 'Poser une question')}
+            </button>
           </div>
         </div>
       </main>
       
       <Footer />
+      
+      <ContactModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+        title="Poser une question"
+        context="faq"
+      />
     </HelmetProvider>
   );
 };

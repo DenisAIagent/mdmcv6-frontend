@@ -8,12 +8,14 @@ import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import Header from '../../../components/layout/Header';
 import Footer from '../../../components/layout/Footer';
+import ContactModal from '../../../components/common/ContactModal';
 import './ResourcesPages.css';
 
 const Glossaire = () => {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLetter, setSelectedLetter] = useState('TOUS');
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   const glossaryData = [
     { term: "A/B Testing", definition: "Méthode de test comparatif entre deux versions d'une campagne publicitaire pour identifier la plus performante. Essentiel pour optimiser les taux de conversion et réduire les coûts d'acquisition.", category: "Optimisation", letter: "A" },
@@ -191,15 +193,25 @@ const Glossaire = () => {
 
           <div className="resource-cta">
             <h3>{t('glossaire.cta_title', 'Besoin d\'explications supplémentaires ?')}</h3>
-            <p>{t('glossaire.cta_text', 'Notre équipe peut vous accompagner dans la compréhension de ces concepts.')}</p>
-            <a href="mailto:contact@mdmcmusicads.com" className="resource-button">
+            <p>{t('glossaire.cta_text', 'Notre équipe peut vous accompagner dans la compréhension de ces concepts et vous aider à les appliquer à votre projet musical.')}</p>
+            <button 
+              onClick={() => setIsContactModalOpen(true)} 
+              className="resource-button"
+            >
               {t('glossaire.cta_button', 'Demander un accompagnement')}
-            </a>
+            </button>
           </div>
         </div>
       </main>
       
       <Footer />
+      
+      <ContactModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+        title="Demander un accompagnement"
+        context="glossaire"
+      />
     </HelmetProvider>
   );
 };
