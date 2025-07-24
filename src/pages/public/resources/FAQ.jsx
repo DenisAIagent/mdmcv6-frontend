@@ -67,15 +67,15 @@ const FAQ = () => {
     {
       question: "Comment mesurer et suivre les résultats de mes campagnes ?",
       answer: {
-        intro: "Transparence totale sur vos performances avec nos outils de suivi :",
+        intro: "Transparence totale sur vos performances via les dashboards des plateformes publicitaires :",
         points: [
-          "📊 **Dashboard en temps réel** : Vues, clics, conversions, ROAS",
-          "📈 **Rapports hebdomadaires** : Analyse détaillée des performances",
-          "🎯 **KPIs personnalisés** : Métriques adaptées à vos objectifs",
+          "📊 **Dashboards natifs** : Google Ads, Meta Business Manager, TikTok Ads Manager",
+          "📈 **Rapports hebdomadaires** : Analyse détaillée des performances consolidées",
+          "🎯 **KPIs personnalisés** : Métriques adaptées à vos objectifs musicaux",
           "📱 **Accès direct aux comptes** : Transparence complète sur vos campagnes",
-          "🔄 **Optimisations continues** : Ajustements basés sur les données"
+          "🔄 **Optimisations continues** : Ajustements basés sur les données des plateformes"
         ],
-        conclusion: "Vous gardez le contrôle total avec une visibilité complète sur chaque euro investi."
+        conclusion: "Vous gardez le contrôle total avec une visibilité complète sur chaque euro investi via les outils officiels."
       },
       category: "Suivi"
     },
