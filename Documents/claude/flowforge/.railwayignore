@@ -1,0 +1,43 @@
+# Ignore parent directories and files that shouldn't be in deployment
+../
+../../
+../../../
+Downloads/
+Documents/
+Applications/
+*.torrent
+*.MOV
+*.mp4
+*.wav
+*.mp3
+*.JPG
+*.jpeg
+*.png
+*.gif
+*.webp
+*.pdf
+*.xlsx
+*.docx
+*.pptx
+*.zip
+*.tgz
+*.tar.gz
+*.dmg
+*.pkg
+*.NEF
+*.DNG
+*.xmp
+*.HEIC
+*.asice
+*.bdoc
+
+# Specific problematic directories from the error
+blog-mdmc-main*/
+wp-includes/
+wp-content/
+MDMC*/
+
+# OS files  
+.DS_Store
+Thumbs.db
+desktop.ini
