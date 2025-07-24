@@ -3,7 +3,7 @@
  * Route SEO: /ressources/faq
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import Header from '../../../components/layout/Header';
@@ -12,6 +12,173 @@ import './ResourcesPages.css';
 
 const FAQ = () => {
   const { t } = useTranslation();
+  const [activeItem, setActiveItem] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const toggleItem = (index) => {
+    setActiveItem(activeItem === index ? null : index);
+  };
+
+  const faqData = [
+    {
+      question: "Qui êtes-vous ?",
+      answer: {
+        intro: "Nous sommes MDMC Music Ads, une agence indépendante fondée en 2018 par un ancien salarié de Google, également ex-attaché de presse musique en France.",
+        points: [
+          "🎯 Une expertise technique pointue en YouTube Ads, Meta, TikTok & tracking",
+          "🎵 Une compréhension fine des enjeux artistiques, culturels et commerciaux",
+          "📈 Une culture du résultat : notoriété, abonnés, vues ciblées, engagement et ventes"
+        ],
+        conclusion: "Nous plaçons l'humain, la transparence et l'impact au cœur de chaque collaboration. Chaque campagne est conçue comme un levier de croissance réelle et durable pour les artistes et structures que nous accompagnons."
+      },
+      category: "Présentation"
+    },
+    {
+      question: "Quels services proposez-vous exactement ?",
+      answer: {
+        intro: "Nous offrons une gamme complète de services marketing digital spécialisés pour l'industrie musicale :",
+        points: [
+          "🎬 **Campagnes YouTube Ads** : Promotion de clips, augmentation d'abonnés, ciblage précis",
+          "📱 **Meta Ads (Facebook/Instagram)** : Awareness, engagement, conversion streaming",
+          "🎵 **TikTok Promotion** : Viralité, découverte, audience jeune",
+          "📊 **Analytics & Reporting** : Tableaux de bord détaillés, insights stratégiques",
+          "🎯 **Consulting Stratégique** : Audit, recommandations, planification campagnes",
+          "🔗 **SmartLinks** : Pages de destination optimisées pour la conversion"
+        ],
+        conclusion: "Chaque service s'adapte à vos objectifs spécifiques et à votre budget."
+      },
+      category: "Services"
+    },
+    {
+      question: "Combien coûte une campagne ? Quels sont vos tarifs ?",
+      answer: {
+        intro: "Nos tarifs s'adaptent à chaque projet. Voici notre structure tarifaire :",
+        points: [
+          "💰 **Budget minimum** : 500€ de budget média + frais de gestion",
+          "📊 **Frais de gestion** : 20-30% du budget média selon la complexité",
+          "🎯 **Forfaits consulting** : À partir de 150€/heure",
+          "📈 **Packages tout-inclus** : De 1000€ à 5000€/mois selon les besoins"
+        ],
+        conclusion: "Utilisez notre simulateur pour obtenir une estimation personnalisée basée sur vos objectifs."
+      },
+      category: "Tarifs"
+    },
+    {
+      question: "Comment mesurer et suivre les résultats de mes campagnes ?",
+      answer: {
+        intro: "Transparence totale sur vos performances avec nos outils de suivi :",
+        points: [
+          "📊 **Dashboard en temps réel** : Vues, clics, conversions, ROAS",
+          "📈 **Rapports hebdomadaires** : Analyse détaillée des performances",
+          "🎯 **KPIs personnalisés** : Métriques adaptées à vos objectifs",
+          "📱 **Accès direct aux comptes** : Transparence complète sur vos campagnes",
+          "🔄 **Optimisations continues** : Ajustements basés sur les données"
+        ],
+        conclusion: "Vous gardez le contrôle total avec une visibilité complète sur chaque euro investi."
+      },
+      category: "Suivi"
+    },
+    {
+      question: "Travaillez-vous avec tous les styles musicaux ?",
+      answer: {
+        intro: "Absolument ! Notre expertise s'adapte à tous les univers musicaux :",
+        points: [
+          "🎤 **Hip-Hop/Rap** : Stratégies virales, targeting urbain",
+          "🎸 **Rock/Metal** : Communautés passionnées, événementiel",
+          "🎹 **Électro/House** : Plateformes spécialisées, festival marketing",
+          "🎺 **Jazz/Classique** : Audiences de niche, contenus éducatifs",
+          "🌍 **Musiques du monde** : Ciblage géographique et culturel",
+          "🎵 **Pop/Variété** : Mass market, multi-plateformes"
+        ],
+        conclusion: "Chaque genre musical a ses codes, son audience et ses plateformes privilégiées. Nous maîtrisons ces spécificités."
+      },
+      category: "Styles musicaux"
+    },
+    {
+      question: "Garantissez-vous les résultats ? Quels sont vos engagements ?",
+      answer: {
+        intro: "Nous ne promettons pas de miracles, mais nous garantissons :",
+        points: [
+          "✅ **Méthodologie éprouvée** : 6 ans d'expérience, +500 campagnes",
+          "🔄 **Optimisation continue** : Tests A/B, ajustements quotidiens",
+          "📊 **Transparence totale** : Accès complet aux données et comptes",
+          "🎯 **Ciblage précis** : Audiences qualifiées, pas de trafic générique",
+          "📞 **Support dédié** : Contact direct avec votre chargé de campagne",
+          "💡 **Conseils stratégiques** : Recommandations pour optimiser votre contenu"
+        ],
+        conclusion: "Les résultats dépendent de la qualité de votre contenu, de votre budget et de votre marché. Nous maximisons votre potentiel."
+      },
+      category: "Garanties"
+    },
+    {
+      question: "Combien de temps faut-il pour voir les premiers résultats ?",
+      answer: {
+        intro: "Les délais varient selon vos objectifs :",
+        points: [
+          "⚡ **Premiers résultats** : 24-48h après lancement",
+          "📈 **Optimisation complète** : 7-14 jours pour stabiliser les performances",
+          "🎯 **Résultats significatifs** : 1-2 mois pour une croissance durable",
+          "📊 **Analyse complète** : 3 mois pour évaluer l'impact global"
+        ],
+        conclusion: "Patience et constance sont clés dans le marketing musical. Nous optimisons en continu pour accélérer vos résultats."
+      },
+      category: "Délais"
+    },
+    {
+      question: "Comment se déroule l'onboarding et le suivi des campagnes ?",
+      answer: {
+        intro: "Un processus structuré pour votre réussite :",
+        points: [
+          "📞 **Audit gratuit** : Analyse de votre situation actuelle (30-45 min)",
+          "📋 **Brief détaillé** : Définition des objectifs, cibles, budget",
+          "🎯 **Stratégie personnalisée** : Plan de campagne adapté à vos besoins",
+          "🚀 **Lancement rapide** : Mise en ligne sous 48-72h",
+          "📊 **Suivi hebdomadaire** : Points réguliers sur les performances",
+          "🔄 **Optimisations** : Ajustements basés sur les résultats"
+        ],
+        conclusion: "Vous êtes accompagné(e) à chaque étape avec un contact privilégié."
+      },
+      category: "Processus"
+    },
+    {
+      question: "Puis-je garder le contrôle de mes comptes publicitaires ?",
+      answer: {
+        intro: "Transparence et contrôle total pour vous :",
+        points: [
+          "🔑 **Propriété des comptes** : Vos comptes, vos données, vos accès",
+          "👥 **Accès partagé** : Nous travaillons avec vos permissions",
+          "📊 **Visibilité complète** : Vous voyez tout en temps réel",
+          "📋 **Historique préservé** : Toutes vos données restent chez vous",
+          "🚪 **Liberté totale** : Vous pouvez arrêter à tout moment"
+        ],
+        conclusion: "Vous restez propriétaire de vos actifs digitaux. Nous sommes vos partenaires, pas vos intermédiaires."
+      },
+      category: "Contrôle"
+    },
+    {
+      question: "Que se passe-t-il si je ne suis pas satisfait(e) des résultats ?",
+      answer: {
+        intro: "Votre satisfaction est notre priorité :",
+        points: [
+          "📞 **Communication ouverte** : Discussion immédiate des problèmes",
+          "🔄 **Plan d'amélioration** : Ajustements stratégiques rapides",
+          "📊 **Analyse détaillée** : Identification des points de blocage",
+          "💡 **Solutions alternatives** : Nouvelles approches si nécessaire",
+          "🤝 **Engagement qualité** : Nous travaillons jusqu'à votre satisfaction"
+        ],
+        conclusion: "Notre réputation se construit sur vos succès. Nous trouvons toujours des solutions."
+      },
+      category: "Satisfaction"
+    }
+  ];
+
+  const filteredFAQ = faqData.filter(item => 
+    item.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.answer.intro.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const categories = [...new Set(faqData.map(item => item.category))];
 
   return (
     <HelmetProvider>
@@ -30,59 +197,67 @@ const FAQ = () => {
             <p className="resource-subtitle">{t('faq.subtitle', 'Trouvez rapidement les réponses à vos questions sur nos services')}</p>
           </div>
 
+          <div className="faq-search-section">
+            <div className="faq-search-container">
+              <div className="faq-search-box">
+                <span className="search-icon">🔍</span>
+                <input 
+                  type="text" 
+                  placeholder="Rechercher dans la FAQ..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="faq-search-input"
+                />
+              </div>
+              <div className="faq-categories">
+                {categories.map(category => (
+                  <span key={category} className="faq-category-tag">
+                    {category}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
           <div className="faq-content">
-            <div className="faq-item">
-              <h2>{t('faq.question_1', '1. Qui êtes-vous ?')}</h2>
-              <div className="faq-answer">
-                <p>{t('faq.answer_1_p1', 'Nous sommes MDMC Music Ads, une agence indépendante fondée en 2018 par un ancien salarié de Google, également ex-attaché de presse musique en France.')}</p>
-                
-                <p>{t('faq.answer_1_p2', 'Notre ADN repose sur la jonction entre la culture musicale et la maîtrise avancée des outils publicitaires numériques. Depuis plus de 6 ans, nous accompagnons des artistes, labels, festivals, agences et porteurs de projets créatifs en France, en Europe et en Amérique du Nord.')}</p>
-                
-                <p>{t('faq.answer_1_p3', 'Nos campagnes s\'appuient sur :')}</p>
-                <ul>
-                  <li>{t('faq.answer_1_li1', 'une expertise technique pointue en YouTube Ads, Meta, TikTok & tracking,')}</li>
-                  <li>{t('faq.answer_1_li2', 'une compréhension fine des enjeux artistiques, culturels et commerciaux,')}</li>
-                  <li>{t('faq.answer_1_li3', 'une culture du résultat : notoriété, abonnés, vues ciblées, engagement et ventes.')}</li>
-                </ul>
-                
-                <p>{t('faq.answer_1_p4', 'Nous plaçons l\'humain, la transparence et l\'impact au cœur de chaque collaboration. Chaque campagne est conçue comme un levier de croissance réelle et durable pour les artistes et structures que nous accompagnons.')}</p>
-              </div>
+            <div className="faq-stats">
+              <span className="faq-count">{filteredFAQ.length} question{filteredFAQ.length > 1 ? 's' : ''} trouvée{filteredFAQ.length > 1 ? 's' : ''}</span>
             </div>
-
-            <div className="faq-item">
-              <h2>{t('faq.question_2', '2. Quels services proposez-vous ?')}</h2>
-              <div className="faq-answer">
-                <p>{t('faq.answer_2', 'Campagnes YouTube Ads, Meta, TikTok, analyse de données et consulting stratégique.')}</p>
+            
+            {filteredFAQ.map((item, index) => (
+              <div key={index} className={`faq-item ${activeItem === index ? 'active' : ''}`}>
+                <div className="faq-question" onClick={() => toggleItem(index)}>
+                  <h2>{item.question}</h2>
+                  <div className="faq-toggle">
+                    <span className="faq-category-label">{item.category}</span>
+                    <span className={`faq-arrow ${activeItem === index ? 'active' : ''}`}>▼</span>
+                  </div>
+                </div>
+                <div className={`faq-answer ${activeItem === index ? 'active' : ''}`}>
+                  <div className="faq-answer-content">
+                    <p className="faq-intro">{item.answer.intro}</p>
+                    {item.answer.points && (
+                      <ul className="faq-points">
+                        {item.answer.points.map((point, idx) => (
+                          <li key={idx} dangerouslySetInnerHTML={{__html: point}} />
+                        ))}
+                      </ul>
+                    )}
+                    {item.answer.conclusion && (
+                      <p className="faq-conclusion">{item.answer.conclusion}</p>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <div className="faq-item">
-              <h2>{t('faq.question_3', '3. Combien coûte une campagne ?')}</h2>
-              <div className="faq-answer">
-                <p>{t('faq.answer_3', 'Le coût dépend de vos objectifs, de la durée de la campagne et du budget média souhaité. Utilisez notre simulateur pour obtenir une estimation personnalisée.')}</p>
+            ))}
+            
+            {filteredFAQ.length === 0 && (
+              <div className="faq-no-results">
+                <span className="no-results-icon">🤔</span>
+                <h3>Aucun résultat trouvé</h3>
+                <p>Essayez avec d'autres mots-clés ou contactez-nous directement.</p>
               </div>
-            </div>
-
-            <div className="faq-item">
-              <h2>{t('faq.question_4', '4. Comment puis-je mesurer les résultats ?')}</h2>
-              <div className="faq-answer">
-                <p>{t('faq.answer_4', 'Vous avez accès à un tableau de bord complet, incluant vues, abonnés, conversions, ROAS, etc. Des bilans peuvent être fournis à chaque étape.')}</p>
-              </div>
-            </div>
-
-            <div className="faq-item">
-              <h2>{t('faq.question_5', '5. Travaillez-vous avec tous les styles musicaux ?')}</h2>
-              <div className="faq-answer">
-                <p>{t('faq.answer_5', 'Oui. Du hip-hop à la musique classique, nous adaptons nos campagnes à chaque univers artistique.')}</p>
-              </div>
-            </div>
-
-            <div className="faq-item">
-              <h2>{t('faq.question_6', '6. Est-ce que vous garantissez les résultats ?')}</h2>
-              <div className="faq-answer">
-                <p>{t('faq.answer_6', 'Non. Nous garantissons une méthode éprouvée et une optimisation continue, mais les résultats dépendent aussi de votre contenu, ciblage et budget.')}</p>
-              </div>
-            </div>
+            )}
           </div>
 
           <div className="resource-cta">
