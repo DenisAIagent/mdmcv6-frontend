@@ -14,7 +14,6 @@ function SmartlinkListPage() {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
   const [selectedIds, setSelectedIds] = React.useState([]);
-  const [isDataLoaded, setIsDataLoaded] = React.useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = React.useState(false);
   const [deleteTarget, setDeleteTarget] = React.useState(null); // { type: 'single'|'multiple', id?, ids?, title? }
 
@@ -73,7 +72,6 @@ function SmartlinkListPage() {
       console.log('Valid SmartLinks count:', validSmartlinks.length);
       
       setSmartlinks(validSmartlinks);
-      setIsDataLoaded(true);
     } catch (err) {
       console.error("SmartlinkListPage - Failed to fetch SmartLinks:", err);
       
@@ -92,7 +90,6 @@ function SmartlinkListPage() {
         toast.error(errorMsg);
       }
       setSmartlinks([]);
-      setIsDataLoaded(false);
     } finally {
       setLoading(false);
     }
@@ -277,7 +274,7 @@ function SmartlinkListPage() {
     return <div>Configuration des colonnes en cours...</div>;
   }
 
-  if (loading && !isDataLoaded) {
+  if (loading && smartlinks.length === 0) {
     return (
       <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', py: 5, minHeight: 400 }}>
         <div style={{ width: 40, height: 40, border: '4px solid #f3f3f3', borderTop: '4px solid #3498db', borderRadius: '50%', animation: 'spin 2s linear infinite' }}></div>
@@ -354,7 +351,7 @@ function SmartlinkListPage() {
           <DataGrid
             rows={smartlinks}
             columns={columns}
-            loading={!isDataLoaded}
+            loading={loading}
             pageSizeOptions={[10, 25, 50]}
             initialState={{
               pagination: { paginationModel: { pageSize: 10 } },
@@ -363,8 +360,8 @@ function SmartlinkListPage() {
             density="standard"
             autoHeight={false}
             checkboxSelection
-            // On ne passe rowSelectionModel que si les données sont chargées
-            {...(isDataLoaded && { rowSelectionModel: selectedIds })}
+            // CORRECTION DÉFINITIVE: On retire rowSelectionModel pour éviter race condition
+            // DataGrid gère son état de sélection en interne avec Set/Map
             onRowSelectionModelChange={(newSelection) => {
               console.log('Selection changed:', newSelection);
               setSelectedIds(newSelection);
