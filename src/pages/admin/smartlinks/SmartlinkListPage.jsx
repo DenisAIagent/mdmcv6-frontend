@@ -342,9 +342,9 @@ function SmartlinkListPage() {
       </Box>
       
       <Box sx={{ height: 600, width: '100%' }}>
-        {smartlinks && smartlinks.length > 0 ? (
+        {Array.isArray(smartlinks) && smartlinks.length > 0 ? (
           <DataGrid
-            rows={smartlinks}
+            rows={smartlinks || []}
             columns={columns}
             loading={loading}
             pageSizeOptions={[10, 25, 50]}
@@ -355,10 +355,10 @@ function SmartlinkListPage() {
             density="standard"
             autoHeight={false}
             checkboxSelection
-            rowSelectionModel={selectedIds}
+            rowSelectionModel={selectedIds || []}
             onRowSelectionModelChange={(newSelection) => {
               console.log('Selection changed:', newSelection);
-              setSelectedIds(newSelection);
+              setSelectedIds(Array.isArray(newSelection) ? newSelection : []);
             }}
             getRowId={(row) => row.id || row._id || `fallback-${Math.random()}`}
             disableRowSelectionOnClick
