@@ -14,6 +14,7 @@ function SmartlinkListPage() {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
   const [selectedIds, setSelectedIds] = React.useState([]);
+  const [isDataLoaded, setIsDataLoaded] = React.useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = React.useState(false);
   const [deleteTarget, setDeleteTarget] = React.useState(null); // { type: 'single'|'multiple', id?, ids?, title? }
 
@@ -72,6 +73,7 @@ function SmartlinkListPage() {
       console.log('Valid SmartLinks count:', validSmartlinks.length);
       
       setSmartlinks(validSmartlinks);
+      setIsDataLoaded(true);
     } catch (err) {
       console.error("SmartlinkListPage - Failed to fetch SmartLinks:", err);
       
@@ -90,6 +92,7 @@ function SmartlinkListPage() {
         toast.error(errorMsg);
       }
       setSmartlinks([]);
+      setIsDataLoaded(false);
     } finally {
       setLoading(false);
     }
@@ -174,7 +177,7 @@ function SmartlinkListPage() {
     console.log(`[ADMIN] Test de tracking lance pour SmartLink: ${slug}`);
   };
   
-  const columns = [
+  const columns = React.useMemo(() => [
     {
       field: 'coverImageUrl', 
       headerName: 'Pochette', 
@@ -267,9 +270,14 @@ function SmartlinkListPage() {
         </Box>
       ),
     },
-  ];
+  ], []);  // Dépendances vides car les fonctions handlers sont stables
 
-  if (loading && smartlinks.length === 0) {
+  // Protection ultime : ne rendre le DataGrid que si les colonnes sont définies
+  if (!columns || columns.length === 0) {
+    return <div>Configuration des colonnes en cours...</div>;
+  }
+
+  if (loading && !isDataLoaded) {
     return (
       <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', py: 5, minHeight: 400 }}>
         <div style={{ width: 40, height: 40, border: '4px solid #f3f3f3', borderTop: '4px solid #3498db', borderRadius: '50%', animation: 'spin 2s linear infinite' }}></div>
@@ -344,9 +352,9 @@ function SmartlinkListPage() {
       <Box sx={{ height: 600, width: '100%' }}>
         {Array.isArray(smartlinks) && smartlinks.length > 0 ? (
           <DataGrid
-            rows={smartlinks || []}
+            rows={smartlinks}
             columns={columns}
-            loading={loading}
+            loading={!isDataLoaded}
             pageSizeOptions={[10, 25, 50]}
             initialState={{
               pagination: { paginationModel: { pageSize: 10 } },
@@ -355,12 +363,13 @@ function SmartlinkListPage() {
             density="standard"
             autoHeight={false}
             checkboxSelection
-            rowSelectionModel={selectedIds || []}
+            // On ne passe rowSelectionModel que si les données sont chargées
+            {...(isDataLoaded && { rowSelectionModel: selectedIds })}
             onRowSelectionModelChange={(newSelection) => {
               console.log('Selection changed:', newSelection);
-              setSelectedIds(Array.isArray(newSelection) ? newSelection : []);
+              setSelectedIds(newSelection);
             }}
-            getRowId={(row) => row.id || row._id || `fallback-${Math.random()}`}
+            getRowId={(row) => row.id}
             disableRowSelectionOnClick
             sx={{
               '& .MuiDataGrid-cell:focus': {

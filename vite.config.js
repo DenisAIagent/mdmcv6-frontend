@@ -26,7 +26,7 @@ export default defineConfig({
   
   build: {
     outDir: "dist",
-    sourcemap: false,
+    sourcemap: true,  // Activé pour debugging des erreurs DataGrid
     minify: "esbuild",
     // Code splitting optimisé pour SEO
     rollupOptions: {
