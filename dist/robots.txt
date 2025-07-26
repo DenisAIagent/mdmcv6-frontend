@@ -3,6 +3,7 @@ User-agent: *
 Allow: /
 Allow: /smartlinks/
 Allow: /ressources/
+Allow: /services/
 
 # Bloquer toutes les pages d'administration
 Disallow: /admin/
@@ -14,6 +15,32 @@ Disallow: /debug/
 Disallow: /test/
 Disallow: /.env
 Disallow: /config/
+Disallow: /private/
 
-# Sitemap (à créer)
+# Bloquer les paramètres de tracking pour optimiser le crawl budget
+Disallow: /*?*utm_*
+Disallow: /*?*fbclid*
+Disallow: /*?*gclid*
+
+# Optimisation crawl budget
+Crawl-delay: 1
+
+# Sitemap
 Sitemap: https://mdmcmusicads.com/sitemap.xml
+
+# Spécifique aux moteurs de recherche
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot  
+Allow: /
+
+# Bloquer les scrapers agressifs pour préserver les performances
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
