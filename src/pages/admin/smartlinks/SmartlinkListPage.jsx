@@ -166,6 +166,13 @@ function SmartlinkListPage() {
   const handleAnalyticsClick = (id) => {
     navigate(`/admin/smartlinks/analytics/${id}`);
   };
+
+  const handleTestDoubleTracking = (slug) => {
+    // Ouvre le SmartLink avec le nouveau système de tracking double-moteur dans un nouvel onglet
+    const testUrl = `/smartlink-test/${slug}`;
+    window.open(testUrl, '_blank');
+    console.log(`[ADMIN] Test de tracking lancé pour SmartLink: ${slug}`);
+  };
   
   const columns = [
     {
@@ -208,7 +215,7 @@ function SmartlinkListPage() {
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 280,
+      width: 380,
       renderCell: (params) => (
         <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
           <Button 
@@ -219,6 +226,16 @@ function SmartlinkListPage() {
             sx={{ minWidth: 'auto', px: 1 }}
           >
             Voir
+          </Button>
+          <Button 
+            variant="outlined" 
+            color="secondary" 
+            size="small" 
+            onClick={() => handleTestDoubleTracking(params.row.slug)}
+            disabled={!params.row.isPublished || !params.row.slug}
+            sx={{ minWidth: 'auto', px: 1 }}
+          >
+            Test Tracking
           </Button>
           <Button 
             variant="outlined" 

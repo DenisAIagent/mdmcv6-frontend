@@ -281,11 +281,33 @@ function SmartlinkAnalyticsPage() {
 
       {/* Statistiques par plateforme */}
       <Paper sx={{ p: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-          <AnalyticsIcon />
-          <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-            Clics par plateforme
-          </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justify: 'space-between', mb: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <AnalyticsIcon />
+            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+              Clics par plateforme
+            </Typography>
+          </Box>
+          {analytics?.trackingSources && (
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              {analytics.trackingSources.modern > 0 && (
+                <Chip 
+                  label={`Nouveau: ${analytics.totalClicksModern || 0}`} 
+                  color="success" 
+                  size="small"
+                  variant="outlined"
+                />
+              )}
+              {analytics.trackingSources.legacy > 0 && (
+                <Chip 
+                  label={`Ancien: ${analytics.totalClicksLegacy || 0}`} 
+                  color="info" 
+                  size="small"
+                  variant="outlined"
+                />
+              )}
+            </Box>
+          )}
         </Box>
 
         {analytics?.platformStats && analytics.platformStats.length > 0 ? (
@@ -296,6 +318,7 @@ function SmartlinkAnalyticsPage() {
                   <TableCell>Plateforme</TableCell>
                   <TableCell align="right">Clics</TableCell>
                   <TableCell align="right">Pourcentage</TableCell>
+                  <TableCell align="center">Source</TableCell>
                   <TableCell align="right">Progression</TableCell>
                 </TableRow>
               </TableHead>
@@ -330,6 +353,14 @@ function SmartlinkAnalyticsPage() {
                           <Typography variant="body1">
                             {percentage}%
                           </Typography>
+                        </TableCell>
+                        <TableCell align="center">
+                          <Chip 
+                            label={stat.source === 'modern' ? 'Nouveau' : stat.source === 'legacy' ? 'Ancien' : 'Combiné'}
+                            color={stat.source === 'modern' ? 'success' : stat.source === 'legacy' ? 'info' : 'warning'}
+                            size="small"
+                            variant="outlined"
+                          />
                         </TableCell>
                         <TableCell align="right">
                           <Box sx={{ width: 100 }}>
