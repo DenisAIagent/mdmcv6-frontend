@@ -48,7 +48,7 @@ function SmartlinkListPage() {
             } : { name: 'Artiste inconnu', slug: '' }
           };
         } catch (error) {
-          console.error('🔍 Error processing SmartLink:', error, sl);
+          console.error('Error processing SmartLink:', error, sl);
           return {
             id: `error-${Date.now()}-${index}`,
             trackTitle: 'Erreur de données',
@@ -63,13 +63,13 @@ function SmartlinkListPage() {
           };
         }
       });
-      console.log('🔍 SmartLinks loaded:', smartlinksWithId);
-      console.log('🔍 First SmartLink sample:', smartlinksWithId[0]);
-      console.log('🔍 SmartLinks keys:', smartlinksWithId.map(sl => Object.keys(sl)));
+      console.log('SmartLinks loaded:', smartlinksWithId);
+      console.log('First SmartLink sample:', smartlinksWithId[0]);
+      console.log('SmartLinks keys:', smartlinksWithId.map(sl => Object.keys(sl)));
       
       // Vérification supplémentaire pour éviter les erreurs
       const validSmartlinks = smartlinksWithId.filter(sl => sl && sl.id);
-      console.log('🔍 Valid SmartLinks count:', validSmartlinks.length);
+      console.log('Valid SmartLinks count:', validSmartlinks.length);
       
       setSmartlinks(validSmartlinks);
     } catch (err) {
@@ -171,7 +171,7 @@ function SmartlinkListPage() {
     // Ouvre le SmartLink avec le nouveau système de tracking double-moteur dans un nouvel onglet
     const testUrl = `/smartlink-test/${slug}`;
     window.open(testUrl, '_blank');
-    console.log(`[ADMIN] Test de tracking lancé pour SmartLink: ${slug}`);
+    console.log(`[ADMIN] Test de tracking lance pour SmartLink: ${slug}`);
   };
   
   const columns = [
@@ -355,10 +355,10 @@ function SmartlinkListPage() {
             density="standard"
             autoHeight={false}
             checkboxSelection
-            rowSelectionModel={selectedIds || []}
+            rowSelectionModel={selectedIds}
             onRowSelectionModelChange={(newSelection) => {
-              console.log('🔍 Selection changed:', newSelection);
-              setSelectedIds(newSelection || []);
+              console.log('Selection changed:', newSelection);
+              setSelectedIds(newSelection);
             }}
             getRowId={(row) => row.id || row._id || `fallback-${Math.random()}`}
             disableRowSelectionOnClick
