@@ -271,10 +271,33 @@ const SmartLinkPageDoubleTracking = () => {
           referrer: document.referrer || 'Direct'
         };
 
-        // Push vers le dataLayer global
+        // Push vers le dataLayer global (GTM SmartLinks)
         if (typeof window !== 'undefined' && window.dataLayer) {
           window.dataLayer.push(pageViewEvent);
-          console.log('[CLIENT] Page view event envoyé vers GTM:', pageViewEvent);
+          console.log('[CLIENT] Page view event envoyé vers GTM SmartLinks:', pageViewEvent);
+        }
+
+        // Événement GA4 SmartLinks direct
+        if (typeof window !== 'undefined' && window.gtag) {
+          window.gtag('config', 'G-098G18MJ7M', {
+            page_title: `${data.trackTitle} - ${data.artistName}`,
+            page_location: window.location.href,
+            custom_map: {
+              'custom_parameter_1': 'smartlink_id',
+              'custom_parameter_2': 'track_title',
+              'custom_parameter_3': 'artist_name'
+            }
+          });
+          
+          window.gtag('event', 'smartlink_page_view', {
+            smartlink_id: data._id,
+            track_title: data.trackTitle,
+            artist_name: data.artistName,
+            user_country: geoData.country || 'Unknown',
+            platforms_count: data.platforms?.length || 0
+          });
+          
+          console.log('[CLIENT] GA4 SmartLinks direct event envoyé');
         }
 
         // 5. Meta Pixel tracking
@@ -326,7 +349,20 @@ const SmartLinkPageDoubleTracking = () => {
 
       if (typeof window !== 'undefined' && window.dataLayer) {
         window.dataLayer.push(clickEvent);
-        console.log('[CLIENT] Service click event envoyé vers GTM:', clickEvent);
+        console.log('[CLIENT] Service click event envoyé vers GTM SmartLinks:', clickEvent);
+      }
+
+      // Événement GA4 SmartLinks direct pour les clics
+      if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('event', 'service_click', {
+          smartlink_id: smartlinkData._id,
+          service_name: platform.platform || platform.name.toLowerCase(),
+          service_display_name: platform.displayName || platform.name,
+          track_title: smartlinkData.trackTitle,
+          artist_name: smartlinkData.artistName,
+          user_country: userGeoData?.country || 'Unknown'
+        });
+        console.log('[CLIENT] GA4 SmartLinks service click event envoyé');
       }
 
       // 2. Meta Pixel - AddToCart (engagement)
@@ -421,6 +457,24 @@ const SmartLinkPageDoubleTracking = () => {
         <title>{`${smartlinkData.trackTitle} - ${smartlinkData.artistName} | MDMC SmartLink`}</title>
         <meta name="description" content={`Écouter "${smartlinkData.trackTitle}" de ${smartlinkData.artistName} sur toutes les plateformes de streaming musical.`} />
         
+        {/* GTM SmartLinks spécifique */}
+        <script>
+          {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','GTM-572GXWPP');`}
+        </script>
+        
+        {/* GA4 SmartLinks spécifique */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-098G18MJ7M"></script>
+        <script>
+          {`window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-098G18MJ7M');`}
+        </script>
+        
         {/* Open Graph */}
         <meta property="og:title" content={`${smartlinkData.trackTitle} - ${smartlinkData.artistName}`} />
         <meta property="og:description" content={`Écouter sur toutes les plateformes de streaming`} />
@@ -448,6 +502,12 @@ const SmartLinkPageDoubleTracking = () => {
             "url": window.location.href
           })}
         </script>
+        
+        {/* GTM SmartLinks noscript */}
+        <noscript>
+          {`<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-572GXWPP"
+          height="0" width="0" style="display:none;visibility:hidden"></iframe>`}
+        </noscript>
       </Helmet>
 
       <StyledContainer maxWidth={false}>
