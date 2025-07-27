@@ -215,7 +215,10 @@ const SmartLinkForm = ({ smartLinkData = null, onFormSubmitSuccess }) => {
 
       {formError && <Typography color="error">{formError}</Typography>}
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      <form onSubmit={handleSubmit(onSubmit, (errors) => {
+        console.error('❌ Erreurs de validation:', errors);
+        toast.error('Erreurs de validation du formulaire. Vérifiez les champs.');
+      })} noValidate>
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
             <TextField
