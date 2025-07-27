@@ -1,8 +1,8 @@
  // src/config/api.config.js
 
   const API_CONFIG = {
-    // URL du backend - Production avec custom domain
-    BASE_URL: 'https://api.mdmcmusicads.com/api/v1',
+    // URL du backend - Production avec custom domain  
+    BASE_URL: 'https://api.mdmcmusicads.com/api',
 
     // Timeout pour les requêtes (30 secondes)
     TIMEOUT: 30000,
@@ -19,10 +19,10 @@
   // Configuration pour différents environnements
   const ENV_CONFIG = {
     development: {
-      BASE_URL: 'http://localhost:5001/api/v1',
+      BASE_URL: 'http://localhost:5001/api',
     },
     production: {
-      BASE_URL: 'https://api.mdmcmusicads.com/api/v1',
+      BASE_URL: 'https://api.mdmcmusicads.com/api',
     }
   };
 
