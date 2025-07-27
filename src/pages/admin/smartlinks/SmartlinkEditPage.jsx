@@ -4,8 +4,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Paper, Typography, Container, CircularProgress, Alert, Box } from '@mui/material';
 import { toast } from 'react-toastify';
 
-// Import du composant formulaire SmartLink
-import SmartLinkForm from '@/components/smartlinks/SmartLinkForm'; // Vérifiez bien ce chemin
+// Import du composant formulaire SmartLink (version complète admin)
+import SmartLinkForm from '@/features/admin/smartlinks/components/SmartLinkForm';
 import apiService from '@/services/api.service'; // Pour récupérer les données du SmartLink
 
 function SmartlinkEditPage() {
