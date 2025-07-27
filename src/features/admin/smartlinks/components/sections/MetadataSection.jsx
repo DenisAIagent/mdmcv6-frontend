@@ -79,6 +79,27 @@ const MetadataSection = ({ metadata, control, setValue }) => {
               />
             </Grid>
             
+            <Grid item xs={12}>
+              <Controller
+                name="seo.description"
+                control={control}
+                render={({ field, fieldState: { error } }) => (
+                  <TextField
+                    {...field}
+                    label="Meta description"
+                    variant="outlined"
+                    fullWidth
+                    multiline
+                    rows={2}
+                    placeholder={`Écouter "${metadata.title || 'ce titre'}" de ${metadata.artist || 'cet artiste'} sur toutes les plateformes de streaming musical.`}
+                    error={!!error}
+                    helperText={error ? error.message : "Description SEO qui apparaîtra dans les résultats de recherche et partages sociaux (max 160 caractères)"}
+                    inputProps={{ maxLength: 160 }}
+                  />
+                )}
+              />
+            </Grid>
+            
             <Grid item xs={12} sm={6}>
               <Controller
                 name="isrc"

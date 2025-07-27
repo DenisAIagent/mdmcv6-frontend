@@ -26,6 +26,7 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { smartLinkSchema } from '@/features/admin/smartlinks/schemas/smartLinkSchema.js';
 import ImageUpload from '@/features/admin/components/ImageUpload.jsx';
+import TrackingSection from '@/features/admin/smartlinks/components/sections/TrackingSection.jsx';
 import apiService from '@/services/api.service';
 
 const SmartLinkForm = ({ smartLinkData = null, onFormSubmitSuccess }) => {
@@ -48,23 +49,44 @@ const SmartLinkForm = ({ smartLinkData = null, onFormSubmitSuccess }) => {
   } = useForm({
     resolver: zodResolver(smartLinkSchema),
     defaultValues: {
-      trackTitle: smartLinkData?.trackTitle || '',
+      trackTitle: smartLinkData?.title || smartLinkData?.trackTitle || '',
+      artistName: smartLinkData?.artist || smartLinkData?.artistName || '',
       artistId: smartLinkData?.artistId?._id || smartLinkData?.artistId || '',
-      coverImageUrl: smartLinkData?.coverImageUrl || '',
+      coverImageUrl: smartLinkData?.artwork || smartLinkData?.coverImageUrl || '',
       releaseDate: smartLinkData?.releaseDate
         ? new Date(`${smartLinkData.releaseDate}T00:00:00`)
         : null,
       description: smartLinkData?.description || '',
-      platformLinks: smartLinkData?.platformLinks?.length
-        ? smartLinkData.platformLinks
-        : [{ platform: '', url: '' }],
+      seo: {
+        description: smartLinkData?.seo?.description || ''
+      },
+      analytics: {
+        customTracking: {
+          trackingMode: smartLinkData?.analytics?.customTracking?.trackingMode || 'global',
+          clientName: smartLinkData?.analytics?.customTracking?.clientName || '',
+          campaignName: smartLinkData?.analytics?.customTracking?.campaignName || '',
+          ga4Override: {
+            enabled: smartLinkData?.analytics?.customTracking?.ga4Override?.enabled || false,
+            measurementId: smartLinkData?.analytics?.customTracking?.ga4Override?.measurementId || ''
+          },
+          gtmOverride: {
+            enabled: smartLinkData?.analytics?.customTracking?.gtmOverride?.enabled || false,
+            containerId: smartLinkData?.analytics?.customTracking?.gtmOverride?.containerId || ''
+          }
+        }
+      },
+      platformLinks: smartLinkData?.platforms?.length
+        ? smartLinkData.platforms.map(p => ({ platform: p.platform, url: p.url }))
+        : smartLinkData?.platformLinks?.length
+          ? smartLinkData.platformLinks
+          : [{ platform: '', url: '' }],
       trackingIds: {
         ga4Id: smartLinkData?.trackingIds?.ga4Id || '',
         gtmId: smartLinkData?.trackingIds?.gtmId || '',
         metaPixelId: smartLinkData?.trackingIds?.metaPixelId || '',
         tiktokPixelId: smartLinkData?.trackingIds?.tiktokPixelId || '',
       },
-      isPublished: smartLinkData?.isPublished || false,
+      isPublished: smartLinkData?.status === 'published' || smartLinkData?.isPublished || false,
       slug: smartLinkData?.slug || '',
     },
   });
@@ -186,8 +208,34 @@ const SmartLinkForm = ({ smartLinkData = null, onFormSubmitSuccess }) => {
               {...register('trackTitle')}
               label="Titre de la musique"
               fullWidth
+              required
               error={!!errors.trackTitle}
               helperText={errors.trackTitle?.message}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              {...register('artistName')}
+              label="Nom de l'artiste"
+              fullWidth
+              required
+              error={!!errors.artistName}
+              helperText={errors.artistName?.message}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              {...register('seo.description')}
+              label="Meta description"
+              fullWidth
+              multiline
+              rows={2}
+              placeholder="Description SEO qui apparaîtra dans les résultats de recherche et partages sociaux"
+              error={!!errors.seo?.description}
+              helperText={errors.seo?.description?.message || "Max 160 caractères recommandé pour le SEO"}
+              inputProps={{ maxLength: 160 }}
             />
           </Grid>
 
@@ -209,6 +257,11 @@ const SmartLinkForm = ({ smartLinkData = null, onFormSubmitSuccess }) => {
               error={!!errors.utmContent}
               helperText={errors.utmContent?.message || "Différencier des variantes d'une même campagne (optionnel)"}
             />
+          </Grid>
+
+          {/* Section Tracking Personnalisé */}
+          <Grid item xs={12}>
+            <TrackingSection control={control} watch={watch} />
           </Grid>
         </Grid>
         <Box sx={{ mt: 4, display: 'flex', justifyContent: 'flex-end' }}>

@@ -45,6 +45,24 @@ const SmartLinkWizard = () => {
       artistName: '',
       isrc: '',
       previewAudioUrl: '',
+      seo: {
+        description: ''
+      },
+      analytics: {
+        customTracking: {
+          trackingMode: 'global',
+          clientName: '',
+          campaignName: '',
+          ga4Override: {
+            enabled: false,
+            measurementId: ''
+          },
+          gtmOverride: {
+            enabled: false,
+            containerId: ''
+          }
+        }
+      },
       utmSource: 'wiseband',
       utmMedium: 'smartlink',
       utmCampaign: '',
@@ -319,7 +337,7 @@ const SmartLinkWizard = () => {
               
               {/* Section Outils de tracking */}
               <Grid item xs={12}>
-                <TrackingSection control={control} />
+                <TrackingSection control={control} watch={watch} />
               </Grid>
               
               <Grid item xs={12}>
