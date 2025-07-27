@@ -102,12 +102,30 @@ const getPlatformLogo = (platform) => {
   };
   
   const key = mappings[normalizedPlatform] || normalizedPlatform;
-  return platformLogos[key] || 'https://via.placeholder.com/40x40?text=' + platform.substring(0, 2).toUpperCase();
+  if (platformLogos[key]) {
+    return platformLogos[key];
+  }
+  
+  // Créer un placeholder SVG local
+  const fallbackText = platform.substring(0, 2).toUpperCase();
+  return `data:image/svg+xml;base64,${btoa(`
+    <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+      <rect width="40" height="40" fill="#6B7280" rx="8"/>
+      <text x="20" y="25" font-family="Arial" font-size="12" fill="white" text-anchor="middle">${fallbackText}</text>
+    </svg>
+  `)}`;
 };
 
 const PreviewSection = ({ metadata, platformLinks, formValues }) => {
   const primaryColor = formValues.primaryColor || '#FF0000';
-  const artworkUrl = metadata.artwork || 'https://via.placeholder.com/300x300?text=Pochette+non+disponible';
+  const artworkUrl = metadata.artwork || `data:image/svg+xml;base64,${btoa(`
+    <svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+      <rect width="300" height="300" fill="#E5E7EB"/>
+      <rect x="120" y="120" width="60" height="60" fill="#9CA3AF" rx="8"/>
+      <text x="150" y="210" font-family="Arial" font-size="16" fill="#6B7280" text-anchor="middle">Pochette</text>
+      <text x="150" y="230" font-family="Arial" font-size="14" fill="#6B7280" text-anchor="middle">non disponible</text>
+    </svg>
+  `)}`;
   
   return (
     <Box>

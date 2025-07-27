@@ -41,7 +41,18 @@ const getPlatformLogo = (platform) => {
   };
   
   const key = mappings[normalizedPlatform] || normalizedPlatform;
-  return platformLogos[key] || `data:image/svg+xml;base64,${btoa(`<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" fill="#f0f0f0"/><text x="20" y="25" text-anchor="middle" fill="#666" font-size="12" font-family="Arial">${platform.substring(0, 2).toUpperCase()}</text></svg>`)}`;
+  if (platformLogos[key]) {
+    return platformLogos[key];
+  }
+  
+  // Créer un placeholder SVG local
+  const fallbackText = platform.substring(0, 2).toUpperCase();
+  return `data:image/svg+xml;base64,${btoa(`
+    <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+      <rect width="40" height="40" fill="#6B7280" rx="8"/>
+      <text x="20" y="25" font-family="Arial" font-size="12" fill="white" text-anchor="middle">${fallbackText}</text>
+    </svg>
+  `)}`;
 };
 
 const PlatformLinksSection = ({ platformLinks, setPlatformLinks }) => {

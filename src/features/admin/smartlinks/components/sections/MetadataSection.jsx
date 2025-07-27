@@ -19,7 +19,14 @@ const MetadataSection = ({ metadata, control, setValue }) => {
           <Card elevation={2}>
             <CardMedia
               component="img"
-              image={metadata.artwork || 'https://via.placeholder.com/300x300?text=Pochette+non+disponible'}
+              image={metadata.artwork || `data:image/svg+xml;base64,${btoa(`
+    <svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+      <rect width="300" height="300" fill="#E5E7EB"/>
+      <rect x="120" y="120" width="60" height="60" fill="#9CA3AF" rx="8"/>
+      <text x="150" y="210" font-family="Arial" font-size="16" fill="#6B7280" text-anchor="middle">Pochette</text>
+      <text x="150" y="230" font-family="Arial" font-size="14" fill="#6B7280" text-anchor="middle">non disponible</text>
+    </svg>
+  `)}`}
               alt={metadata.title}
               sx={{ height: 300, objectFit: 'cover' }}
             />
