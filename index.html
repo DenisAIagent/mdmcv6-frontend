@@ -95,16 +95,9 @@
           }
         }
         
-        // Si on accède directement à /admin sans hash, rediriger vers /#/admin
+        // Redirection sécurisée: accès admin uniquement via login
         if (path.startsWith('/admin') && !hash) {
-          const adminPath = path.replace('/admin', '/admin');
-          window.location.replace('/#' + adminPath);
-          return;
-        }
-        
-        // Si on accède à /admin sans hash spécifique, rediriger vers /#/admin/login
-        if (path === '/admin' && hash === '') {
-          window.location.replace('/#/admin');
+          window.location.replace('/#/admin/login');
           return;
         }
       })();

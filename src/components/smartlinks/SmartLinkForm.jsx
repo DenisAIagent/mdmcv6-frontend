@@ -151,14 +151,20 @@ const SmartLinkForm = ({ smartLinkData = null, onFormSubmitSuccess }) => {
 
   const onSubmit = async (data) => {
     setFormError(null);
+    console.log('🔧 SmartLinkForm: Données soumises:', data);
+    
     const submissionData = {
       ...data,
       releaseDate: data.releaseDate ? new Date(data.releaseDate).toISOString().split('T')[0] : null,
       trackingIds: Object.fromEntries(
-        Object.entries(data.trackingIds).filter(([_, value]) => value && value.trim() !== '')
+        Object.entries(data.trackingIds || {}).filter(([_, value]) => value && value.trim() !== '')
       ),
       platformLinks: data.platformLinks.filter(link => link.platform && link.url),
+      // Inclure les données analytics avec customTracking
+      analytics: data.analytics || {}
     };
+    
+    console.log('🚀 SmartLinkForm: Données finales envoyées:', submissionData);
 
     try {
       let responseData;
