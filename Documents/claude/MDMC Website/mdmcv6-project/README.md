@@ -2,6 +2,8 @@
 
 Système de SmartLink musical professionnel avec intégration Odesli et tracking analytics complet (GTM, GA4, Google Ads).
 
+**🧹 Environnement nettoyé - Version unifiée - 27 juillet 2025**
+
 ## 🚀 Fonctionnalités
 
 - **Scan automatique** de toutes les plateformes musicales via Odesli

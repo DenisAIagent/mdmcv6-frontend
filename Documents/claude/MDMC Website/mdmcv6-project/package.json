@@ -12,7 +12,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "install:all": "npm install && cd backend && npm install && cd ../frontend-clean && npm install",
     "deploy:backend": "cd backend && npm start",
-    "deploy:frontend": "cd frontend-clean && npm run build"
+    "deploy:frontend": "cd frontend-clean && npm run build",
+    "clean": "rm -rf backend/node_modules frontend-clean/node_modules node_modules",
+    "clean:logs": "rm -f backend/*.log frontend-clean/*.log"
   },
   "dependencies": {
     "concurrently": "^8.2.0"
