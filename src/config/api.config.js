@@ -4,8 +4,8 @@
     // URL du backend - Production avec custom domain
     BASE_URL: 'https://api.mdmcmusicads.com/api/v1',
 
-    // Timeout pour les requêtes (10 secondes)
-    TIMEOUT: 10000,
+    // Timeout pour les requêtes (30 secondes)
+    TIMEOUT: 30000,
 
     // Headers par défaut
     DEFAULT_HEADERS: {
