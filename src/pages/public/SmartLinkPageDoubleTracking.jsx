@@ -103,13 +103,14 @@ const fadeInUp = keyframes`
 `;
 
 const StyledContainer = styled(Container)(({ theme }) => ({
-  minHeight: '100vh',
+  height: '100vh',
   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   padding: theme.spacing(2),
   position: 'relative',
+  overflow: 'hidden',
   '&::before': {
     content: '""',
     position: 'absolute',
@@ -479,6 +480,9 @@ const SmartLinkPageDoubleTracking = () => {
         <meta property="og:title" content={`${smartlinkData.trackTitle} - ${smartlinkData.artistName}`} />
         <meta property="og:description" content={`Écouter sur toutes les plateformes de streaming`} />
         <meta property="og:image" content={smartlinkData.artworkUrl} />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1024" />
+        <meta property="og:image:height" content="1024" />
         <meta property="og:type" content="music.song" />
         <meta property="music:musician" content={smartlinkData.artistName} />
         
