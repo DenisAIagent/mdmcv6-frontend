@@ -200,6 +200,94 @@ const TrackingSection = ({ control, watch }) => {
                   )}
                 />
               </Grid>
+              
+              <Grid item xs={12} sm={6}>
+                <FormControlLabel
+                  control={
+                    <Controller
+                      name="analytics.customTracking.metaPixelOverride.enabled"
+                      control={control}
+                      defaultValue={false}
+                      render={({ field }) => (
+                        <Switch
+                          checked={field.value}
+                          onChange={field.onChange}
+                          color="primary"
+                        />
+                      )}
+                    />
+                  }
+                  label="Activer Meta Pixel personnalisé"
+                />
+                
+                <Controller
+                  name="analytics.customTracking.metaPixelOverride.pixelId"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Meta Pixel (Personnalisé)"
+                      variant="outlined"
+                      fullWidth
+                      placeholder="VOTRE-PIXEL-ID"
+                      helperText="ID du pixel Facebook/Instagram spécifique à ce SmartLink"
+                      disabled={!watch?.('analytics.customTracking.metaPixelOverride.enabled')}
+                      sx={{ mt: 1 }}
+                      InputProps={{
+                        endAdornment: (
+                          <Tooltip title="Pixel Meta qui remplacera ou s'ajoutera au pixel MDMC selon le mode choisi">
+                            <InfoIcon color="action" fontSize="small" sx={{ ml: 1 }} />
+                          </Tooltip>
+                        ),
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
+              
+              <Grid item xs={12} sm={6}>
+                <FormControlLabel
+                  control={
+                    <Controller
+                      name="analytics.customTracking.tiktokPixelOverride.enabled"
+                      control={control}
+                      defaultValue={false}
+                      render={({ field }) => (
+                        <Switch
+                          checked={field.value}
+                          onChange={field.onChange}
+                          color="primary"
+                        />
+                      )}
+                    />
+                  }
+                  label="Activer TikTok Pixel personnalisé"
+                />
+                
+                <Controller
+                  name="analytics.customTracking.tiktokPixelOverride.pixelId"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="TikTok Pixel (Personnalisé)"
+                      variant="outlined"
+                      fullWidth
+                      placeholder="VOTRE-TIKTOK-PIXEL"
+                      helperText="ID du pixel TikTok spécifique à ce SmartLink"
+                      disabled={!watch?.('analytics.customTracking.tiktokPixelOverride.enabled')}
+                      sx={{ mt: 1 }}
+                      InputProps={{
+                        endAdornment: (
+                          <Tooltip title="Pixel TikTok qui remplacera ou s'ajoutera au pixel MDMC selon le mode choisi">
+                            <InfoIcon color="action" fontSize="small" sx={{ ml: 1 }} />
+                          </Tooltip>
+                        ),
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
             </>
           )}
         </Grid>

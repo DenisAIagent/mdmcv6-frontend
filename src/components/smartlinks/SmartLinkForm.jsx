@@ -72,6 +72,14 @@ const SmartLinkForm = ({ smartLinkData = null, onFormSubmitSuccess }) => {
           gtmOverride: {
             enabled: smartLinkData?.analytics?.customTracking?.gtmOverride?.enabled || false,
             containerId: smartLinkData?.analytics?.customTracking?.gtmOverride?.containerId || ''
+          },
+          metaPixelOverride: {
+            enabled: smartLinkData?.analytics?.customTracking?.metaPixelOverride?.enabled || false,
+            pixelId: smartLinkData?.analytics?.customTracking?.metaPixelOverride?.pixelId || ''
+          },
+          tiktokPixelOverride: {
+            enabled: smartLinkData?.analytics?.customTracking?.tiktokPixelOverride?.enabled || false,
+            pixelId: smartLinkData?.analytics?.customTracking?.tiktokPixelOverride?.pixelId || ''
           }
         }
       },

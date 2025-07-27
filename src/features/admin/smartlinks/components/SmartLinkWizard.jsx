@@ -60,6 +60,14 @@ const SmartLinkWizard = () => {
           gtmOverride: {
             enabled: false,
             containerId: ''
+          },
+          metaPixelOverride: {
+            enabled: false,
+            pixelId: ''
+          },
+          tiktokPixelOverride: {
+            enabled: false,
+            pixelId: ''
           }
         }
       },
