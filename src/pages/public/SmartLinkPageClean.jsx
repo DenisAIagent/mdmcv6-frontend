@@ -92,79 +92,26 @@ const SmartLinkPageClean = () => {
   useEffect(() => {
     console.log("🎯 SmartLinkPageClean mounted with params:", { artistSlug, trackSlug });
     
-    const fetchSmartLink = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        console.log("🔗 Chargement SmartLink:", { artistSlug, trackSlug });
-        
-        const response = await apiService.smartlinks.getBySlugs(artistSlug, trackSlug);
-        
-        if (response && response.success && response.data) {
-          console.log("✅ SmartLink chargé:", response.data);
-          
-          // 🎨 DEBUG - Logs obligatoires pour diagnostic
-          console.log("🎨 DEBUG - SmartLink data:", response.data);
-          console.log("🎨 DEBUG - Cover URL:", response.data.smartLink?.artwork);
-          console.log("🎨 DEBUG - Cover URL type:", typeof response.data.smartLink?.artwork);
-          
-          setSmartLinkData(response.data);
-          
-          // 🌐 Mettre à jour les métadonnées sociales
-          setTimeout(() => {
-            updateMetaTags();
-          }, 100);
-          
-          // 🎨 BACKGROUND ARTWORK selon vos spécifications exactes
-          const artworkUrl = response.data.smartLink?.artwork;
-          console.log("🎨 Artwork URL found:", artworkUrl);
-          
-          // 🧪 Test 1 : URL Validity
-          const validateImageUrl = (url) => {
-            if (!url) return false;
-            if (typeof url !== 'string') return false;
-            if (!url.startsWith('http')) return false;
-            return true;
-          };
-          
-          // 🎨 Solution A : React State (RECOMMANDÉE)
-          if (validateImageUrl(artworkUrl)) {
-            console.log("🎨 DEBUG - Attempting to load:", artworkUrl);
-            console.log("🎨 DEBUG - URL validation passed");
-            
-            const img = new Image();
-            img.onload = () => {
-              console.log("✅ DEBUG - Image loaded successfully");
-              setBackgroundImage(artworkUrl);
-              setBackgroundLoaded(true);
-              console.log("🎨 DEBUG - React state updated with background image");
-            };
-            
-            img.onerror = (error) => {
-              console.error("❌ DEBUG - Image load failed:", artworkUrl, error);
-              console.error("Image load failed, using fallback");
-              setBackgroundLoaded(true); // Affiche le fallback
-            };
-            
-            img.src = artworkUrl;
-          } else {
-            console.warn("❌ DEBUG - Invalid image URL:", artworkUrl);
-            console.warn("🎨 No artwork URL found in SmartLink data");
-            setBackgroundLoaded(true); // Affiche le fallback
-          }
-        } else {
-          throw new Error(response?.error || "SmartLink non trouvé");
-        }
-      } catch (err) {
-        console.error("❌ Erreur SmartLink:", err);
-        setError(err.message || "Erreur de chargement");
-      } finally {
-        setLoading(false);
-      }
-    };
-
+    // 🚀 REDIRECTION VERS SYSTÈME BACKEND (Recommandation Manus.im)
+    // Le système backend garantit une détection 100% des balises par Tag Assistant
+    
     if (artistSlug && trackSlug) {
-      fetchSmartLink();
+      console.log("🔄 Redirection vers système backend pour Tag Assistant...");
+      
+      // Construire l'URL backend avec le slug combiné
+      const backendSlug = `${artistSlug}-${trackSlug}`;
+      const backendUrl = `https://api.mdmcmusicads.com/s/${backendSlug}`;
+      
+      // Préserver les paramètres UTM
+      const urlParams = new URLSearchParams(window.location.search);
+      const finalUrl = urlParams.toString() ? `${backendUrl}?${urlParams}` : backendUrl;
+      
+      console.log(`🎯 Redirection: ${window.location.href} → ${finalUrl}`);
+      
+      // Redirection transparente vers le système backend
+      window.location.replace(finalUrl);
+      
+      return; // Arrêter l'exécution
     } else {
       setError("Paramètres manquants");
       setLoading(false);
