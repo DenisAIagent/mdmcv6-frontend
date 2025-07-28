@@ -41,7 +41,7 @@
     const audioRef = React.useRef(null);
 
     // 🌍 Filtrage territorial des plateformes
-    const platformLinks = smartLinkData?.smartLink?.platformLinks || [];
+    const platformLinks = smartLinkData?.smartLink?.platforms || [];
     const {
       filtered: territorialPlatforms,
       isLoading: geoLoading,
@@ -111,9 +111,8 @@
 
             // 🎨 DEBUG - Logs obligatoires pour diagnostic
             console.log("🎨 DEBUG - SmartLink data:", response.data);
-            console.log("🎨 DEBUG - Cover URL:", response.data.smartLink?.coverImageUrl);
-            console.log("🎨 DEBUG - Cover URL type:", typeof
-  response.data.smartLink?.coverImageUrl);
+            console.log("🎨 DEBUG - Cover URL:", response.data.smartLink?.artwork);
+            console.log("🎨 DEBUG - Cover URL type:", typeof response.data.smartLink?.artwork);
 
             setSmartLinkData(response.data);
 
@@ -123,7 +122,7 @@
             }, 100);
 
             // 🎨 BACKGROUND ARTWORK selon vos spécifications exactes
-            const artworkUrl = response.data.smartLink?.coverImageUrl;
+            const artworkUrl = response.data.smartLink?.artwork;
             console.log("🎨 Artwork URL found:", artworkUrl);
 
             // 🧪 Test 1 : URL Validity
@@ -426,19 +425,16 @@
     }
 
     const { smartLink, artist } = smartLinkData;
-    const title = `${smartLink.trackTitle} - ${artist.name}`;
-    const coverImage = smartLink.coverImageUrl ||
-  "https://via.placeholder.com/120x120/f0f0f0/666?text=🎵";
+    const title = `${smartLink.title} - ${artist.name}`;
+    const coverImage = smartLink.artwork || null;
 
     return (
       <HelmetProvider>
         <Helmet>
           <title>{title}</title>
-          <meta name="description" content={`Listen to ${smartLink.trackTitle} by ${artist.name}
-  on your favorite platform.`} />
+          <meta name="description" content={`Listen to ${smartLink.title} by ${artist.name} on your favorite platform.`} />
           <meta property="og:title" content={title} />
-          <meta property="og:description" content={`Listen to ${smartLink.trackTitle} by
-  ${artist.name} on your favorite platform.`} />
+          <meta property="og:description" content={`Listen to ${smartLink.title} by ${artist.name} on your favorite platform.`} />
           <meta property="og:image" content={coverImage} />
           <meta property="og:type" content="music.song" />
         </Helmet>
@@ -467,11 +463,17 @@
                 }
               }}
             >
-              <img
-                src={coverImage}
-                alt={`${smartLink.trackTitle} - ${artist.name}`}
-                className="album-cover"
-              />
+              {coverImage ? (
+                <img
+                  src={coverImage}
+                  alt={`${smartLink.title} - ${artist.name}`}
+                  className="album-cover"
+                />
+              ) : (
+                <div className="album-cover-placeholder">
+                  <span className="placeholder-text">🎵</span>
+                </div>
+              )}
               {/* Afficher le bouton play seulement si on a une URL audio */}
               {smartLinkData?.smartLink?.previewAudioUrl && (
                 <div
@@ -488,7 +490,7 @@
             </div>
 
             {/* Titre de l'album centré */}
-            <h1 className="album-title">{smartLink.trackTitle}</h1>
+            <h1 className="album-title">{smartLink.title}</h1>
 
             {/* Nom de l'artiste */}
             <p className="artist-name">{artist.name}</p>
