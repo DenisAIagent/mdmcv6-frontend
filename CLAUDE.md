@@ -32,6 +32,16 @@
 - Responsive mobile-first
 - États visuels : hover, focus, active
 
+### ❌ JAMAIS DE FALLBACKS POUR LES LOGOS DE PLATEFORMES
+**RÈGLE CRITIQUE : Ne jamais créer de fallbacks/placeholders pour les logos de plateformes musicales.**
+
+- ❌ Pas de SVG data URIs générés automatiquement
+- ❌ Pas d'initiales des plateformes en fallback  
+- ❌ Pas de placeholders génériques
+- ✅ Si un logo de plateforme est manquant : ne rien afficher ou masquer l'élément
+- ✅ Utiliser uniquement les logos officiels des plateformes
+- **Raison :** Les fallbacks compromettent la valeur et l'authenticité du service SmartLinks
+
 ## Services proposés
 - Campagnes YouTube Ads
 - Meta Ads (Facebook/Instagram) 
@@ -47,4 +57,4 @@
 4. RGPD
 
 ---
-*Dernière mise à jour : 24 juillet 2025*
+*Dernière mise à jour : 28 juillet 2025*
