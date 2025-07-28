@@ -6,13 +6,59 @@ const platformLinkSchema = z.object({
   url: z.string().trim().url({ message: "URL invalide." })
 });
 
-// Schéma pour les IDs de suivi
+// Schéma pour les IDs de suivi (legacy - compatibilité)
 const trackingIdsSchema = z.object({
   ga4Id: z.string().trim().optional().or(z.literal('')), // Google Analytics 4
   gtmId: z.string().trim().optional().or(z.literal('')), // Google Tag Manager
   metaPixelId: z.string().trim().optional().or(z.literal('')), // Meta (Facebook) Pixel
   tiktokPixelId: z.string().trim().optional().or(z.literal('')), // TikTok Pixel
   googleAdsId: z.string().trim().optional().or(z.literal('')) // Google Ads Tag ID
+}).optional();
+
+// 🎯 SCHEMA ANALYTICS MANUS.IM - NOUVELLE STRUCTURE
+const analyticsConfigSchema = z.object({
+  // Analytics globaux MDMC
+  ga4: z.object({
+    measurementId: z.string().trim().optional().or(z.literal('')),
+    enabled: z.boolean().optional().default(true)
+  }).optional(),
+  gtm: z.object({
+    containerId: z.string().trim().optional().or(z.literal('')),
+    enabled: z.boolean().optional().default(true)
+  }).optional(),
+  metaPixel: z.object({
+    pixelId: z.string().trim().optional().or(z.literal('')),
+    enabled: z.boolean().optional().default(true)
+  }).optional(),
+  tiktokPixel: z.object({
+    pixelId: z.string().trim().optional().or(z.literal('')),
+    enabled: z.boolean().optional().default(false)
+  }).optional(),
+  
+  // Configuration tracking personnalisé
+  customTracking: z.object({
+    trackingMode: z.enum(['global', 'custom', 'hybrid']).optional().default('global'),
+    clientName: z.string().trim().max(100, { message: "Nom client trop long." }).optional().or(z.literal('')),
+    campaignName: z.string().trim().max(100, { message: "Nom campagne trop long." }).optional().or(z.literal('')),
+    
+    // Overrides pour codes personnalisés
+    ga4Override: z.object({
+      measurementId: z.string().trim().optional().or(z.literal('')),
+      enabled: z.boolean().optional().default(false)
+    }).optional(),
+    gtmOverride: z.object({
+      containerId: z.string().trim().optional().or(z.literal('')),
+      enabled: z.boolean().optional().default(false)
+    }).optional(),
+    metaPixelOverride: z.object({
+      pixelId: z.string().trim().optional().or(z.literal('')),
+      enabled: z.boolean().optional().default(false)
+    }).optional(),
+    tiktokPixelOverride: z.object({
+      pixelId: z.string().trim().optional().or(z.literal('')),
+      enabled: z.boolean().optional().default(false)
+    }).optional()
+  }).optional()
 }).optional();
 
 // Schéma principal pour le formulaire SmartLink
@@ -55,6 +101,7 @@ export const smartLinkSchema = z.object({
   platformLinks: z.array(platformLinkSchema)
     .min(1, { message: "Au moins un lien de plateforme est requis." }), 
   trackingIds: trackingIdsSchema,
+  analytics: analyticsConfigSchema,
   isPublished: z.boolean().optional().default(false),
   slug: z.string().trim().optional().or(z.literal('')), // Ajout du slug ici, car il est dans le formulaire
   utmSource: z.string().trim().max(100, { message: "utm_source trop long." }).optional().or(z.literal('')), 

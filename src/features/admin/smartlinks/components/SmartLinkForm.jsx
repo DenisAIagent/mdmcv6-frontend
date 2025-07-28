@@ -92,6 +92,45 @@ const SmartLinkForm = ({ smartLinkData = null, onFormSubmitSuccess }) => {
         metaPixelId: smartLinkData?.trackingIds?.metaPixelId || "",
         tiktokPixelId: smartLinkData?.trackingIds?.tiktokPixelId || "",
       },
+      analytics: {
+        ga4: {
+          measurementId: smartLinkData?.analytics?.ga4?.measurementId || "",
+          enabled: smartLinkData?.analytics?.ga4?.enabled ?? true
+        },
+        gtm: {
+          containerId: smartLinkData?.analytics?.gtm?.containerId || "",
+          enabled: smartLinkData?.analytics?.gtm?.enabled ?? true
+        },
+        metaPixel: {
+          pixelId: smartLinkData?.analytics?.metaPixel?.pixelId || "",
+          enabled: smartLinkData?.analytics?.metaPixel?.enabled ?? true
+        },
+        tiktokPixel: {
+          pixelId: smartLinkData?.analytics?.tiktokPixel?.pixelId || "",
+          enabled: smartLinkData?.analytics?.tiktokPixel?.enabled ?? false
+        },
+        customTracking: {
+          trackingMode: smartLinkData?.analytics?.customTracking?.trackingMode || "global",
+          clientName: smartLinkData?.analytics?.customTracking?.clientName || "",
+          campaignName: smartLinkData?.analytics?.customTracking?.campaignName || "",
+          ga4Override: {
+            measurementId: smartLinkData?.analytics?.customTracking?.ga4Override?.measurementId || "",
+            enabled: smartLinkData?.analytics?.customTracking?.ga4Override?.enabled ?? false
+          },
+          gtmOverride: {
+            containerId: smartLinkData?.analytics?.customTracking?.gtmOverride?.containerId || "",
+            enabled: smartLinkData?.analytics?.customTracking?.gtmOverride?.enabled ?? false
+          },
+          metaPixelOverride: {
+            pixelId: smartLinkData?.analytics?.customTracking?.metaPixelOverride?.pixelId || "",
+            enabled: smartLinkData?.analytics?.customTracking?.metaPixelOverride?.enabled ?? false
+          },
+          tiktokPixelOverride: {
+            pixelId: smartLinkData?.analytics?.customTracking?.tiktokPixelOverride?.pixelId || "",
+            enabled: smartLinkData?.analytics?.customTracking?.tiktokPixelOverride?.enabled ?? false
+          }
+        }
+      },
       isPublished: smartLinkData?.isPublished || false,
       slug: smartLinkData?.slug || "",
       utmSource: smartLinkData?.utmSource || "",
@@ -241,6 +280,49 @@ const SmartLinkForm = ({ smartLinkData = null, onFormSubmitSuccess }) => {
   };
 
   const onSubmitSmartLink = async (data) => {
+    // 🎯 Traitement des données analytics selon Manus.im
+    const processedAnalytics = data.analytics ? {
+      ga4: {
+        measurementId: data.analytics.ga4?.measurementId?.trim() || "",
+        enabled: data.analytics.ga4?.enabled ?? true
+      },
+      gtm: {
+        containerId: data.analytics.gtm?.containerId?.trim() || "",
+        enabled: data.analytics.gtm?.enabled ?? true
+      },
+      metaPixel: {
+        pixelId: data.analytics.metaPixel?.pixelId?.trim() || "",
+        enabled: data.analytics.metaPixel?.enabled ?? true
+      },
+      tiktokPixel: {
+        pixelId: data.analytics.tiktokPixel?.pixelId?.trim() || "",
+        enabled: data.analytics.tiktokPixel?.enabled ?? false
+      },
+      customTracking: {
+        trackingMode: data.analytics.customTracking?.trackingMode || "global",
+        clientName: data.analytics.customTracking?.clientName?.trim() || "",
+        campaignName: data.analytics.customTracking?.campaignName?.trim() || "",
+        ga4Override: {
+          measurementId: data.analytics.customTracking?.ga4Override?.measurementId?.trim() || "",
+          enabled: data.analytics.customTracking?.ga4Override?.enabled ?? false
+        },
+        gtmOverride: {
+          containerId: data.analytics.customTracking?.gtmOverride?.containerId?.trim() || "",
+          enabled: data.analytics.customTracking?.gtmOverride?.enabled ?? false
+        },
+        metaPixelOverride: {
+          pixelId: data.analytics.customTracking?.metaPixelOverride?.pixelId?.trim() || "",
+          enabled: data.analytics.customTracking?.metaPixelOverride?.enabled ?? false
+        },
+        tiktokPixelOverride: {
+          pixelId: data.analytics.customTracking?.tiktokPixelOverride?.pixelId?.trim() || "",
+          enabled: data.analytics.customTracking?.tiktokPixelOverride?.enabled ?? false
+        }
+      }
+    } : null;
+
+    console.log("🎯 Analytics processés pour soumission:", processedAnalytics);
+
     const submissionData = {
       ...data,
       templateType: selectedTemplate,
@@ -252,6 +334,7 @@ const SmartLinkForm = ({ smartLinkData = null, onFormSubmitSuccess }) => {
           ([_, value]) => value && String(value).trim() !== ""
         )
       ),
+      analytics: processedAnalytics,
       platformLinks: data.platformLinks.filter(
         (link) => link.platform && link.platform.trim() !== "" && link.url && link.url.trim() !== ""
       ),
@@ -302,6 +385,21 @@ const SmartLinkForm = ({ smartLinkData = null, onFormSubmitSuccess }) => {
             useDescriptionAsSubtitle: false,
             platformLinks: [{ platform: "", url: "" }],
             trackingIds: { ga4Id: "", gtmId: "", metaPixelId: "", tiktokPixelId: "" },
+            analytics: {
+              ga4: { measurementId: "", enabled: true },
+              gtm: { containerId: "", enabled: true },
+              metaPixel: { pixelId: "", enabled: true },
+              tiktokPixel: { pixelId: "", enabled: false },
+              customTracking: {
+                trackingMode: "global",
+                clientName: "",
+                campaignName: "",
+                ga4Override: { measurementId: "", enabled: false },
+                gtmOverride: { containerId: "", enabled: false },
+                metaPixelOverride: { pixelId: "", enabled: false },
+                tiktokPixelOverride: { pixelId: "", enabled: false }
+              }
+            },
             isPublished: false,
             slug: "",
             utmSource: "",
@@ -631,15 +729,258 @@ const SmartLinkForm = ({ smartLinkData = null, onFormSubmitSuccess }) => {
             </>
           )}
 
+          {/* 🎯 SECTION ANALYTICS MANUS.IM - MODES DE TRACKING */}
+          <Grid item xs={12}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold", mt: 3, mb: 2, color: "primary.main" }}>
+              🎯 Analytics & Tracking (Système Manus.im)
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 2, color: "text.secondary" }}>
+              Configuration avancée des analytics avec détection 100% Tag Assistant
+            </Typography>
+          </Grid>
+
+          {/* Mode de tracking */}
+          <Grid item xs={12} md={4}>
+            <FormControl fullWidth variant="outlined">
+              <InputLabel id="tracking-mode-label">Mode de tracking</InputLabel>
+              <Controller
+                name="analytics.customTracking.trackingMode"
+                control={control}
+                defaultValue="global"
+                render={({ field }) => (
+                  <Select
+                    labelId="tracking-mode-label"
+                    label="Mode de tracking"
+                    {...field}
+                  >
+                    <MenuItem value="global">
+                      Global - Codes MDMC par défaut
+                    </MenuItem>
+                    <MenuItem value="custom">
+                      Custom - Codes personnalisés client
+                    </MenuItem>
+                    <MenuItem value="hybrid">
+                      Hybrid - Global + Custom simultanément
+                    </MenuItem>
+                  </Select>
+                )}
+              />
+              <FormHelperText>
+                Global: utilise les codes MDMC | Custom: codes client uniquement | Hybrid: les deux
+              </FormHelperText>
+            </FormControl>
+          </Grid>
+
+          {/* Nom du client et campagne */}
+          <Grid item xs={12} md={4}>
+            <TextField
+              {...register("analytics.customTracking.clientName")}
+              label="Nom du client"
+              fullWidth
+              variant="outlined"
+              helperText="Ex: Jiro, Universal Music, etc."
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              {...register("analytics.customTracking.campaignName")}
+              label="Nom de la campagne"
+              fullWidth
+              variant="outlined"
+              helperText="Ex: Album Launch, Summer Campaign"
+            />
+          </Grid>
+
+          {/* Analytics globaux MDMC */}
           <Grid item xs={12}>
             <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: "medium", mt: 2 }}>
-              Paramètres de suivi (optionnel)
+              📊 Analytics Globaux MDMC
             </Typography>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={3}><TextField {...register("trackingIds.ga4Id")} label="Google Analytics 4 ID" fullWidth variant="outlined" error={!!errors.trackingIds?.ga4Id} helperText={errors.trackingIds?.ga4Id?.message}/></Grid>
-              <Grid item xs={12} sm={6} md={3}><TextField {...register("trackingIds.gtmId")} label="Google Tag Manager ID" fullWidth variant="outlined" error={!!errors.trackingIds?.gtmId} helperText={errors.trackingIds?.gtmId?.message}/></Grid>
-              <Grid item xs={12} sm={6} md={3}><TextField {...register("trackingIds.metaPixelId")} label="Meta Pixel ID" fullWidth variant="outlined" error={!!errors.trackingIds?.metaPixelId} helperText={errors.trackingIds?.metaPixelId?.message}/></Grid>
-              <Grid item xs={12} sm={6} md={3}><TextField {...register("trackingIds.tiktokPixelId")} label="TikTok Pixel ID" fullWidth variant="outlined" error={!!errors.trackingIds?.tiktokPixelId} helperText={errors.trackingIds?.tiktokPixelId?.message}/></Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  {...register("analytics.ga4.measurementId")}
+                  label="GA4 ID Global"
+                  fullWidth
+                  variant="outlined"
+                  placeholder="G-XXXXXXXXXX"
+                  helperText="Code GA4 principal MDMC"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  {...register("analytics.gtm.containerId")}
+                  label="GTM ID Global"
+                  fullWidth
+                  variant="outlined"
+                  placeholder="GTM-XXXXXXX"
+                  helperText="Code GTM principal MDMC"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  {...register("analytics.metaPixel.pixelId")}
+                  label="Meta Pixel Global"
+                  fullWidth
+                  variant="outlined"
+                  placeholder="123456789"
+                  helperText="Pixel Facebook/Meta MDMC"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  {...register("analytics.tiktokPixel.pixelId")}
+                  label="TikTok Pixel Global"
+                  fullWidth
+                  variant="outlined"
+                  placeholder="TIKTOK123"
+                  helperText="Pixel TikTok MDMC"
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+
+          {/* Analytics personnalisés client */}
+          <Grid item xs={12}>
+            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: "medium", mt: 2 }}>
+              🎨 Analytics Personnalisés Client
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 2, color: "text.secondary" }}>
+              Ces codes remplacent (mode custom) ou s'ajoutent (mode hybrid) aux codes globaux
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={3}>
+                <FormControlLabel
+                  control={
+                    <Controller
+                      name="analytics.customTracking.ga4Override.enabled"
+                      control={control}
+                      defaultValue={false}
+                      render={({ field }) => (
+                        <Switch
+                          checked={field.value}
+                          onChange={field.onChange}
+                          color="primary"
+                        />
+                      )}
+                    />
+                  }
+                  label="GA4 Custom"
+                />
+                <TextField
+                  {...register("analytics.customTracking.ga4Override.measurementId")}
+                  label="GA4 ID Client"
+                  fullWidth
+                  variant="outlined"
+                  placeholder="G-CLIENT-XXX"
+                  size="small"
+                  sx={{ mt: 1 }}
+                  helperText="Code GA4 spécifique client"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <FormControlLabel
+                  control={
+                    <Controller
+                      name="analytics.customTracking.gtmOverride.enabled"
+                      control={control}
+                      defaultValue={false}
+                      render={({ field }) => (
+                        <Switch
+                          checked={field.value}
+                          onChange={field.onChange}
+                          color="primary"
+                        />
+                      )}
+                    />
+                  }
+                  label="GTM Custom"
+                />
+                <TextField
+                  {...register("analytics.customTracking.gtmOverride.containerId")}
+                  label="GTM ID Client"
+                  fullWidth
+                  variant="outlined"
+                  placeholder="GTM-CLIENT-X"
+                  size="small"
+                  sx={{ mt: 1 }}
+                  helperText="Code GTM spécifique client"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <FormControlLabel
+                  control={
+                    <Controller
+                      name="analytics.customTracking.metaPixelOverride.enabled"
+                      control={control}
+                      defaultValue={false}
+                      render={({ field }) => (
+                        <Switch
+                          checked={field.value}
+                          onChange={field.onChange}
+                          color="primary"
+                        />
+                      )}
+                    />
+                  }
+                  label="Meta Custom"
+                />
+                <TextField
+                  {...register("analytics.customTracking.metaPixelOverride.pixelId")}
+                  label="Meta Pixel Client"
+                  fullWidth
+                  variant="outlined"
+                  placeholder="987654321"
+                  size="small"
+                  sx={{ mt: 1 }}
+                  helperText="Pixel Meta spécifique client"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <FormControlLabel
+                  control={
+                    <Controller
+                      name="analytics.customTracking.tiktokPixelOverride.enabled"
+                      control={control}
+                      defaultValue={false}
+                      render={({ field }) => (
+                        <Switch
+                          checked={field.value}
+                          onChange={field.onChange}
+                          color="primary"
+                        />
+                      )}
+                    />
+                  }
+                  label="TikTok Custom"
+                />
+                <TextField
+                  {...register("analytics.customTracking.tiktokPixelOverride.pixelId")}
+                  label="TikTok Pixel Client"
+                  fullWidth
+                  variant="outlined"
+                  placeholder="TIKTOK-CLIENT"
+                  size="small"
+                  sx={{ mt: 1 }}
+                  helperText="Pixel TikTok spécifique client"
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+
+          {/* Section compatibilité ancienne */}
+          <Grid item xs={12}>
+            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: "medium", mt: 2, color: "warning.main" }}>
+              ⚠️ Compatibilité Ancienne Système (Déprécié)
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 2, color: "text.secondary" }}>
+              Ces champs sont conservés pour la compatibilité. Utilisez plutôt la configuration ci-dessus.
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={3}><TextField {...register("trackingIds.ga4Id")} label="GA4 ID (Legacy)" fullWidth variant="outlined" size="small" disabled error={!!errors.trackingIds?.ga4Id} helperText={errors.trackingIds?.ga4Id?.message}/></Grid>
+              <Grid item xs={12} sm={6} md={3}><TextField {...register("trackingIds.gtmId")} label="GTM ID (Legacy)" fullWidth variant="outlined" size="small" disabled error={!!errors.trackingIds?.gtmId} helperText={errors.trackingIds?.gtmId?.message}/></Grid>
+              <Grid item xs={12} sm={6} md={3}><TextField {...register("trackingIds.metaPixelId")} label="Meta Pixel (Legacy)" fullWidth variant="outlined" size="small" disabled error={!!errors.trackingIds?.metaPixelId} helperText={errors.trackingIds?.metaPixelId?.message}/></Grid>
+              <Grid item xs={12} sm={6} md={3}><TextField {...register("trackingIds.tiktokPixelId")} label="TikTok Pixel (Legacy)" fullWidth variant="outlined" size="small" disabled error={!!errors.trackingIds?.tiktokPixelId} helperText={errors.trackingIds?.tiktokPixelId?.message}/></Grid>
             </Grid>
           </Grid>
 
