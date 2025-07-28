@@ -732,7 +732,7 @@ const SmartLinkForm = ({ smartLinkData = null, onFormSubmitSuccess }) => {
           {/* 🎯 SECTION ANALYTICS MANUS.IM - MODES DE TRACKING */}
           <Grid item xs={12}>
             <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold", mt: 3, mb: 2, color: "primary.main" }}>
-              🎯 Analytics & Tracking (Système Manus.im)
+              🎯 Analytics & Tracking (Système Manus.im - v2.0)
             </Typography>
             <Typography variant="body2" sx={{ mb: 2, color: "text.secondary" }}>
               Configuration avancée des analytics avec détection 100% Tag Assistant
