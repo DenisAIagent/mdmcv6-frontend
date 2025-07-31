@@ -223,13 +223,13 @@ class ApiService {
       });
     },
 
-    fetchPlatformLinks: async (sourceUrl) => {
-      console.log('🔗 SmartLinks: Récupération liens plateformes...', sourceUrl);
-      return await this.request('/smartlinks/fetch-platform-links', {
-        method: 'POST',
-        body: JSON.stringify({ sourceUrl })
-      });
-    }
+fetchPlatformLinks: async (sourceUrl, userCountry = 'FR') => {
+  console.log('🔗 SmartLinks: Récupération liens plateformes...', { sourceUrl, userCountry });
+  return await this.request('/smartlinks/fetch-platform-links', {
+    method: 'POST',
+    body: JSON.stringify({ sourceUrl, userCountry })
+  });
+}
   };
 
   // SERVICE MUSIC PLATFORM - Sans fallback
